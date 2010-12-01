@@ -1,0 +1,68 @@
+h1, h2
+    border-style: solid
+    border-color: blue
+    border-width: 0 0 1px 8px
+    padding-left: 10px
+    background-color: #f0f0f0
+    font-size: 170%
+
+h2, h3, h4, h5, h6, div
+    margin-left: 5px
+
+#title
+    color: #7b68ee
+    font-size: 200%
+    font-weight: bold
+
+#pandoc-TOC-Title
+    font-size: 110%
+    font-weight: bold
+    margin: 0.3em 0 0.5em 5em
+    text-decoration: underline
+
+#pandoc-TOC
+    background-color: #eeeeee
+    border: 1px solid #333333
+    font-size: 90%
+    margin-left: 4em
+    padding: 0.8em
+    width: 40em
+
+#pandoc-TOC ul
+    margin: 0 0 0 2.5em
+    padding: 0
+
+a:hover
+    color: #ffffff
+    background-color: #f9a0bc
+
+h1 a, h2 a, h3 a, h4 a, h5 a, h6 a
+    text-decoration: none
+
+blockquote
+    padding: 5px 10px 5px 20px
+    border: dotted 2px orange
+
+div.preview
+    background-color: #f8f8f8
+    padding: 10px
+
+textarea.content
+    width: 80%
+    height: 40em
+
+table
+    border: solid 1px #000000
+    border-collapse: collapse
+tr.odd
+    background-color: #efffcf
+tr.even
+    background-color: #ffffff
+
+td
+    border: solid 1px #000000
+
+th
+    border: solid 1px #000000
+    background-color: #a0ff80
+    border-bottom: double

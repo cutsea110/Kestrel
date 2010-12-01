@@ -1,0 +1,16 @@
+!align=right
+  $if (not isTop)
+    %a!href=@?topView@ Top
+
+  %a!href=@?editMe@ Edit
+
+  $maybe mu u
+    %a!href=@AuthR.LogoutR@ Logout
+  $nothing
+    %a!href=@AuthR.LoginR@ Login
+
+%hr
+
+There is no page '$path$'. You maycreate the page by $
+%a!href=@?editMe@ Clicking here
+\.

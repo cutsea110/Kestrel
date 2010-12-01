@@ -1,0 +1,10 @@
+!!!
+%html
+    %head
+        %title $pageTitle.pc$
+        ^pageHead.pc^
+    %body
+        %div#title $pageTitle.pc$
+        $maybe mmsg msg
+            #message $msg$
+        ^pageBody.pc^

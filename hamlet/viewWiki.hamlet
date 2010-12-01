@@ -1,0 +1,14 @@
+!align=right
+  $if (not isTop)
+    %a!href=@?topView@ Top
+
+  %a!href=@?editMe@ Edit
+
+  $maybe mu u
+    %a!href=@AuthR.LogoutR@ Logout
+  $nothing
+    %a!href=@AuthR.LoginR@ Login
+
+%hr
+
+$content$

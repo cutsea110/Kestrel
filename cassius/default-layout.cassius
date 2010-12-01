@@ -1,0 +1,11 @@
+body
+    font-family: sans-serif
+
+div#message
+    font-size: 150%
+    color: red
+    margin: 3px
+    padding: 10px
+    border: solid 2px red
+    backgroud-color: #ffc0a0
+

@@ -1,0 +1,12 @@
+/* Custom CSS for Haskell */
+@import url("css/hk-kate.css");
+
+pre.sourceCode span.ModuleName { color: blue; } 
+pre.sourceCode span.Keyword { color: #000080; }
+pre.sourceCode span.Function { }
+pre.sourceCode span.FunctionDefinition { color: green; }
+pre.sourceCode span.Class { color: #800080; text-decoration: underline; font-weight: normal; }
+pre.sourceCode span.Constructor { text-decoration: underline; }
+pre.sourceCode span.DataConstructor { color: #000080; }
+pre.sourceCode span.TypeConstructor { text-decoration: underline; }
+pre.sourceCode span.InfixOperator { color: #808080; }

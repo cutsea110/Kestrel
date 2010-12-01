@@ -1,0 +1,14 @@
+!align=right
+  $if (not isTop)
+    %a!href=@?topView@ Top
+
+  %a!href=@AuthR.LogoutR@ Logout
+
+%hr
+
+%form!method=post!action=@WikiR.wp@
+  %input!type=hidden!name=version!value=$show.ver$
+  %textarea.content!name=content $raw$
+  %br
+  %input!type=submit!name=preview!value=preview
+  %input!type=submit!name=commit!value=commit

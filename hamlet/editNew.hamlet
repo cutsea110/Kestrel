@@ -1,0 +1,14 @@
+!align=right
+  $if (not isTop)
+    %a!href=@?topView@ Top
+
+  %a!href=@AuthR.LogoutR@ Logout
+
+%hr
+
+%form!method=post!action=@NewR@
+  %input!type=hidden!name=path!value=$path'$
+  %textarea.content!name=content
+  %br
+  %input!type=submit!name=preview!value=preview
+  %input!type=submit!name=commit!value="new create"
