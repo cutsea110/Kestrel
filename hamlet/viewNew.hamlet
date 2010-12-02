@@ -1,13 +1,8 @@
-!align=right
-  $if (not isTop)
-    %a!href=@?topView@ Top
-
+.navbar
   %a!href=@?editMe@ Edit
-
-  $maybe mu u
-    %a!href=@AuthR.LogoutR@ Logout
-  $nothing
-    %a!href=@AuthR.LoginR@ Login
+$if (not isTop)
+  .navbar
+    %a!href=@?topView@ Top
 
 %hr
 

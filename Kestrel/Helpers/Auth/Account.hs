@@ -5,6 +5,7 @@ module Kestrel.Helpers.Auth.Account
     , YesodAuthAccount (..)
     , AccountCreds (..)
     , saltPass
+    , setpassR
     ) where
 
 import Yesod
@@ -17,9 +18,9 @@ import Data.Digest.Pure.MD5
 import qualified Data.Text.Lazy as T
 import Data.Text.Lazy.Encoding (encodeUtf8)
 
-login, setpass :: AuthRoute
+login, setpassR :: AuthRoute
 login = PluginR "account" ["login"]
-setpass = PluginR "account" ["set-password"]
+setpassR = PluginR "account" ["set-password"]
 
 type Account = String
 type SaltedPass = String
@@ -120,7 +121,7 @@ getPasswordR = do
             [$hamlet|
 #endif
 %h3 Set a new password
-%form!method=post!action=@toMaster.setpass@
+%form!method=post!action=@toMaster.setpassR@
     %table
         %tr
             %th New password
@@ -143,7 +144,7 @@ postPasswordR = do
     toMaster <- getRouteToMaster
     when (new /= confirm) $ do
         setMessage $ string "Passwords did not match, please try again"
-        redirect RedirectTemporary $ toMaster setpass
+        redirect RedirectTemporary $ toMaster setpassR
     maid <- maybeAuthId
     aid <- case maid of
             Nothing -> do

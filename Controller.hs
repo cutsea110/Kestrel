@@ -9,6 +9,7 @@ import Settings
 import Yesod.Helpers.Static
 import Yesod.Helpers.Auth
 import Database.Persist.GenericSql
+import Yesod.Helpers.Crud
 
 -- Import all relevant handler modules here.
 import Handler.Root

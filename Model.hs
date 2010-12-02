@@ -14,6 +14,7 @@ User
     ident String Asc
     password String Update
     UniqueUser ident
+    deriving
 
 Wiki
     path String Asc

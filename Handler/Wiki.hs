@@ -114,7 +114,6 @@ getWikiR wp = do
     -- Pages    
     viewWiki :: Handler RepHtml
     viewWiki = do
-      mu <- maybeAuth
       wiki <- getwiki
       case wiki of
         Nothing -> notFound
@@ -215,7 +214,6 @@ getNewR = do
   where
     viewNew :: Handler RepHtml
     viewNew = do
-      mu <- maybeAuth
       path'' <- lookupGetParam "path"
       case path'' of
         Nothing -> invalidArgs ["'path' query paramerter is required"]
@@ -238,6 +236,7 @@ getNewR = do
         Just path' -> do
           let path = decodeUrl path'
           let isTop = path==""
+          let viewMe = (NewR, [("path", path'), ("mode", "v")])
           defaultLayout $ do
             setTitle $ string $ if isTop then topTitle else path
             addCassius $(cassiusFile "wiki")
@@ -263,7 +262,7 @@ postNewR = do
         uncurry (liftM2 (,)) (lookupPostParam "path", lookupPostParam "content")
       case params of
         (Nothing, Nothing) -> invalidArgs ["'path' and 'content' query parameters are required"]
-        (Nothing,  _)      -> invalidArgs ["'path' query parameter is required"]
+        (Nothing, _      ) -> invalidArgs ["'path' query parameter is required"]
         (_,       Nothing) -> invalidArgs ["'content' query parameter is required"]
         (Just path', Just raw) -> do
           let path = decodeUrl path'
@@ -272,7 +271,8 @@ postNewR = do
             return $ mkWikiDictionary pages'
           let pandoc = readDoc raw
           let content = preEscapedString $ writeHtmlStr render pages $ pandoc
-          let isTop = path /= ""
+          let isTop = path == ""
+          let viewMe = (NewR, [("path", path'), ("mode", "v")])
           defaultLayout $ do
             setTitle $ string $ if isTop then topTitle else path
             addCassius $(cassiusFile "wiki")

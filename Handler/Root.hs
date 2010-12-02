@@ -17,7 +17,6 @@ import qualified Data.Map as Map (lookup, fromList)
 
 getRootR :: Handler RepHtml
 getRootR = do
-    mu <- maybeAuth
     let wikiTop = WikiPage []
     defaultLayout $ do
         h2id <- newIdent

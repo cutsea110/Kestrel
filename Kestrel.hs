@@ -1,4 +1,4 @@
-{-# LANGUAGE QuasiQuotes, TemplateHaskell, TypeFamilies #-}
+{-# LANGUAGE QuasiQuotes, TemplateHaskell, TypeFamilies, MultiParamTypeClasses, OverloadedStrings #-}
 module Kestrel
     ( Kestrel (..)
     , KestrelRoute (..)
@@ -21,12 +21,16 @@ module Kestrel
     , fromPath
     , ancestory
     , topTitle
+    , setpassR -- Auth.Account
+      --
+    , UserCrud
     ) where
 
 import Yesod
 import Yesod.Helpers.Static
 import Yesod.Helpers.Auth
 import Yesod.Helpers.Auth.OpenId
+import Yesod.Helpers.Crud
 import qualified Settings
 import Settings (hamletFile, cassiusFile, juliusFile, widgetFile)
 import System.Directory
@@ -35,6 +39,7 @@ import Web.Routes.Site (Site (formatPathSegments))
 import Database.Persist.GenericSql
 import Data.Maybe (isJust)
 import Control.Monad (join, unless)
+import Control.Applicative ((<$>),(<*>))
 import Network.Mail.Mime
 import qualified Data.Text.Lazy
 import qualified Data.Text.Lazy.Encoding
@@ -91,6 +96,8 @@ mkYesodData "Kestrel" [$parseRoutes|
 
 / RootR GET
 
+/admin AdminR UserCrud defaultCrud
+
 /wiki/*WikiPage     WikiR GET POST
 /new NewR  GET POST
 |]
@@ -108,7 +115,7 @@ topView :: (KestrelRoute, [(String, String)])
 topView = (WikiR topPage, [("mode","v")])
 
 pathOf :: WikiPage -> String
-pathOf = concat . intersperse ":" . unWikiPage
+pathOf = intercalate ":" . unWikiPage
 
 fromPath :: String -> WikiPage
 fromPath path = WikiPage $ splitOn ":" path
@@ -125,6 +132,7 @@ instance Yesod Kestrel where
     approot _ = Settings.approot
     
     defaultLayout widget = do
+        mu <- maybeAuth
         mmsg <- getMessage
         pc <- widgetToPageContent $ do
             widget
@@ -167,7 +175,17 @@ instance Yesod Kestrel where
 instance YesodPersist Kestrel where
     type YesodDB Kestrel = SqlPersist
     runDB db = fmap connPool getYesod >>= Settings.runConnectionPool db
+    
+instance Item User where
+  itemTitle = userIdent
 
+type UserCrud = Crud Kestrel User
+
+instance ToForm User Kestrel where
+  toForm mu = fieldsToTable $ User
+              <$> stringField "ident" (fmap userIdent mu)
+              <*> passwordField "password" (fmap userPassword mu)
+  
 instance YesodAuth Kestrel where
     type AuthId Kestrel = UserId
 
