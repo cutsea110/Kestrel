@@ -11,6 +11,7 @@ import Text.XHtml.Strict (showHtmlFragment)
 import Data.Char (toLower)
 import qualified Text.ParserCombinators.Parsec as P
 import Data.Time
+import System.Locale
 import Control.Applicative ((<$>),(<*>))
 import qualified Data.Map as Map (lookup, fromList)
 import Web.Encodings (encodeUrl, decodeUrl)
@@ -84,6 +85,9 @@ findRight p (a:as) = case p a of
 -- mkWikiDictionary :: [(Key Wiki, Wiki)] -> Map.Map String Wiki
 mkWikiDictionary = Map.fromList . map (((,).wikiPath.snd) <*> snd)
 
+showDate :: UTCTime -> String
+showDate = formatTime defaultTimeLocale "%Y-%m-%d %H:%M:%S"
+
 getWikiR :: WikiPage -> Handler RepHtml
 getWikiR wp = do
   mode <- lookupGetParam "mode"
@@ -94,22 +98,23 @@ getWikiR wp = do
     Nothing  {- default mode -} -> viewWiki  -- FIXME
   where
     -- Utility
-    getwiki :: Handler (Maybe (String, String, Html, Int, Bool))
+    getwiki :: Handler (Maybe (String, String, Html, UTCTime, Int, Maybe User, Bool))
     getwiki = do
       render <- getUrlRenderParams
       let path = pathOf wp
-      (page, pages) <- runDB $ do
+      runDB $ do
         page'  <- getBy $ UniqueWiki path
-        pages' <- selectList [] [WikiPathAsc, WikiUpdatedDesc] 0 0
-        return (page', mkWikiDictionary pages')
-      case page of
-        Nothing -> return Nothing
-        Just p  -> do
-          let (raw, ver) = ((,).wikiContent) <*> wikiVersion $ snd p
-          let pandoc = readDoc raw
-          let content = preEscapedString $ writeHtmlStr render pages $ pandoc
-          let isTop = wp == topPage
-          return $ Just (path, raw, content, ver, isTop)
+        case page' of
+          Nothing -> return Nothing
+          Just (_, p) -> do
+            pages' <- selectList [] [WikiPathAsc, WikiUpdatedDesc] 0 0
+            me <- get $ wikiEditor p
+            let (raw, upd, ver) = (wikiContent p, wikiUpdated p, wikiVersion p)
+            let pandoc = readDoc raw
+            let pages = mkWikiDictionary pages'
+            let content = preEscapedString $ writeHtmlStr render pages $ pandoc
+            let isTop = wp == topPage
+            return $ Just (path, raw, content, upd, ver, me, isTop)
     
     -- Pages    
     viewWiki :: Handler RepHtml
@@ -117,7 +122,7 @@ getWikiR wp = do
       wiki <- getwiki
       case wiki of
         Nothing -> notFound
-        Just (path, raw, content, ver, isTop) -> do
+        Just (path, raw, content, upd, ver, me, isTop) -> do
           let editMe = (WikiR wp, [("mode", "e")])
           defaultLayout $ do
             setTitle $ string $ if isTop then topTitle else path
@@ -131,7 +136,7 @@ getWikiR wp = do
       wiki <- getwiki
       case wiki of
         Nothing -> notFound
-        Just (path, raw, content, ver, isTop) -> do
+        Just (path, raw, content, upd, ver, editor, isTop) -> do
           defaultLayout $ do
             setTitle $ string $ if isTop then topTitle else path
             addCassius $(cassiusFile "wiki")
