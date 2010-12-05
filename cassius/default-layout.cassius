@@ -9,3 +9,6 @@ div#message
     border: solid 2px red
     backgroud-color: #ffc0a0
 
+.errors
+    color: red
+    font-style: italic

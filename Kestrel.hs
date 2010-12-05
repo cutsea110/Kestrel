@@ -196,18 +196,28 @@ instance ToForm User Kestrel where
 
 userCrud :: Kestrel -> Crud Kestrel User
 userCrud = const Crud
-           { crudSelect = runDB $ selectList [] [] 0 0
-           , crudReplace = \k a -> runDB $ do
-                                   if null (userPassword a)
-                                     then do
-                                     Just a' <- get k
-                                     replace k $ User (userIdent a) (userPassword a')
-                                     else do
-                                     salted <- liftIO $ saltPass $ userPassword a
-                                     replace k $ User (userIdent a) salted
-           , crudInsert = runDB . insert
-           , crudGet = runDB . get
-           , crudDelete = runDB . delete
+           { crudSelect = do
+                _ <- requireAuth
+                runDB $ selectList [] [] 0 0
+           , crudReplace = \k a -> do
+                _ <- requireAuth
+                runDB $ do
+                  if null (userPassword a)
+                    then do
+                    Just a' <- get k
+                    replace k $ User (userIdent a) (userPassword a')
+                    else do
+                    salted <- liftIO $ saltPass $ userPassword a
+                    replace k $ User (userIdent a) salted
+           , crudInsert = \a -> do
+                _ <- requireAuth
+                runDB $ insert a
+           , crudGet = \k -> do
+                _ <- requireAuth
+                runDB $ get k
+           , crudDelete = \k -> do
+                _ <- requireAuth
+                runDB $ delete k
            }
 
 instance YesodAuth Kestrel where
