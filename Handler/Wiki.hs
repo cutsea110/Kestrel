@@ -147,7 +147,7 @@ postWikiR wp = do
     (Nothing, Nothing) -> invalidArgs ["'preview' or 'commit' parameter is required"]
     (Just _,  Just _)  -> invalidArgs ["'preview' and 'commit' parameters are alternative"]
     (Just _,  Nothing) -> previewWiki
-    (Nothing, Just _)  -> updateWiki
+    (Nothing, Just _)  -> updateWiki uid
   where
     previewWiki :: Handler RepHtml
     previewWiki = do
@@ -168,8 +168,8 @@ postWikiR wp = do
         addStylesheet $ StaticR hk_kate_css
         addWidget $(widgetFile "previewWiki")
     
-    updateWiki :: Handler RepHtml
-    updateWiki = do
+    updateWiki :: UserId -> Handler RepHtml
+    updateWiki uid = do
       render <- getUrlRenderParams
       let path = pathOf wp
       now <- liftIO getCurrentTime
@@ -192,9 +192,10 @@ postWikiR wp = do
                 , wikiHistoryEditor=(wikiEditor page)
                 , wikiHistoryDeleted=False
                 }
-              update pid [WikiContent raw, WikiUpdated now, WikiVersionAdd 1]
+              update pid [WikiContent raw, WikiUpdated now, WikiVersionAdd 1, WikiEditor uid]
               return $ Just pid
               else do
+              -- FIXME Conflict?
               lift $ setMessage $ string "conflict occured. can't save your modify."
               return $ Just pid
       case id of
