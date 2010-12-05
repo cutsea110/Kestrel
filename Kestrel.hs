@@ -29,6 +29,7 @@ module Kestrel
     , setpassR -- Auth.Account
       --
     , UserCrud
+    , userCrud
     ) where
 
 import Yesod
@@ -101,7 +102,7 @@ mkYesodData "Kestrel" [$parseRoutes|
 
 / RootR GET
 
-/admin AdminR UserCrud defaultCrud
+/admin AdminR UserCrud userCrud
 
 /wiki/*WikiPage     WikiR GET POST
 /new NewR  GET POST
@@ -113,7 +114,7 @@ instance MultiPiece WikiPage where
   fromMultiPiece = Right . WikiPage
 
 topTitle :: String
-topTitle = "Kestrel WIKI"
+topTitle = "Kestrel = WIKI"
 topPage :: WikiPage
 topPage = WikiPage []
 topView :: (KestrelRoute, [(String, String)])
@@ -140,8 +141,10 @@ instance Yesod Kestrel where
         mu <- maybeAuth
         mmsg <- getMessage
         pc <- widgetToPageContent $ do
-            widget
-            addCassius $(Settings.cassiusFile "default-layout")
+          widget
+          addCassius $(Settings.cassiusFile "default-layout")
+        let header = $(hamletFile "header")
+        let footer = $(hamletFile "footer")
         hamletToRepHtml $(Settings.hamletFile "default-layout")
 
     -- This is done to provide an optimization for serving static files from
@@ -189,9 +192,23 @@ type UserCrud = Crud Kestrel User
 instance ToForm User Kestrel where
   toForm mu = fieldsToTable $ User
               <$> stringField "ident" (fmap userIdent mu)
-              <*> passwordField "password" (fmap userPassword mu)
+              <*> passwordField' "password" (fmap userPassword mu)
 
--- userCrud = defaultCrud
+userCrud :: Kestrel -> Crud Kestrel User
+userCrud = const Crud
+           { crudSelect = runDB $ selectList [] [] 0 0
+           , crudReplace = \k a -> runDB $ do
+                                   if null (userPassword a)
+                                     then do
+                                     Just a' <- get k
+                                     replace k $ User (userIdent a) (userPassword a')
+                                     else do
+                                     salted <- liftIO $ saltPass $ userPassword a
+                                     replace k $ User (userIdent a) salted
+           , crudInsert = runDB . insert
+           , crudGet = runDB . get
+           , crudDelete = runDB . delete
+           }
 
 instance YesodAuth Kestrel where
     type AuthId Kestrel = UserId

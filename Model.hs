@@ -1,7 +1,9 @@
 {-# LANGUAGE QuasiQuotes, TypeFamilies, GeneralizedNewtypeDeriving #-}
+{-# LANGUAGE CPP #-}
 module Model where
 
 import Yesod
+import Yesod.Form.Core
 import Database.Persist.TH (share2)
 import Database.Persist.GenericSql (mkMigrate)
 import Data.Time
@@ -12,7 +14,7 @@ import Data.Time
 share2 mkPersist (mkMigrate "migrateAll") [$persist|
 User
     ident String Asc
-    password String Update
+    password String Update toFormField=passwordField'
     UniqueUser ident
     deriving
 
@@ -33,6 +35,24 @@ WikiHistory
     editor UserId
     deleted Bool default=false Eq
 |]
+
+passwordField' :: (IsForm f, FormType f ~ String)
+              => FormFieldSettings -> Maybe String -> f
+passwordField' = requiredFieldHelper passwordFieldProfile'
+  where
+    passwordFieldProfile' :: FieldProfile s m String
+    passwordFieldProfile' = FieldProfile
+      { fpParse = Right
+      , fpRender = const ""
+      , fpWidget = \theId name val isReq -> addHamlet
+#if GHC7
+[hamlet|
+#else
+[$hamlet|
+#endif
+%input#$theId$!name=$name$!type=password!:isReq:required!value=$val$
+|]
+      }
 
 -- manually insert first User
 -- account  : kestrel

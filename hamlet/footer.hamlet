@@ -1,0 +1,4 @@
+%hr
+!align=center
+  powered by $
+  %a!href="http://docs.yesodweb.com" yesod.

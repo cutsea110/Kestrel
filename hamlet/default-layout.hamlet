@@ -5,13 +5,8 @@
         ^pageHead.pc^
     %body
         #title $pageTitle.pc$
-        !align=right
-          $maybe mu u
-            Now Logged in as $userIdent.snd.u$. $
-            %a!href=@AuthR.LogoutR@ Logout
-            %a!href=@AuthR.setpassR@ Change Password
-          $nothing
-            %a!href=@AuthR.LoginR@ Login
+        ^header^
         $maybe mmsg msg
             #message $msg$
         ^pageBody.pc^
+        ^footer^
