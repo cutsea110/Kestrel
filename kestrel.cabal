@@ -34,7 +34,7 @@ executable         simple-server
                  , hamlet
                  , web-routes
                  , hjsmin       >= 0.0.4   && < 0.1
-                 , web-encodings = 0.3.0.4
+                 , web-encodings == 0.3.0.4
                  , highlighting-kate
                  , pandoc
                  , split

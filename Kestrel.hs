@@ -1,4 +1,9 @@
-{-# LANGUAGE QuasiQuotes, TemplateHaskell, TypeFamilies, MultiParamTypeClasses, OverloadedStrings #-}
+{-# LANGUAGE QuasiQuotes, TemplateHaskell, TypeFamilies #-}
+{-# LANGUAGE MultiParamTypeClasses #-}
+{-# LANGUAGE OverloadedStrings #-}
+{-# LANGUAGE FlexibleContexts #-}
+{-# LANGUAGE FlexibleInstances #-}
+{-# LANGUAGE Rank2Types #-}
 module Kestrel
     ( Kestrel (..)
     , KestrelRoute (..)
@@ -46,7 +51,7 @@ import qualified Data.Text.Lazy.Encoding
 import Text.Jasmine (minifym)
 
 import Kestrel.Helpers.Auth.Account
-import Data.List
+import Data.List (intercalate, inits)
 import Data.List.Split (splitOn)
 
 import Model
@@ -185,7 +190,9 @@ instance ToForm User Kestrel where
   toForm mu = fieldsToTable $ User
               <$> stringField "ident" (fmap userIdent mu)
               <*> passwordField "password" (fmap userPassword mu)
-  
+
+-- userCrud = defaultCrud
+
 instance YesodAuth Kestrel where
     type AuthId Kestrel = UserId
 
