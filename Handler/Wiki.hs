@@ -5,16 +5,8 @@ import Kestrel
 import Kestrel.WikiParser
 
 import Control.Monad
-import Text.Pandoc
-import Text.Pandoc.Shared
-import qualified Text.Highlighting.Kate as Kate
-import Text.XHtml.Strict (showHtmlFragment)
-import Data.Char (toLower)
-import qualified Text.ParserCombinators.Parsec as P
 import Data.Time
-import System.Locale
 import Control.Applicative ((<$>),(<*>))
-import qualified Data.Map as Map (lookup, fromList)
 import Web.Encodings (encodeUrl, decodeUrl)
 
 import StaticFiles
@@ -39,7 +31,7 @@ getWikiR wp = do
           Just (_, p) -> do
             me <- get $ wikiEditor p
             let (raw, upd, ver) = (wikiContent p, wikiUpdated p, wikiVersion p)
-            content <- markdownToWikiHtml raw
+            content <- markdownToWikiHtml wikiWriterOption raw
             let isTop = wp == topPage
             return $ Just (path, raw, content, upd, ver, me, isTop)
     
@@ -87,7 +79,7 @@ postWikiR wp = do
       (raw, ver) <- runFormPost' $ (,)
                     <$> stringInput "content"
                     <*> intInput "version"
-      content <- runDB $ markdownToWikiHtml raw
+      content <- runDB $ markdownToWikiHtml wikiWriterOption raw
       let isTop = wp == topPage
       defaultLayout $ do
         setTitle $ string $ if isTop then topTitle else path
@@ -192,7 +184,7 @@ postNewR = do
         (_,       Nothing) -> invalidArgs ["'content' query parameter is required"]
         (Just path', Just raw) -> do
           let path = decodeUrl path'
-          content <- runDB $ markdownToWikiHtml raw
+          content <- runDB $ markdownToWikiHtml wikiWriterOption raw
           let isTop = path == ""
           let viewMe = (NewR, [("path", path'), ("mode", "v")])
           defaultLayout $ do

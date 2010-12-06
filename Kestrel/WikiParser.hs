@@ -1,5 +1,8 @@
 module Kestrel.WikiParser 
        ( markdownToWikiHtml
+       , markdownsToWikiHtmls
+       , wikiWriterOption
+       , WriterOptions(..)
        , showDate
        ) where
 
@@ -19,27 +22,36 @@ import Control.Applicative ((<$>),(<*>))
 import qualified Data.Map as Map (lookup, fromList)
 import Web.Encodings (encodeUrl, decodeUrl)
 
-markdownToWikiHtml raw = do
+markdownToWikiHtml opt raw = do
   render <- lift getUrlRenderParams
   pages <- selectList [] [WikiPathAsc, WikiUpdatedDesc] 0 0
   let pandoc = readDoc raw
   let pdict = mkWikiDictionary pages
-  return $ preEscapedString $ writeHtmlStr render pdict $ pandoc
+  return $ preEscapedString $ writeHtmlStr opt render pdict $ pandoc
+
+markdownsToWikiHtmls opt raws = do
+  render <- lift getUrlRenderParams
+  pages <- selectList [] [WikiPathAsc, WikiUpdatedDesc] 0 0
+  let pandocs = map readDoc raws
+  let pdict = mkWikiDictionary pages
+  return $ map (preEscapedString . writeHtmlStr opt render pdict) pandocs
 
 readDoc :: String -> Pandoc
 readDoc = readMarkdown defaultParserState . tabFilter (stateTabStop defaultParserState)
 
--- writeHtmlStr :: (KestrelRoute -> String) -> Map.Map String Wiki -> Pandoc -> String
-writeHtmlStr render pages = 
-  writeHtmlString opt . transformDoc render pages
-    where
-      opt = defaultWriterOptions{
+wikiWriterOption :: WriterOptions
+wikiWriterOption = 
+  defaultWriterOptions{
           writerStandalone = True
         , writerTemplate = "$if(toc)$\n<div id='pandoc-TOC-Title'>Table of Contents</div>\n$toc$\n$endif$\n$body$"
         , writerTableOfContents = True
         , writerNumberSections = True
         , writerIdentifierPrefix = "pandoc-"
         }
+
+-- writeHtmlStr :: WriterOptions (KestrelRoute -> String) -> Map.Map String Wiki -> Pandoc -> String
+writeHtmlStr opt render pages = 
+  writeHtmlString opt . transformDoc render pages
 
 -- transformDoc :: (KestrelRoute -> String) -> Map.Map String Wiki -> Pandoc -> Pandoc
 transformDoc render pages = processWith codeHighlighting . processWith (wikiLink render pages)

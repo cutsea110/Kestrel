@@ -35,6 +35,7 @@ module Kestrel
 
 import Yesod
 import Yesod.Helpers.Static
+import Yesod.Helpers.AtomFeed
 import Yesod.Helpers.Auth
 import Yesod.Helpers.Auth.OpenId
 import Yesod.Helpers.Crud
@@ -149,6 +150,7 @@ instance Yesod Kestrel where
         pc <- widgetToPageContent $ do
           widget
           addCassius $(Settings.cassiusFile "default-layout")
+          atomLink FeedR topTitle
         let header = $(hamletFile "header")
         let footer = $(hamletFile "footer")
         hamletToRepHtml $(Settings.hamletFile "default-layout")
