@@ -24,6 +24,7 @@ module Kestrel
     , lastNameOf
     , pathOf
     , fromPath
+    , fromWiki
     , ancestory
     , topTitle
     , setpassR -- Auth.Account
@@ -99,6 +100,7 @@ mkYesodData "Kestrel" [$parseRoutes|
 
 /favicon.ico FaviconR GET
 /robots.txt RobotsR GET
+/feed FeedR GET
 
 / RootR GET
 
@@ -126,11 +128,15 @@ pathOf = intercalate ":" . unWikiPage
 fromPath :: String -> WikiPage
 fromPath path = WikiPage $ splitOn ":" path
 
+fromWiki :: Wiki -> WikiPage
+fromWiki = fromPath . wikiPath
+
 lastNameOf :: WikiPage -> String
 lastNameOf = last . unWikiPage
 
 ancestory :: WikiPage -> [WikiPage]
 ancestory = map WikiPage . filter (/=[]) . inits . unWikiPage
+
 
 -- Please see the documentation for the Yesod typeclass. There are a number
 -- of settings which can be configured by overriding methods here.

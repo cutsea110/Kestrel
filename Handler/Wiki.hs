@@ -2,8 +2,9 @@
 module Handler.Wiki where
 
 import Kestrel
-import Control.Monad
+import Kestrel.WikiParser
 
+import Control.Monad
 import Text.Pandoc
 import Text.Pandoc.Shared
 import qualified Text.Highlighting.Kate as Kate
@@ -18,76 +19,6 @@ import Web.Encodings (encodeUrl, decodeUrl)
 
 import StaticFiles
 
-readDoc :: String -> Pandoc
-readDoc = readMarkdown defaultParserState . tabFilter (stateTabStop defaultParserState)
-
--- writeHtmlStr :: (KestrelRoute -> String) -> Map.Map String Wiki -> Pandoc -> String
-writeHtmlStr render pages = 
-  writeHtmlString opt . transformDoc render pages
-    where
-      opt = defaultWriterOptions{
-          writerStandalone = True
-        , writerTemplate = "$if(toc)$\n<div id='pandoc-TOC-Title'>Table of Contents</div>\n$toc$\n$endif$\n$body$"
-        , writerTableOfContents = True
-        , writerNumberSections = True
-        , writerIdentifierPrefix = "pandoc-"
-        }
-
--- transformDoc :: (KestrelRoute -> String) -> Map.Map String Wiki -> Pandoc -> Pandoc
-transformDoc render pages = processWith codeHighlighting . processWith (wikiLink render pages)
-
--- wikiLink :: (KestrelRoute -> String) -> Map.Map String Wiki -> Inline -> Inline
--- Wiki Link Sign of WikiName is written as [](WikiName).
-wikiLink render pages (Link [] (s, "")) = 
-  case Map.lookup path pages of
-    Just _  -> 
-      Link [Str path] (render (WikiR $ fromPath path) [("mode", "v")], path)
-    Nothing -> 
-      Emph [Str path, Link [Str "?"] (render NewR [("path", s), ("mode", "v")], path)]
-  where
-    path = decodeUrl s
-wikiLink _ _ x = x
-
-codeHighlighting :: Block -> Block
-codeHighlighting b@(CodeBlock (_, attr, _) src) =
-  case marry xs langs of
-    l:_ ->
-      case Kate.highlightAs l src of
-        Right result -> RawHtml $ showHtmlFragment $ Kate.formatAsXHtml opts l result
-        Left  err    -> RawHtml $ "Could not parse code: " ++ err
-    _   -> b
-  where
-    opts = [Kate.OptNumberLines] `mplus` (findRight (P.parse lineNo "") attr)
-    -- Language
-    toL = map $ map toLower
-    (xs, langs) = (toL attr, toL Kate.languages)
-    marry xs ys = [x | x <- xs, y <- ys, x == y]
-    -- OptNumberFrom Int
-    lineNo :: P.Parser Kate.FormatOption
-    lineNo = do
-      pref <- P.string "lineFrom"
-      n <- number
-      P.eof
-      return $ Kate.OptNumberFrom n
-      where
-        number :: P.Parser Int
-        number = do 
-          n <- P.many1 P.digit
-          return $ read n
-codeHighlighting x = x
-
-findRight :: (MonadPlus m) => (a -> Either err v) -> [a] -> m v
-findRight _ []     = mzero
-findRight p (a:as) = case p a of
-  Left  _ -> findRight p as
-  Right x -> return x
-      
--- mkWikiDictionary :: [(Key Wiki, Wiki)] -> Map.Map String Wiki
-mkWikiDictionary = Map.fromList . map (((,).wikiPath.snd) <*> snd)
-
-showDate :: UTCTime -> String
-showDate = formatTime defaultTimeLocale "%Y-%m-%d %H:%M:%S"
-
 getWikiR :: WikiPage -> Handler RepHtml
 getWikiR wp = do
   mode <- lookupGetParam "mode"
@@ -100,19 +31,15 @@ getWikiR wp = do
     -- Utility
     getwiki :: Handler (Maybe (String, String, Html, UTCTime, Int, Maybe User, Bool))
     getwiki = do
-      render <- getUrlRenderParams
       let path = pathOf wp
       runDB $ do
         page'  <- getBy $ UniqueWiki path
         case page' of
           Nothing -> return Nothing
           Just (_, p) -> do
-            pages' <- selectList [] [WikiPathAsc, WikiUpdatedDesc] 0 0
             me <- get $ wikiEditor p
             let (raw, upd, ver) = (wikiContent p, wikiUpdated p, wikiVersion p)
-            let pandoc = readDoc raw
-            let pages = mkWikiDictionary pages'
-            let content = preEscapedString $ writeHtmlStr render pages $ pandoc
+            content <- markdownToWikiHtml raw
             let isTop = wp == topPage
             return $ Just (path, raw, content, upd, ver, me, isTop)
     
@@ -156,16 +83,11 @@ postWikiR wp = do
   where
     previewWiki :: Handler RepHtml
     previewWiki = do
-      render <- getUrlRenderParams
       let path = pathOf wp
-      pages <- runDB $ do
-        pages' <- selectList [] [WikiPathAsc, WikiUpdatedDesc] 0 0
-        return $ mkWikiDictionary pages'
       (raw, ver) <- runFormPost' $ (,)
                     <$> stringInput "content"
                     <*> intInput "version"
-      let pandoc = readDoc raw
-      let content = preEscapedString $ writeHtmlStr render pages $ pandoc
+      content <- runDB $ markdownToWikiHtml raw
       let isTop = wp == topPage
       defaultLayout $ do
         setTitle $ string $ if isTop then topTitle else path
@@ -175,7 +97,6 @@ postWikiR wp = do
     
     updateWiki :: UserId -> Handler RepHtml
     updateWiki uid = do
-      render <- getUrlRenderParams
       let path = pathOf wp
       now <- liftIO getCurrentTime
       (raw, ver) <- runFormPost' $ (,)
@@ -263,7 +184,6 @@ postNewR = do
     previewWiki :: Handler RepHtml
     previewWiki = do
       (uid, _) <- requireAuth
-      render <- getUrlRenderParams
       params <- 
         uncurry (liftM2 (,)) (lookupPostParam "path", lookupPostParam "content")
       case params of
@@ -272,11 +192,7 @@ postNewR = do
         (_,       Nothing) -> invalidArgs ["'content' query parameter is required"]
         (Just path', Just raw) -> do
           let path = decodeUrl path'
-          pages <- runDB $ do
-            pages' <- selectList [] [WikiPathAsc, WikiUpdatedDesc] 0 0
-            return $ mkWikiDictionary pages'
-          let pandoc = readDoc raw
-          let content = preEscapedString $ writeHtmlStr render pages $ pandoc
+          content <- runDB $ markdownToWikiHtml raw
           let isTop = path == ""
           let viewMe = (NewR, [("path", path'), ("mode", "v")])
           defaultLayout $ do
