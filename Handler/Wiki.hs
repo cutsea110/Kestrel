@@ -17,6 +17,7 @@ getWikiR wp = do
   case mode of
     Just "v" {-  view  page  -} -> viewWiki
     Just "e" {-  edit  page  -} -> editWiki
+    Just "d" {- delete page  -} -> deleteWiki
     Just _   {- default mode -} -> viewWiki  -- FIXME
     Nothing  {- default mode -} -> viewWiki  -- FIXME
   where
@@ -35,7 +36,7 @@ getWikiR wp = do
             let isTop = wp == topPage
             return $ Just (path, raw, content, upd, ver, me, isTop)
     
-    -- Pages    
+    -- Pages
     viewWiki :: Handler RepHtml
     viewWiki = do
       wiki <- getwiki
@@ -43,6 +44,7 @@ getWikiR wp = do
         Nothing -> notFound
         Just (path, raw, content, upd, ver, me, isTop) -> do
           let editMe = (WikiR wp, [("mode", "e")])
+          let deleteMe = (WikiR wp, [("mode", "d")])
           defaultLayout $ do
             setTitle $ string $ if isTop then topTitle else path
             addCassius $(cassiusFile "wiki")
@@ -56,23 +58,42 @@ getWikiR wp = do
       case wiki of
         Nothing -> notFound
         Just (path, raw, content, upd, ver, editor, isTop) -> do
+          let deleteMe = (WikiR wp, [("mode", "d")])
           defaultLayout $ do
             setTitle $ string $ if isTop then topTitle else path
             addCassius $(cassiusFile "wiki")
             addStylesheet $ StaticR hk_kate_css
             addWidget $(widgetFile "editWiki")
+            
+    deleteWiki :: Handler RepHtml
+    deleteWiki = do
+      (uid, _) <- requireAuth
+      wiki <- getwiki
+      case wiki of
+        Nothing -> notFound
+        Just (path, raw, content, upd, ver, me, isTop) -> do
+          let editMe = (WikiR wp, [("mode", "e")])
+          defaultLayout $ do
+            setTitle $ string $ if isTop then topTitle else path
+            addCassius $(cassiusFile "wiki")
+            addStylesheet $ StaticR hk_kate_css
+            addWidget $(widgetFile "deleteWiki")
+
 
 postWikiR :: WikiPage -> Handler RepHtml
 postWikiR wp = do
   (uid, _) <- requireAuth
-  submits@(preview, commit) <-
-    uncurry (liftM2 (,)) (lookupPostParam "preview", lookupPostParam "commit")
+  submits@(preview, commit, delete) <-
+    uncurry3 (liftM3 (,,)) (lookupPostParam "preview", lookupPostParam "commit", lookupPostParam "delete")
   case submits of
-    (Nothing, Nothing) -> invalidArgs ["'preview' or 'commit' parameter is required"]
-    (Just _,  Just _)  -> invalidArgs ["'preview' and 'commit' parameters are alternative"]
-    (Just _,  Nothing) -> previewWiki
-    (Nothing, Just _)  -> updateWiki uid
+    (Just _,  Nothing, Nothing) -> previewWiki
+    (Nothing, Just _ , Nothing) -> putWikiR wp
+    (Nothing, Nothing, Just _ ) -> deleteWikiR wp
+    _ -> invalidArgs ["'preview' or 'commit' or 'delete' parameter is required"]
   where
+    uncurry3 :: (a -> b -> c -> d) -> (a, b, c) -> d
+    uncurry3 f (x, y, z) = f x y z
+    
     previewWiki :: Handler RepHtml
     previewWiki = do
       let path = pathOf wp
@@ -81,46 +102,62 @@ postWikiR wp = do
                     <*> intInput "version"
       content <- runDB $ markdownToWikiHtml wikiWriterOption raw
       let isTop = wp == topPage
+      let deleteMe = (WikiR wp, [("mode", "d")])
       defaultLayout $ do
         setTitle $ string $ if isTop then topTitle else path
         addCassius $(cassiusFile "wiki")
         addStylesheet $ StaticR hk_kate_css
         addWidget $(widgetFile "previewWiki")
-    
-    updateWiki :: UserId -> Handler RepHtml
-    updateWiki uid = do
-      let path = pathOf wp
-      now <- liftIO getCurrentTime
-      (raw, ver) <- runFormPost' $ (,)
-                    <$> stringInput "content"
-                    <*> intInput "version"
-      id <- runDB $ do
-        wiki <- getBy $ UniqueWiki path
-        case wiki of
-          Nothing -> return Nothing
-          Just (pid, page) -> do
-            if wikiVersion page == ver
-              then do
-              insert WikiHistory{ 
-                  wikiHistoryWiki=pid 
-                , wikiHistoryPath=(wikiPath page) 
-                , wikiHistoryContent=(wikiContent page) 
-                , wikiHistoryUpdated=(wikiUpdated page) 
-                , wikiHistoryVersion=(wikiVersion page)
-                , wikiHistoryEditor=(wikiEditor page)
-                , wikiHistoryDeleted=False
-                }
-              update pid [WikiContent raw, WikiUpdated now, WikiVersionAdd 1, WikiEditor uid]
-              return $ Just pid
-              else do
-              -- FIXME Conflict?
-              lift $ setMessage $ string "conflict occured. can't save your modify."
-              return $ Just pid
-      case id of
-        Nothing -> notFound -- FIXME invalidArgs?
-        Just _ -> redirectParams RedirectSeeOther (WikiR wp) [("mode", "v")]
 
+putWikiR :: WikiPage -> Handler RepHtml
+putWikiR wp = do
+  (uid, _) <- requireAuth
+  let path = pathOf wp
+  now <- liftIO getCurrentTime
+  (raw, ver) <- runFormPost' $ (,)
+                <$> stringInput "content"
+                <*> intInput "version"
+  id <- runDB $ do
+    wiki <- getBy $ UniqueWiki path
+    case wiki of
+      Nothing -> return Nothing
+      Just (pid, page) -> do
+        if wikiVersion page == ver
+          then do
+          insert WikiHistory{ 
+              wikiHistoryWiki=pid
+            , wikiHistoryPath=(wikiPath page)
+            , wikiHistoryContent=(wikiContent page)
+            , wikiHistoryUpdated=(wikiUpdated page)
+            , wikiHistoryVersion=(wikiVersion page)
+            , wikiHistoryEditor=(wikiEditor page)
+            , wikiHistoryDeleted=False
+            }
+          update pid [WikiContent raw, WikiUpdated now, WikiVersionAdd 1, WikiEditor uid]
+          return $ Just pid
+          else do
+          -- FIXME Conflict?
+          lift $ setMessage $ string "conflict occured. can't save your modify."
+          return $ Just pid
+  case id of
+    Nothing -> notFound -- FIXME invalidArgs?
+    Just _ -> redirectParams RedirectSeeOther (WikiR wp) [("mode", "v")]
 
+deleteWikiR :: WikiPage -> Handler RepHtml
+deleteWikiR wp = do
+  (uid, _) <- requireAuth
+  let path = pathOf wp
+  id <- runDB $ do
+    wiki <- getBy $ UniqueWiki path
+    case wiki of
+      Nothing -> return Nothing
+      Just (pid, page) -> do
+        deleteWhere [WikiHistoryWikiEq pid]
+        delete pid
+        return $ Just pid
+  case id of
+    Nothing -> notFound -- FIXME invalidArgs?
+    Just _ -> redirectParams RedirectSeeOther NewR [("path", path),("mode", "v")]
 
 getNewR :: Handler RepHtml
 getNewR = do

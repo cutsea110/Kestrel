@@ -12,3 +12,7 @@ div#message
 .errors
     color: red
     font-style: italic
+
+.warnings
+    color: red
+    font-style: bold

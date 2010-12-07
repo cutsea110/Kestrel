@@ -1,8 +1,7 @@
 .navbar
   %a!href=@?editMe@ Edit
 $if (not isTop)
-  .navbar
-    %a!href=@?topView@ Top
+  %a!href=@?topView@ Top
 
 %hr
 

@@ -38,6 +38,9 @@ h2, h3, h4, h5, h6, div
 .navbar
     display: inline
 
+.navbar a
+    margin: 2px
+
 a:hover
     color: #ffffff
     background-color: #f9a0bc

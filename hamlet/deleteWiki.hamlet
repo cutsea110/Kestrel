@@ -1,0 +1,13 @@
+.navbar
+  %a!href=@WikiR.wp@ View
+  %a!href=@?editMe@ Edit
+$if (not isTop)
+  %a!href=@?topView@ Top
+
+%hr
+
+.warnings
+  Warning: deleting the page cannot be undone. Are you sure?
+
+%form!method=post!action=@WikiR.wp@
+  %input!type=submit!name=delete!value="i'm sure, delete it!"
