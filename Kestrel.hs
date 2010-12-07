@@ -108,7 +108,7 @@ mkYesodData "Kestrel" [$parseRoutes|
 /admin AdminR UserCrud userCrud
 
 /wiki/*WikiPage     WikiR GET POST PUT DELETE
-/new NewR  GET POST
+/new NewR GET POST
 |]
 
 newtype WikiPage = WikiPage { unWikiPage :: [String] } deriving (Eq, Show, Read)
@@ -200,7 +200,7 @@ type UserCrud = Crud Kestrel User
 instance ToForm User Kestrel where
   toForm mu = fieldsToTable $ User
               <$> stringField "ident" (fmap userIdent mu)
-              <*> passwordField' "password" (fmap userPassword mu)
+              <*> maybePasswordField' "password" (fmap userPassword mu)
 
 userCrud :: Kestrel -> Crud Kestrel User
 userCrud = const Crud
@@ -210,16 +210,21 @@ userCrud = const Crud
            , crudReplace = \k a -> do
                 _ <- requireAuth
                 runDB $ do
-                  if null (userPassword a)
-                    then do
-                    Just a' <- get k
-                    replace k $ User (userIdent a) (userPassword a')
-                    else do
-                    salted <- liftIO $ saltPass $ userPassword a
-                    replace k $ User (userIdent a) salted
+                  case userPassword a of
+                    Nothing -> do
+                      Just a' <- get k
+                      replace k $ User (userIdent a) (userPassword a')
+                    Just rp -> do
+                      salted <- liftIO $ saltPass rp
+                      replace k $ User (userIdent a) (Just salted)
            , crudInsert = \a -> do
                 _ <- requireAuth
-                runDB $ insert a
+                runDB $ do
+                  case userPassword a of
+                    Nothing -> insert a -- FIXME
+                    Just rp -> do
+                      salted <- liftIO $ saltPass rp
+                      insert $ User (userIdent a) (Just salted)
            , crudGet = \k -> do
                 _ <- requireAuth
                 runDB $ get k
@@ -240,12 +245,13 @@ instance YesodAuth Kestrel where
         x <- getBy $ UniqueUser $ credsIdent creds
         case x of
             Just (uid, _) -> return $ Just uid
-            Nothing -> return Nothing
+            Nothing -> do
+              fmap Just $ insert $ User (credsIdent creds) Nothing
 
     showAuthId _ = showIntegral
     readAuthId _ = readIntegral
 
-    authPlugins = [ authAccount ]
+    authPlugins = [ authAccount, authOpenId ]
 
 instance YesodAuthAccount Kestrel where
     type AuthAccountId Kestrel = UserId
@@ -253,8 +259,8 @@ instance YesodAuthAccount Kestrel where
     showAuthAccountId _ = showIntegral
     readAuthAccountId _ = readIntegral
 
-    getPassword = runDB . fmap (fmap userPassword) . get
-    setPassword uid pass = runDB $ update uid [UserPassword pass]
+    getPassword uid = runDB $ return . join . fmap userPassword =<< get uid
+    setPassword uid salted = runDB $ update uid [UserPassword $ Just salted]
     getAccountCreds account = runDB $ do
         ma <- getBy $ UniqueUser account
         case ma of
