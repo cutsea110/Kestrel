@@ -37,7 +37,10 @@ import Yesod
 import Yesod.Helpers.Static
 import Yesod.Helpers.AtomFeed
 import Yesod.Helpers.Auth
+import qualified Kestrel.Helpers.Auth.Account as A (saltPass)
+import Kestrel.Helpers.Auth.Account
 import Yesod.Helpers.Auth.OpenId
+import Yesod.Helpers.Auth.Email
 import Yesod.Helpers.Crud
 import qualified Settings
 import Settings (hamletFile, cassiusFile, juliusFile, widgetFile)
@@ -53,7 +56,6 @@ import qualified Data.Text.Lazy
 import qualified Data.Text.Lazy.Encoding
 import Text.Jasmine (minifym)
 
-import Kestrel.Helpers.Auth.Account
 import Data.List (intercalate, inits)
 import Data.List.Split (splitOn)
 
@@ -215,12 +217,12 @@ userCrud = const Crud
                       Just a' <- get k
                       replace k $ User (userIdent a) (userPassword a')
                     rp -> do
-                      salted <- liftIO $ saltPass rp
+                      salted <- liftIO $ A.saltPass rp
                       replace k $ User (userIdent a) salted
            , crudInsert = \a -> do
                 _ <- requireAuth
                 runDB $ do
-                  salted <- liftIO $ saltPass $ userPassword a
+                  salted <- liftIO $ A.saltPass $ userPassword a
                   insert $ User (userIdent a) salted
            , crudGet = \k -> do
                 _ <- requireAuth
@@ -248,7 +250,9 @@ instance YesodAuth Kestrel where
     showAuthId _ = showIntegral
     readAuthId _ = readIntegral
 
-    authPlugins = [ authAccount, authOpenId ]
+    authPlugins = [ authAccount
+                  , authOpenId
+                  , authEmail ]
 
 instance YesodAuthAccount Kestrel where
     type AuthAccountId Kestrel = UserId
@@ -267,3 +271,73 @@ instance YesodAuthAccount Kestrel where
                 , accountCredsAuthId = Just uid
                 }
     getAccount = runDB . fmap (fmap userIdent) . get
+
+
+instance YesodAuthEmail Kestrel where
+    type AuthEmailId Kestrel = EmailId
+
+    showAuthEmailId _ = showIntegral
+    readAuthEmailId _ = readIntegral
+
+    addUnverified email verkey =
+        runDB $ insert $ Email email Nothing $ Just verkey
+    sendVerifyEmail email _ verurl = liftIO $ renderSendMail Mail
+        { mailHeaders =
+            [ ("From", "noreply")
+            , ("To", email)
+            , ("Subject", "Verify your email address")
+            ]
+        , mailParts = [[textPart, htmlPart]]
+        }
+      where
+        textPart = Part
+            { partType = "text/plain; charset=utf-8"
+            , partEncoding = None
+            , partFilename = Nothing
+            , partContent = Data.Text.Lazy.Encoding.encodeUtf8
+                          $ Data.Text.Lazy.pack $ unlines
+                [ "Please confirm your email address by clicking on the link below."
+                , ""
+                , verurl
+                , ""
+                , "Thank you"
+                ]
+            }
+        htmlPart = Part
+            { partType = "text/html; charset=utf-8"
+            , partEncoding = None
+            , partFilename = Nothing
+            , partContent = renderHtml [$hamlet|
+%p Please confirm your email address by clicking on the link below.
+%p
+    %a!href=$verurl$ $verurl$
+%p Thank you
+|]
+            }
+    getVerifyKey = runDB . fmap (join . fmap emailVerkey) . get
+    setVerifyKey eid key = runDB $ update eid [EmailVerkey $ Just key]
+    verifyAccount eid = runDB $ do
+        me <- get eid
+        case me of
+            Nothing -> return Nothing
+            Just e -> do
+                let email = emailEmail e
+                case emailUser e of
+                    Just uid -> return $ Just uid
+                    Nothing -> do
+                        uid <- insert $ User email ""
+                        update eid [EmailUser $ Just uid, EmailVerkey Nothing]
+                        return $ Just uid
+    getPassword uid = runDB $ return . fmap userPassword =<< get uid
+    setPassword uid salted = runDB $ update uid [UserPassword salted]
+    getEmailCreds email = runDB $ do
+        me <- getBy $ UniqueEmail email
+        case me of
+            Nothing -> return Nothing
+            Just (eid, e) -> return $ Just EmailCreds
+                { emailCredsId = eid
+                , emailCredsAuthId = emailUser e
+                , emailCredsStatus = isJust $ emailUser e
+                , emailCredsVerkey = emailVerkey e
+                }
+    getEmail = runDB . fmap (fmap emailEmail) . get
