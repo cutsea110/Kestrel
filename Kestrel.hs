@@ -200,7 +200,7 @@ type UserCrud = Crud Kestrel User
 instance ToForm User Kestrel where
   toForm mu = fieldsToTable $ User
               <$> stringField "ident" (fmap userIdent mu)
-              <*> maybePasswordField' "password" (fmap userPassword mu)
+              <*> passwordField' "password" (fmap userPassword mu)
 
 userCrud :: Kestrel -> Crud Kestrel User
 userCrud = const Crud
@@ -211,20 +211,17 @@ userCrud = const Crud
                 _ <- requireAuth
                 runDB $ do
                   case userPassword a of
-                    Nothing -> do
+                    "" -> do
                       Just a' <- get k
                       replace k $ User (userIdent a) (userPassword a')
-                    Just rp -> do
+                    rp -> do
                       salted <- liftIO $ saltPass rp
-                      replace k $ User (userIdent a) (Just salted)
+                      replace k $ User (userIdent a) salted
            , crudInsert = \a -> do
                 _ <- requireAuth
                 runDB $ do
-                  case userPassword a of
-                    Nothing -> insert a -- FIXME
-                    Just rp -> do
-                      salted <- liftIO $ saltPass rp
-                      insert $ User (userIdent a) (Just salted)
+                  salted <- liftIO $ saltPass $ userPassword a
+                  insert $ User (userIdent a) salted
            , crudGet = \k -> do
                 _ <- requireAuth
                 runDB $ get k
@@ -246,7 +243,7 @@ instance YesodAuth Kestrel where
         case x of
             Just (uid, _) -> return $ Just uid
             Nothing -> do
-              fmap Just $ insert $ User (credsIdent creds) Nothing
+              fmap Just $ insert $ User (credsIdent creds) ""
 
     showAuthId _ = showIntegral
     readAuthId _ = readIntegral
@@ -259,8 +256,8 @@ instance YesodAuthAccount Kestrel where
     showAuthAccountId _ = showIntegral
     readAuthAccountId _ = readIntegral
 
-    getPassword uid = runDB $ return . join . fmap userPassword =<< get uid
-    setPassword uid salted = runDB $ update uid [UserPassword $ Just salted]
+    getPassword uid = runDB $ return . fmap userPassword =<< get uid
+    setPassword uid salted = runDB $ update uid [UserPassword salted]
     getAccountCreds account = runDB $ do
         ma <- getBy $ UniqueUser account
         case ma of

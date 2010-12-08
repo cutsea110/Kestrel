@@ -14,7 +14,7 @@ import Data.Time
 share2 mkPersist (mkMigrate "migrateAll") [$persist|
 User
     ident String Asc
-    password String Maybe Update toFormField=maybePasswordField'
+    password String Update toFormField=passwordField'
     UniqueUser ident
 
 Email
@@ -41,9 +41,9 @@ WikiHistory
     deleted Bool default=false Eq
 |]
 
-maybePasswordField' :: (IsForm f, FormType f ~ Maybe String)
-              => FormFieldSettings -> Maybe (Maybe String) -> f
-maybePasswordField' = optionalFieldHelper passwordFieldProfile'
+passwordField' :: (IsForm f, FormType f ~ String)
+              => FormFieldSettings -> Maybe String -> f
+passwordField' = requiredFieldHelper passwordFieldProfile'
   where
     passwordFieldProfile' :: FieldProfile s m String
     passwordFieldProfile' = FieldProfile
