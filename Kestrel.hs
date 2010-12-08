@@ -103,6 +103,7 @@ mkYesodData "Kestrel" [$parseRoutes|
 
 /favicon.ico FaviconR GET
 /robots.txt RobotsR GET
+/sitemap.xml SitemapR GET
 /feed FeedR GET
 
 / RootR GET

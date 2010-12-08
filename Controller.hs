@@ -9,7 +9,6 @@ import Settings
 import Yesod.Helpers.Static
 import Yesod.Helpers.Auth
 import Database.Persist.GenericSql
-import Yesod.Helpers.Crud
 
 -- Import all relevant handler modules here.
 import Handler.Root
@@ -19,14 +18,6 @@ import Handler.Wiki
 -- of the call to mkYesodData which occurs in Kestrel.hs. Please see
 -- the comments there for more details.
 mkYesodDispatch "Kestrel" resourcesKestrel
-
--- Some default handlers that ship with the Yesod site template. You will
--- very rarely need to modify this.
-getFaviconR :: Handler ()
-getFaviconR = sendFile "image/x-icon" "favicon.ico"
-
-getRobotsR :: Handler RepPlain
-getRobotsR = return $ RepPlain $ toContent "User-agent: *"
 
 -- This function allocates resources (such as a database connection pool),
 -- performs initialization and creates a WAI application. This is also the
