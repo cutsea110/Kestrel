@@ -44,6 +44,7 @@ import Yesod.Helpers.Auth.Email
 import Yesod.Helpers.Crud
 import qualified Settings
 import Settings (hamletFile, cassiusFile, juliusFile, widgetFile)
+import Yesod.Form.Jquery
 import System.Directory
 import qualified Data.ByteString.Lazy as L
 import Web.Routes.Site (Site (formatPathSegments))
@@ -148,11 +149,16 @@ instance Yesod Kestrel where
     approot _ = Settings.approot
     
     defaultLayout widget = do
+        y <- getYesod
         mu <- maybeAuth
         mmsg <- getMessage
         pc <- widgetToPageContent $ do
           widget
           addCassius $(Settings.cassiusFile "default-layout")
+          addJulius $(Settings.juliusFile "default-layout")
+          addScriptEither $ urlJqueryJs y
+          addScriptEither $ urlJqueryUiJs y
+          addStylesheetEither $ urlJqueryUiCss y
           atomLink FeedR topTitle
         let header = $(hamletFile "header")
         let footer = $(hamletFile "footer")
@@ -194,6 +200,8 @@ instance Yesod Kestrel where
 instance YesodPersist Kestrel where
     type YesodDB Kestrel = SqlPersist
     runDB db = fmap connPool getYesod >>= Settings.runConnectionPool db
+    
+instance YesodJquery Kestrel where
     
 instance Item User where
   itemTitle = userIdent

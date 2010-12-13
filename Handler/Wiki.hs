@@ -48,7 +48,7 @@ getWikiR wp = do
           defaultLayout $ do
             setTitle $ string $ if isTop then topTitle else path
             addCassius $(cassiusFile "wiki")
-            addStylesheet $ StaticR hk_kate_css
+            addStylesheet $ StaticR css_hk_kate_css
             addWidget $(widgetFile "viewWiki")
 
     editWiki :: Handler RepHtml
@@ -62,7 +62,7 @@ getWikiR wp = do
           defaultLayout $ do
             setTitle $ string $ if isTop then topTitle else path
             addCassius $(cassiusFile "wiki")
-            addStylesheet $ StaticR hk_kate_css
+            addStylesheet $ StaticR css_hk_kate_css
             addWidget $(widgetFile "editWiki")
             
     deleteWiki :: Handler RepHtml
@@ -76,7 +76,7 @@ getWikiR wp = do
           defaultLayout $ do
             setTitle $ string $ if isTop then topTitle else path
             addCassius $(cassiusFile "wiki")
-            addStylesheet $ StaticR hk_kate_css
+            addStylesheet $ StaticR css_hk_kate_css
             addWidget $(widgetFile "deleteWiki")
 
 
@@ -106,7 +106,7 @@ postWikiR wp = do
       defaultLayout $ do
         setTitle $ string $ if isTop then topTitle else path
         addCassius $(cassiusFile "wiki")
-        addStylesheet $ StaticR hk_kate_css
+        addStylesheet $ StaticR css_hk_kate_css
         addWidget $(widgetFile "previewWiki")
 
 putWikiR :: WikiPage -> Handler RepHtml
@@ -180,7 +180,7 @@ getNewR = do
           defaultLayout $ do
             setTitle $ string $ if isTop then topTitle else path
             addCassius $(cassiusFile "wiki")
-            addStylesheet $ StaticR hk_kate_css
+            addStylesheet $ StaticR css_hk_kate_css
             addWidget $(widgetFile "viewNew")
     
     editNew :: Handler RepHtml
@@ -196,7 +196,7 @@ getNewR = do
           defaultLayout $ do
             setTitle $ string $ if isTop then topTitle else path
             addCassius $(cassiusFile "wiki")
-            addStylesheet $ StaticR hk_kate_css
+            addStylesheet $ StaticR css_hk_kate_css
             addWidget $(widgetFile "editNew")
   
 postNewR :: Handler RepHtml
@@ -227,7 +227,7 @@ postNewR = do
           defaultLayout $ do
             setTitle $ string $ if isTop then topTitle else path
             addCassius $(cassiusFile "wiki")
-            addStylesheet $ StaticR hk_kate_css
+            addStylesheet $ StaticR css_hk_kate_css
             addWidget $(widgetFile "previewNew")
     
     createWiki :: Handler RepHtml
