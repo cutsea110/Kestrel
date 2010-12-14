@@ -98,8 +98,9 @@ postWikiR wp = do
     previewWiki = do
       let path = pathOf wp
       (raw, ver) <- runFormPost' $ (,)
-                    <$> stringInput "content"
-                    <*> intInput "version"
+                         <$> stringInput "content"
+                         <*> intInput "version"
+      com <- lookupPostParam "comment"
       content <- runDB $ markdownToWikiHtml wikiWriterOption raw
       let isTop = wp == topPage
       let deleteMe = (WikiR wp, [("mode", "d")])
@@ -115,8 +116,9 @@ putWikiR wp = do
   let path = pathOf wp
   now <- liftIO getCurrentTime
   (raw, ver) <- runFormPost' $ (,)
-                <$> stringInput "content"
-                <*> intInput "version"
+                     <$> stringInput "content"
+                     <*> intInput "version"
+  com <- lookupPostParam "comment"
   id <- runDB $ do
     wiki <- getBy $ UniqueWiki path
     case wiki of
@@ -131,9 +133,14 @@ putWikiR wp = do
             , wikiHistoryUpdated=(wikiUpdated page)
             , wikiHistoryVersion=(wikiVersion page)
             , wikiHistoryEditor=(wikiEditor page)
+            , wikiHistoryComment=(wikiComment page)                                
             , wikiHistoryDeleted=False
             }
-          update pid [WikiContent raw, WikiUpdated now, WikiVersionAdd 1, WikiEditor uid]
+          update pid [ WikiContent raw
+                     , WikiUpdated now
+                     , WikiVersionAdd 1
+                     , WikiEditor uid
+                     , WikiComment com]
           return $ Just pid
           else do
           -- FIXME Conflict?
@@ -157,7 +164,7 @@ deleteWikiR wp = do
         return $ Just pid
   case id of
     Nothing -> notFound -- FIXME invalidArgs?
-    Just _ -> redirectParams RedirectSeeOther NewR [("path", path),("mode", "v")]
+    Just _ -> redirectParams RedirectSeeOther NewR [("path", encodeUrl path),("mode", "v")]
 
 getNewR :: Handler RepHtml
 getNewR = do
@@ -213,41 +220,36 @@ postNewR = do
     previewWiki :: Handler RepHtml
     previewWiki = do
       (uid, _) <- requireAuth
-      params <- 
-        uncurry (liftM2 (,)) (lookupPostParam "path", lookupPostParam "content")
-      case params of
-        (Nothing, Nothing) -> invalidArgs ["'path' and 'content' query parameters are required"]
-        (Nothing, _      ) -> invalidArgs ["'path' query parameter is required"]
-        (_,       Nothing) -> invalidArgs ["'content' query parameter is required"]
-        (Just path', Just raw) -> do
-          let path = decodeUrl path'
-          content <- runDB $ markdownToWikiHtml wikiWriterOption raw
-          let isTop = path == ""
-          let viewMe = (NewR, [("path", path'), ("mode", "v")])
-          defaultLayout $ do
-            setTitle $ string $ if isTop then topTitle else path
-            addCassius $(cassiusFile "wiki")
-            addStylesheet $ StaticR css_hk_kate_css
-            addWidget $(widgetFile "previewNew")
+      (path', raw) <- runFormPost' $ (,)
+                          <$> stringInput "path"
+                          <*> stringInput "content"
+      com <- lookupPostParam "comment"
+      let path = decodeUrl path'
+      content <- runDB $ markdownToWikiHtml wikiWriterOption raw
+      let isTop = path == ""
+      let viewMe = (NewR, [("path", path'), ("mode", "v")])
+      defaultLayout $ do
+        setTitle $ string $ if isTop then topTitle else path
+        addCassius $(cassiusFile "wiki")
+        addStylesheet $ StaticR css_hk_kate_css
+        addWidget $(widgetFile "previewNew")
     
     createWiki :: Handler RepHtml
     createWiki = do
       (uid, _) <- requireAuth
-      params <- 
-        uncurry (liftM2 (,)) (lookupPostParam "path", lookupPostParam "content")
-      case params of
-        (Nothing, Nothing) -> invalidArgs ["'path' and 'content' query parameters are required"]
-        (Nothing,  _)      -> invalidArgs ["'path' query parameter is required"]
-        (_,       Nothing) -> invalidArgs ["'content' query parameter is required"]
-        (Just path', Just raw) -> do
-          let path = decodeUrl path'
-          now <- liftIO getCurrentTime
-          runDB $ insert Wiki { 
-              wikiPath=path
-            , wikiContent=raw
-            , wikiUpdated=now
-            , wikiVersion=0
-            , wikiEditor=uid
-            }
-          -- FIXME: use sendResponseCreated API
-          redirectParams RedirectSeeOther (WikiR $ fromPath path) [("mode", "v")]
+      (path', raw) <- runFormPost' $ (,)
+                          <$> stringInput "path"
+                          <*> stringInput "content"
+      com <- lookupPostParam "comment"
+      let path = decodeUrl path'
+      now <- liftIO getCurrentTime
+      runDB $ insert Wiki { 
+          wikiPath=path
+        , wikiContent=raw
+        , wikiUpdated=now
+        , wikiVersion=0
+        , wikiEditor=uid
+        , wikiComment=com
+        }
+        -- FIXME: use sendResponseCreated API
+      redirectParams RedirectSeeOther (WikiR $ fromPath path) [("mode", "v")]

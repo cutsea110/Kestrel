@@ -59,6 +59,9 @@ div.preview
 textarea.content
     width: 80%
     height: 40em
+textarea.comment
+    width: 80%
+    height: 3em
 
 table
     border: solid 1px #000000

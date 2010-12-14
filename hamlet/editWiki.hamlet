@@ -10,5 +10,7 @@ $if (not isTop)
   %input!type=hidden!name=version!value=$show.ver$
   %textarea.content!name=content $raw$
   %br
+  %textarea.comment!name=comment
+  %br
   %input!type=submit!name=preview!value=preview
   %input!type=submit!name=commit!value=commit

@@ -14,5 +14,9 @@ $if (not isTop)
   %br
   %textarea.content!name=content $raw$
   %br
+  %textarea.comment!name=comment
+    $maybe com c
+      $c$
+  %br
   %input!type=submit!name=preview!value="more preview"
   %input!type=submit!name=commit!value="new create"

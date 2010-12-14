@@ -29,6 +29,7 @@ Wiki
     updated UTCTime Update Desc
     version Int default=0 Add
     editor UserId Update
+    comment String Maybe Update
     UniqueWiki path
 
 WikiHistory
@@ -38,6 +39,7 @@ WikiHistory
     updated UTCTime Desc
     version Int
     editor UserId
+    comment String Maybe Update
     deleted Bool default=false Eq
 |]
 
