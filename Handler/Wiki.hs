@@ -261,6 +261,7 @@ getHistoryR wp = do
   case params of
     (Just "l", _      ) {-  list   -} -> historyList
     (Just "v", Just v ) {-  view   -} -> viewHistory $ read v
+    (Just "e", Just v ) {-  edit   -} -> editHistory $ read v
     (Just "r", Just v ) {- revert  -} -> revertHistory $ read v
     _                   {- default -} -> historyList
   where
@@ -285,7 +286,9 @@ getHistoryR wp = do
           editMe = (WikiR wp, [("mode", "e")])
           deleteMe = (WikiR wp, [("mode", "d")])
           viewVer = \v -> (HistoryR wp, [("mode", "v"),("ver", show v)])
+          editVer = \v -> (HistoryR wp, [("mode", "e"),("ver", show v)])
           revertVer = \v -> (HistoryR wp, [("mode", "r"),("ver", show v)])
+          isNull = \s -> s == ""
       hists <- getHistories
       case hists of
         Nothing -> notFound -- FIXME
@@ -299,3 +302,7 @@ getHistoryR wp = do
     -- TODO
     revertHistory :: Int -> Handler RepHtml
     revertHistory = undefined
+    -- TODO
+    editHistory :: Int -> Handler RepHtml
+    editHistory = undefined
+    

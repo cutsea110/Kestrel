@@ -10,19 +10,31 @@ $if (not isTop)
 
 %table
   %tr
-   %td editor
-   %td comment
-   %td updated date
-   %td operation
+    %th!rowspan=2 updated date
+    %th editor
+    %th changes
+    %th operation
+  %tr
+    %th!colspan=3 comment
   $forall hs h
     %tr
+      %td!rowspan=2 $show.wikiHistoryUpdated.snd.h$
       %td $userIdent.fst.h$
+      %td +10,-0 line(s)
       %td
-        $maybe wikiHistoryComment.snd.h com
-          %span $com$
-        $nothing
-          %span no comment
-      %td $show.wikiHistoryUpdated.snd.h$
-      %td
+         [
          %a!href=@?viewVer.wikiHistoryVersion.snd.h@ View
+         |
+         %a!href=@?editVer.wikiHistoryVersion.snd.h@ Edit
+         this version|
          %a!href=@?revertVer.wikiHistoryVersion.snd.h@ Revert
+         ]
+    %tr
+      %td!colspan=3
+        $maybe wikiHistoryComment.snd.h com
+          $if (isNull com)
+            %span $com$
+          $else
+            %span *** No Comment ***
+        $nothing
+          %span *** No Comment ***
