@@ -1,5 +1,6 @@
 .navbar
   %a!href=@?viewMe@ View
+  Edit
 $if (not isTop)
   %a!href=@?topView@ Top
 

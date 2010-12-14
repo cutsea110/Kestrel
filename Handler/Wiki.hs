@@ -32,8 +32,8 @@ getWikiR wp = do
           Just (_, p) -> do
             me <- get $ wikiEditor p
             let (raw, upd, ver) = (wikiContent p, wikiUpdated p, wikiVersion p)
+                isTop = wp == topPage
             content <- markdownToWikiHtml wikiWriterOption raw
-            let isTop = wp == topPage
             return $ Just (path, raw, content, upd, ver, me, isTop)
     
     -- Pages
@@ -44,7 +44,7 @@ getWikiR wp = do
         Nothing -> notFound
         Just (path, raw, content, upd, ver, me, isTop) -> do
           let editMe = (WikiR wp, [("mode", "e")])
-          let deleteMe = (WikiR wp, [("mode", "d")])
+              deleteMe = (WikiR wp, [("mode", "d")])
           defaultLayout $ do
             setTitle $ string $ if isTop then topTitle else path
             addCassius $(cassiusFile "wiki")
@@ -97,13 +97,13 @@ postWikiR wp = do
     previewWiki :: Handler RepHtml
     previewWiki = do
       let path = pathOf wp
-      (raw, ver) <- runFormPost' $ (,)
+          isTop = wp == topPage
+          deleteMe = (WikiR wp, [("mode", "d")])
+      (raw, com, ver) <- runFormPost' $ (,,)
                          <$> stringInput "content"
+                         <*> maybeStringInput "comment"
                          <*> intInput "version"
-      com <- lookupPostParam "comment"
       content <- runDB $ markdownToWikiHtml wikiWriterOption raw
-      let isTop = wp == topPage
-      let deleteMe = (WikiR wp, [("mode", "d")])
       defaultLayout $ do
         setTitle $ string $ if isTop then topTitle else path
         addCassius $(cassiusFile "wiki")
@@ -115,10 +115,10 @@ putWikiR wp = do
   (uid, _) <- requireAuth
   let path = pathOf wp
   now <- liftIO getCurrentTime
-  (raw, ver) <- runFormPost' $ (,)
+  (raw, com, ver) <- runFormPost' $ (,,)
                      <$> stringInput "content"
+                     <*> maybeStringInput "comment"
                      <*> intInput "version"
-  com <- lookupPostParam "comment"
   id <- runDB $ do
     wiki <- getBy $ UniqueWiki path
     case wiki of
@@ -182,8 +182,8 @@ getNewR = do
         Nothing -> invalidArgs ["'path' query paramerter is required"]
         Just path' -> do
           let path = decodeUrl path'
-          let isTop = path==""
-          let editMe = (NewR, [("path", path'), ("mode", "e")])
+              isTop = path==""
+              editMe = (NewR, [("path", path'), ("mode", "e")])
           defaultLayout $ do
             setTitle $ string $ if isTop then topTitle else path
             addCassius $(cassiusFile "wiki")
@@ -198,8 +198,8 @@ getNewR = do
         Nothing -> invalidArgs ["'path' query paramerter is required"]
         Just path' -> do
           let path = decodeUrl path'
-          let isTop = path==""
-          let viewMe = (NewR, [("path", path'), ("mode", "v")])
+              isTop = path==""
+              viewMe = (NewR, [("path", path'), ("mode", "v")])
           defaultLayout $ do
             setTitle $ string $ if isTop then topTitle else path
             addCassius $(cassiusFile "wiki")
@@ -220,14 +220,14 @@ postNewR = do
     previewWiki :: Handler RepHtml
     previewWiki = do
       (uid, _) <- requireAuth
-      (path', raw) <- runFormPost' $ (,)
-                          <$> stringInput "path"
-                          <*> stringInput "content"
-      com <- lookupPostParam "comment"
+      (path', raw, com) <- runFormPost' $ (,,)
+                           <$> stringInput "path"
+                           <*> stringInput "content"
+                           <*> maybeStringInput "comment"
       let path = decodeUrl path'
+          isTop = path == ""
+          viewMe = (NewR, [("path", path'), ("mode", "v")])
       content <- runDB $ markdownToWikiHtml wikiWriterOption raw
-      let isTop = path == ""
-      let viewMe = (NewR, [("path", path'), ("mode", "v")])
       defaultLayout $ do
         setTitle $ string $ if isTop then topTitle else path
         addCassius $(cassiusFile "wiki")
@@ -237,10 +237,10 @@ postNewR = do
     createWiki :: Handler RepHtml
     createWiki = do
       (uid, _) <- requireAuth
-      (path', raw) <- runFormPost' $ (,)
-                          <$> stringInput "path"
-                          <*> stringInput "content"
-      com <- lookupPostParam "comment"
+      (path', raw, com) <- runFormPost' $ (,,)
+                           <$> stringInput "path"
+                           <*> stringInput "content"
+                           <*> maybeStringInput "comment"
       let path = decodeUrl path'
       now <- liftIO getCurrentTime
       runDB $ insert Wiki { 
@@ -253,3 +253,49 @@ postNewR = do
         }
         -- FIXME: use sendResponseCreated API
       redirectParams RedirectSeeOther (WikiR $ fromPath path) [("mode", "v")]
+
+getHistoryR :: WikiPage -> Handler RepHtml
+getHistoryR wp = do
+  params@(mode, ver) <- uncurry (liftM2 (,)) 
+                        (lookupGetParam "mode", lookupGetParam "ver")
+  case params of
+    (Just "l", _      ) {-  list   -} -> historyList
+    (Just "v", Just v ) {-  view   -} -> viewHistory $ read v
+    (Just "r", Just v ) {- revert  -} -> revertHistory $ read v
+    _                   {- default -} -> historyList
+  where
+    getHistories :: Handler (Maybe [(User, WikiHistory)])
+    getHistories = do
+      let path = pathOf wp
+      runDB $ do
+        page' <- getBy $ UniqueWiki path
+        case page' of
+          Nothing -> return Nothing
+          Just (pid, _) -> do
+            hists' <- selectList [WikiHistoryWikiEq pid] [WikiHistoryUpdatedDesc] 0 0
+            hists <- forM hists' $ \(hid, h) -> do
+              Just u <- get $ wikiHistoryEditor h
+              return (u, h)
+            return $ Just hists
+    
+    historyList :: Handler RepHtml
+    historyList = do
+      let path = pathOf wp
+          isTop = wp == topPage
+          editMe = (WikiR wp, [("mode", "e")])
+          deleteMe = (WikiR wp, [("mode", "d")])
+          viewVer = \v -> (HistoryR wp, [("mode", "v"),("ver", show v)])
+          revertVer = \v -> (HistoryR wp, [("mode", "r"),("ver", show v)])
+      hists <- getHistories
+      case hists of
+        Nothing -> notFound -- FIXME
+        Just hs -> defaultLayout $ do
+          setTitle $ string $ if isTop then topTitle else path
+          addCassius $(cassiusFile "wiki")
+          addWidget $(widgetFile "historyList")
+    -- TODO
+    viewHistory :: Int -> Handler RepHtml
+    viewHistory = undefined
+    -- TODO
+    revertHistory :: Int -> Handler RepHtml
+    revertHistory = undefined

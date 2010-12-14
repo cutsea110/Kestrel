@@ -1,6 +1,8 @@
 .navbar
   %a!href=@WikiR.wp@ View
   %a!href=@?editMe@ Edit
+  Delete
+  %a!href=@HistoryR.wp@ History
 $if (not isTop)
   %a!href=@?topView@ Top
 

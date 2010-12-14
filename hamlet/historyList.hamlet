@@ -1,0 +1,28 @@
+.navbar
+  %a!href=@WikiR.wp@ View
+  %a!href=@?editMe@ Edit
+  %a!href=@?deleteMe@ Delete
+  History
+$if (not isTop)
+  %a!href=@?topView@ Top
+
+%hr
+
+%table
+  %tr
+   %td editor
+   %td comment
+   %td updated date
+   %td operation
+  $forall hs h
+    %tr
+      %td $userIdent.fst.h$
+      %td
+        $maybe wikiHistoryComment.snd.h com
+          %span $com$
+        $nothing
+          %span no comment
+      %td $show.wikiHistoryUpdated.snd.h$
+      %td
+         %a!href=@?viewVer.wikiHistoryVersion.snd.h@ View
+         %a!href=@?revertVer.wikiHistoryVersion.snd.h@ Revert
