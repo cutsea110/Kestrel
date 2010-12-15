@@ -20,7 +20,7 @@ $if (not isTop)
   %tbody
   $forall hs h
     %tr!class=$altClass.snd3.h$
-      %td!rowspan=2 $formatDate.wikiHistoryUpdated.snd3.h$
+      %td!rowspan=2 $showDate.wikiHistoryUpdated.snd3.h$
       %td $userIdent.fst3.h$
       %td +$show.fst.thd3.h$,$show.snd.thd3.h$ line(s)
       %td
