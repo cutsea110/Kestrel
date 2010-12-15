@@ -37,7 +37,7 @@ WikiHistory
     path String Asc Eq
     content String
     updated UTCTime Desc
-    version Int
+    version Int Desc
     editor UserId
     comment String Maybe Update
     deleted Bool default=false Eq

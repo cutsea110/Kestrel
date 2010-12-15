@@ -18,20 +18,20 @@ $if (not isTop)
     %th!colspan=3 comment
   $forall hs h
     %tr
-      %td!rowspan=2 $show.wikiHistoryUpdated.snd.h$
-      %td $userIdent.fst.h$
-      %td +10,-0 line(s)
+      %td!rowspan=2 $show.wikiHistoryUpdated.snd3.h$
+      %td $userIdent.fst3.h$
+      %td +$show.fst.thd3.h$,$show.snd.thd3.h$ line(s)
       %td
          [
-         %a!href=@?viewVer.wikiHistoryVersion.snd.h@ View
+         %a!href=@?viewVer.wikiHistoryVersion.snd3.h@ View
          |
-         %a!href=@?editVer.wikiHistoryVersion.snd.h@ Edit
+         %a!href=@?editVer.wikiHistoryVersion.snd3.h@ Edit
          this version|
-         %a!href=@?revertVer.wikiHistoryVersion.snd.h@ Revert
+         %a!href=@?revertVer.wikiHistoryVersion.snd3.h@ Revert
          ]
     %tr
       %td!colspan=3
-        $maybe wikiHistoryComment.snd.h com
+        $maybe wikiHistoryComment.snd3.h com
           $if (isNull com)
             %span.description *** No Comment ***
           $else

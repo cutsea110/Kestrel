@@ -38,6 +38,8 @@ executable         simple-server
                  , highlighting-kate
                  , pandoc
                  , split
+                 , utility-ht
+                 , Diff
     ghc-options:   -Wall
     extensions:    TemplateHaskell, QuasiQuotes, TypeFamilies
 

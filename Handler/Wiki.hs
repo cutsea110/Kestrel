@@ -8,6 +8,8 @@ import Control.Monad
 import Data.Time
 import Control.Applicative ((<$>),(<*>))
 import Web.Encodings (encodeUrl, decodeUrl)
+import Data.Tuple.HT
+import Data.Algorithm.Diff
 
 import StaticFiles
 
@@ -91,8 +93,6 @@ postWikiR wp = do
     (Nothing, Nothing, Just _ ) -> deleteWikiR wp
     _ -> invalidArgs ["'preview' or 'commit' or 'delete' parameter is required"]
   where
-    uncurry3 :: (a -> b -> c -> d) -> (a, b, c) -> d
-    uncurry3 f (x, y, z) = f x y z
     
     previewWiki :: Handler RepHtml
     previewWiki = do
@@ -273,11 +273,23 @@ getHistoryR wp = do
         case page' of
           Nothing -> return Nothing
           Just (pid, _) -> do
-            hists' <- selectList [WikiHistoryWikiEq pid] [WikiHistoryUpdatedDesc] 0 0
+            hists' <- selectList [WikiHistoryWikiEq pid] [WikiHistoryVersionDesc] 0 0
             hists <- forM hists' $ \(hid, h) -> do
               Just u <- get $ wikiHistoryEditor h
               return (u, h)
             return $ Just hists
+            
+    mkHistsWithDiff :: [(User, WikiHistory)] -> [(User, WikiHistory, (Int, Int))]
+    mkHistsWithDiff hs = zipWith p2t hs diffs
+      where 
+        p2t :: (a, b) -> c -> (a, b, c)
+        p2t (x, y) z = (x, y, z)
+        new = map (lines . wikiHistoryContent . snd) hs
+        old = tail new
+        diffs = zipWith ((foldr dc (0,0).).getDiff) new old
+        dc (F,_) (f,s) = (f+1,s)
+        dc (S,_) (f,s) = (f,s-1)
+        dc _     fs    = fs
     
     historyList :: Handler RepHtml
     historyList = do
@@ -289,13 +301,15 @@ getHistoryR wp = do
           editVer = \v -> (HistoryR wp, [("mode", "e"),("ver", show v)])
           revertVer = \v -> (HistoryR wp, [("mode", "r"),("ver", show v)])
           isNull = \s -> s == ""
-      hists <- getHistories
-      case hists of
+      hists' <- getHistories
+      case hists' of
         Nothing -> notFound -- FIXME
-        Just hs -> defaultLayout $ do
-          setTitle $ string $ if isTop then topTitle else path
-          addCassius $(cassiusFile "wiki")
-          addWidget $(widgetFile "historyList")
+        Just hs' -> do
+          let hs = mkHistsWithDiff hs'
+          defaultLayout $ do
+            setTitle $ string $ if isTop then topTitle else path
+            addCassius $(cassiusFile "wiki")
+            addWidget $(widgetFile "historyList")
     -- TODO
     viewHistory :: Int -> Handler RepHtml
     viewHistory = undefined
