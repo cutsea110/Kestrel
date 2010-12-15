@@ -6,6 +6,7 @@ import Kestrel.WikiParser
 
 import Control.Monad
 import Data.Time
+import System.Locale (defaultTimeLocale)
 import Control.Applicative ((<$>),(<*>))
 import Web.Encodings (encodeUrl, decodeUrl)
 import Data.Tuple.HT
@@ -47,6 +48,7 @@ getWikiR wp = do
         Just (path, raw, content, upd, ver, me, isTop) -> do
           let editMe = (WikiR wp, [("mode", "e")])
               deleteMe = (WikiR wp, [("mode", "d")])
+              myHistory = (HistoryR wp, [("mode", "l"),("ver", show ver)])
           defaultLayout $ do
             setTitle $ string $ if isTop then topTitle else path
             addCassius $(cassiusFile "wiki")
@@ -61,6 +63,7 @@ getWikiR wp = do
         Nothing -> notFound
         Just (path, raw, content, upd, ver, editor, isTop) -> do
           let deleteMe = (WikiR wp, [("mode", "d")])
+              myHistory = (HistoryR wp, [("mode", "l"),("ver", show ver)])
           defaultLayout $ do
             setTitle $ string $ if isTop then topTitle else path
             addCassius $(cassiusFile "wiki")
@@ -75,6 +78,7 @@ getWikiR wp = do
         Nothing -> notFound
         Just (path, raw, content, upd, ver, me, isTop) -> do
           let editMe = (WikiR wp, [("mode", "e")])
+              myHistory = (HistoryR wp, [("mode", "l"),("ver", show ver)])
           defaultLayout $ do
             setTitle $ string $ if isTop then topTitle else path
             addCassius $(cassiusFile "wiki")
@@ -98,12 +102,13 @@ postWikiR wp = do
     previewWiki = do
       let path = pathOf wp
           isTop = wp == topPage
-          deleteMe = (WikiR wp, [("mode", "d")])
       (raw, com, ver) <- runFormPost' $ (,,)
                          <$> stringInput "content"
                          <*> maybeStringInput "comment"
                          <*> intInput "version"
       content <- runDB $ markdownToWikiHtml wikiWriterOption raw
+      let deleteMe = (WikiR wp, [("mode", "d")])
+          myHistory = (HistoryR wp, [("mode", "l"),("ver", show ver)])
       defaultLayout $ do
         setTitle $ string $ if isTop then topTitle else path
         addCassius $(cassiusFile "wiki")
@@ -276,11 +281,12 @@ getHistoryR wp = do
   params@(mode, ver) <- uncurry (liftM2 (,)) 
                         (lookupGetParam "mode", lookupGetParam "ver")
   case params of
-    (Just "l", _      ) {-  list   -} -> historyList
-    (Just "v", Just v ) {-  view   -} -> viewHistory $ read v
-    (Just "e", Just v ) {-  edit   -} -> editHistory $ read v
-    (Just "r", Just v ) {- revert  -} -> revertHistory $ read v
-    _                   {- default -} -> historyList
+    (Just "l", Just v ) {-       list       -} -> historyList $ read v
+    (Just "v", Just v ) {-       view       -} -> viewHistory $ read v
+    (Just "e", Just v ) {-       edit       -} -> editHistory $ read v
+    (Just "p", Just v ) {- diff to previous -} -> diffPrevious $ read v
+    (Just "c", Just v ) {- diff to current  -} -> diffCurrent $ read v
+    _                   {-      illegal     -} -> invalidArgs ["'mode' and 'ver' parameters are required."]
   where
     getHistories :: Handler (Maybe [(User, WikiHistory)])
     getHistories = do
@@ -308,21 +314,36 @@ getHistoryR wp = do
         dc (S,_) (f,s) = (f,s-1)
         dc _     fs    = fs
     
-    historyList :: Handler RepHtml
-    historyList = do
+    historyList :: Int -> Handler RepHtml
+    historyList v = do
       let path = pathOf wp
           isTop = wp == topPage
-          editMe = (WikiR wp, [("mode", "e")])
-          deleteMe = (WikiR wp, [("mode", "d")])
-          viewVer = \v -> (HistoryR wp, [("mode", "v"),("ver", show v)])
-          editVer = \v -> (HistoryR wp, [("mode", "e"),("ver", show v)])
-          revertVer = \v -> (HistoryR wp, [("mode", "r"),("ver", show v)])
-          isNull = \s -> s == ""
+          isNull = (""==)
       hists' <- getHistories
       case hists' of
         Nothing -> notFound -- FIXME
-        Just hs' -> do
-          let hs = mkHistsWithDiff hs'
+        Just hs'' -> do
+          let hs' = mkHistsWithDiff hs''
+              hs = take 25 $ drop (max (curver-v) 0) hs'
+              curver = (wikiHistoryVersion.snd.head) hs''
+              editMe = (WikiR wp, [("mode", "e")])
+              deleteMe = (WikiR wp, [("mode", "d")])
+              viewVer = \v -> (HistoryR wp, [("mode", "v"),("ver", show v)])
+              editVer = \v -> (HistoryR wp, [("mode", "e"),("ver", show v)])
+              revertVer = \v -> (HistoryR wp, [("mode", "r"),("ver", show v)])
+              prevDiff = \v -> (HistoryR wp, [("mode", "p"),("ver", show v)])
+              currDiff = \v -> (HistoryR wp, [("mode", "c"),("ver", show v)])
+              notCurrent = \h -> wikiHistoryVersion h /= curver
+              notEpoch = \h -> wikiHistoryVersion h /= 0
+              canDiff = \h -> notCurrent h || notEpoch h
+              canDiff2 = \h -> notCurrent h && notEpoch h
+              formatDate = formatTime defaultTimeLocale "%Y/%m/%d %H:%M:%S"
+              altClass = \h -> if wikiHistoryVersion h `mod` 2 == 0
+                               then "even"::String
+                               else "odd"
+              mnext = if v >= 25
+                      then Just (HistoryR wp, [("mode","l"),("ver", show $ v-25)])
+                      else Nothing
           defaultLayout $ do
             setTitle $ string $ if isTop then topTitle else path
             addCassius $(cassiusFile "wiki")
@@ -331,9 +352,11 @@ getHistoryR wp = do
     viewHistory :: Int -> Handler RepHtml
     viewHistory = undefined
     -- TODO
-    revertHistory :: Int -> Handler RepHtml
-    revertHistory = undefined
-    -- TODO
     editHistory :: Int -> Handler RepHtml
     editHistory = undefined
-    
+    -- TODO
+    diffPrevious :: Int -> Handler RepHtml
+    diffPrevious = undefined
+    -- TODO
+    diffCurrent :: Int -> Handler RepHtml
+    diffCurrent = undefined

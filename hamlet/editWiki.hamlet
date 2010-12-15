@@ -2,7 +2,7 @@
   %a!href=@WikiR.wp@ View
   Edit
   %a!href=@?deleteMe@ Delete
-  %a!href=@HistoryR.wp@ History
+  %a!href=@?myHistory@ History
 $if (not isTop)
   %a!href=@?topView@ Top
 

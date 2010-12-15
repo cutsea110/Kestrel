@@ -9,16 +9,18 @@ $if (not isTop)
 %hr
 
 %table
-  %tr
-    %th!rowspan=2 updated date
-    %th editor
-    %th changes
-    %th operation
-  %tr
-    %th!colspan=3 comment
-  $forall hs h
+  %thead
     %tr
-      %td!rowspan=2 $show.wikiHistoryUpdated.snd3.h$
+      %th!rowspan=2 updated date
+      %th editor
+      %th changes
+      %th operation
+    %tr
+      %th!colspan=3 comment
+  %tbody
+  $forall hs h
+    %tr!class=$altClass.snd3.h$
+      %td!rowspan=2 $formatDate.wikiHistoryUpdated.snd3.h$
       %td $userIdent.fst3.h$
       %td +$show.fst.thd3.h$,$show.snd.thd3.h$ line(s)
       %td
@@ -29,12 +31,27 @@ $if (not isTop)
          this version|
          %a!href=@?revertVer.wikiHistoryVersion.snd3.h@ Revert
          ]
-    %tr
+         $if (canDiff snd3.h)
+           [Diff to $
+           $if (notCurrent snd3.h)
+             %a!href=@?currDiff.wikiHistoryVersion.snd3.h@ current
+           $if (canDiff2 snd3.h)
+             |
+           $if (notEpoch snd3.h)
+             %a!href=@?prevDiff.wikiHistoryVersion.snd3.h@ previous
+           ]
+    %tr!class=$altClass.snd3.h$
       %td!colspan=3
         $maybe wikiHistoryComment.snd3.h com
           $if (isNull com)
-            %span.description *** No Comment ***
+            %span.description *** no log comment ***
           $else
             %span $com$
         $nothing
-          %span.description *** No Comment ***
+          %span.description *** no log comment ***
+  $maybe mnext next
+    %tr
+      %td!colspan=4
+        [
+        %a!href=@?next@ Older Histories...
+        ]
