@@ -128,12 +128,12 @@ putWikiR wp = do
           then do
           insert WikiHistory{ 
               wikiHistoryWiki=pid
-            , wikiHistoryPath=(wikiPath page)
-            , wikiHistoryContent=(wikiContent page)
-            , wikiHistoryUpdated=(wikiUpdated page)
-            , wikiHistoryVersion=(wikiVersion page)
-            , wikiHistoryEditor=(wikiEditor page)
-            , wikiHistoryComment=(wikiComment page)                                
+            , wikiHistoryPath=path
+            , wikiHistoryContent=raw
+            , wikiHistoryUpdated=now
+            , wikiHistoryVersion=ver+1
+            , wikiHistoryEditor=uid
+            , wikiHistoryComment=com
             , wikiHistoryDeleted=False
             }
           update pid [ WikiContent raw
@@ -220,11 +220,14 @@ postNewR = do
     previewWiki :: Handler RepHtml
     previewWiki = do
       (uid, _) <- requireAuth
-      (path', raw, com) <- runFormPost' $ (,,)
-                           <$> stringInput "path"
+      (path'', raw, com) <- runFormPost' $ (,,)
+                           <$> maybeStringInput "path"
                            <*> stringInput "content"
                            <*> maybeStringInput "comment"
-      let path = decodeUrl path'
+      let path' = case path'' of
+            Nothing -> "" -- TOP Page
+            Just p -> p
+          path = decodeUrl path'
           isTop = path == ""
           viewMe = (NewR, [("path", path'), ("mode", "v")])
       content <- runDB $ markdownToWikiHtml wikiWriterOption raw
@@ -237,19 +240,33 @@ postNewR = do
     createWiki :: Handler RepHtml
     createWiki = do
       (uid, _) <- requireAuth
-      (path', raw, com) <- runFormPost' $ (,,)
-                           <$> stringInput "path"
+      (path'', raw, com) <- runFormPost' $ (,,)
+                           <$> maybeStringInput "path"
                            <*> stringInput "content"
                            <*> maybeStringInput "comment"
-      let path = decodeUrl path'
+      let path' = case path'' of
+            Nothing -> ""
+            Just p -> p
+          path = decodeUrl path'
       now <- liftIO getCurrentTime
-      runDB $ insert Wiki { 
+      runDB $ do
+        pid <- insert Wiki { 
           wikiPath=path
         , wikiContent=raw
         , wikiUpdated=now
         , wikiVersion=0
         , wikiEditor=uid
         , wikiComment=com
+        }
+        insert WikiHistory {
+          wikiHistoryWiki=pid
+        , wikiHistoryPath=path
+        , wikiHistoryContent=raw
+        , wikiHistoryUpdated=now
+        , wikiHistoryVersion=0
+        , wikiHistoryEditor=uid
+        , wikiHistoryComment=com
+        , wikiHistoryDeleted=False
         }
         -- FIXME: use sendResponseCreated API
       redirectParams RedirectSeeOther (WikiR $ fromPath path) [("mode", "v")]
@@ -285,7 +302,7 @@ getHistoryR wp = do
         p2t :: (a, b) -> c -> (a, b, c)
         p2t (x, y) z = (x, y, z)
         new = map (lines . wikiHistoryContent . snd) hs
-        old = tail new
+        old = tail new ++ [[]]
         diffs = zipWith ((foldr dc (0,0).).getDiff) new old
         dc (F,_) (f,s) = (f+1,s)
         dc (S,_) (f,s) = (f,s-1)
