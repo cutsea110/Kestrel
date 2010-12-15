@@ -56,6 +56,9 @@ div.preview
     background-color: #f8f8f8
     padding: 10px
 
+.description
+    color: #333333
+
 textarea.content
     width: 80%
     height: 40em
