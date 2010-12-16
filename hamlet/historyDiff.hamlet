@@ -8,4 +8,8 @@ $if (not isTop)
 
 %hr
 
-$content$
+.plus  + added line
+.minus - deleted line
+
+.diff
+ $content$

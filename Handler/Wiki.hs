@@ -313,6 +313,15 @@ getHistoryR wp = do
         dc (F,_) (f,s) = (f+1,s)
         dc (S,_) (f,s) = (f,s-1)
         dc _     fs    = fs
+    
+    mkDiff :: WikiHistory -> WikiHistory -> Html
+    mkDiff new old = preEscapedString $ foldr d2h "" diffs
+      where
+        diffs = getDiff (lines' new) (lines' old)
+        lines' = lines . wikiHistoryContent
+        d2h (F, l) xs = "<span class='plus'>+&nbsp;" ++ l ++ "</span><br/>" ++ xs
+        d2h (S, l) xs = "<span class='minus'>-&nbsp;" ++ l ++ "</span><br/>" ++ xs
+        d2h (B, l) xs = "<span>&nbsp;&nbsp;" ++ l ++ "</span><br/>" ++ xs
         
     historyList :: Int -> Handler RepHtml
     historyList v = do
@@ -375,7 +384,7 @@ getHistoryR wp = do
           let editMe = (WikiR wp, [("mode", "e")])
               deleteMe = (WikiR wp, [("mode", "d")])
               myHistory = (HistoryR wp, [("mode", "l"),("ver", show $ wikiVersion p)])
-              content = "diff"::Html -- FIXME
+              content = mkDiff v1 v0
           defaultLayout $ do
             setTitle $ string $ if isTop then topTitle else path
             addCassius $(cassiusFile "wiki")

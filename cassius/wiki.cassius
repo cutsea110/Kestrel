@@ -81,3 +81,13 @@ th
     border: solid 1px #000000
     background-color: #a0ff80
     border-bottom: double
+
+.diff
+    background-color: #d0d0c0
+    margin: 0 5em 2em 5em
+    padding: 3em
+
+.plus
+    color: blue
+.minus
+    color: red
