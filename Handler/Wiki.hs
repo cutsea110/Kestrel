@@ -392,4 +392,27 @@ getHistoryR wp = do
     
 -- TODO
     diffCurrent :: Int -> Handler RepHtml
-    diffCurrent = undefined
+    diffCurrent v =  do
+      let path = pathOf wp
+          isTop = wp == topPage
+          isNull = (""==)
+      hists' <- runDB $ do
+        page' <- getBy $ UniqueWiki path
+        case page' of
+          Nothing -> return Nothing
+          Just (pid, p) -> do
+            [(_, v1), (_, v0)] <- 
+              selectList [WikiHistoryWikiEq pid, WikiHistoryVersionIn [wikiVersion p, v]]
+                         [WikiHistoryVersionDesc] 2 0
+            return $ Just (p, v1, v0)
+      case hists' of
+        Nothing -> notFound -- FIXME
+        Just (p, v1, v0) -> do
+          let editMe = (WikiR wp, [("mode", "e")])
+              deleteMe = (WikiR wp, [("mode", "d")])
+              myHistory = (HistoryR wp, [("mode", "l"),("ver", show $ wikiVersion p)])
+              content = mkDiff v1 v0
+          defaultLayout $ do
+            setTitle $ string $ if isTop then topTitle else path
+            addCassius $(cassiusFile "wiki")
+            addWidget $(widgetFile "historyDiff")
