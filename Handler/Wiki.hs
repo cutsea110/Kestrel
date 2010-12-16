@@ -286,6 +286,7 @@ getHistoryR wp = do
     (Just "e", Just v ) {-       edit       -} -> editHistory $ read v
     (Just "p", Just v ) {- diff to previous -} -> diffPrevious $ read v
     (Just "c", Just v ) {- diff to current  -} -> diffCurrent $ read v
+    (Just "r", Just v ) {-      revert      -} -> revertHistory $ read v
     _                   {-      illegal     -} -> invalidArgs ["'mode' and 'ver' parameters are required."]
   where
     getHistories :: Handler (Maybe [(User, WikiHistory)])
@@ -364,18 +365,19 @@ getHistoryR wp = do
     editHistory :: Int -> Handler RepHtml
     editHistory = undefined
     -- TODO
-    diffPrevious :: Int -> Handler RepHtml
-    diffPrevious v = do
+    revertHistory :: Int -> Handler RepHtml
+    revertHistory = undefined
+
+    diffVers :: (Wiki -> Int -> [Int]) -> Int -> Handler RepHtml
+    diffVers selver v = do
       let path = pathOf wp
-          isTop = wp == topPage
-          isNull = (""==)
       hists' <- runDB $ do
         page' <- getBy $ UniqueWiki path
         case page' of
           Nothing -> return Nothing
           Just (pid, p) -> do
             [(_, v1),(_, v0)] <- 
-              selectList [WikiHistoryWikiEq pid, WikiHistoryVersionIn [v, v-1]]
+              selectList [WikiHistoryWikiEq pid, WikiHistoryVersionIn (selver p v)]
                          [WikiHistoryVersionDesc] 2 0
             return $ Just (p, v1, v0)
       case hists' of
@@ -385,34 +387,15 @@ getHistoryR wp = do
               deleteMe = (WikiR wp, [("mode", "d")])
               myHistory = (HistoryR wp, [("mode", "l"),("ver", show $ wikiVersion p)])
               content = mkDiff v1 v0
+              isTop = wp == topPage
           defaultLayout $ do
             setTitle $ string $ if isTop then topTitle else path
             addCassius $(cassiusFile "wiki")
             addWidget $(widgetFile "historyDiff")
     
--- TODO
+    diffPrevious :: Int -> Handler RepHtml
+    diffPrevious = diffVers $ \p v -> [v, v-1]
+    
     diffCurrent :: Int -> Handler RepHtml
-    diffCurrent v =  do
-      let path = pathOf wp
-          isTop = wp == topPage
-          isNull = (""==)
-      hists' <- runDB $ do
-        page' <- getBy $ UniqueWiki path
-        case page' of
-          Nothing -> return Nothing
-          Just (pid, p) -> do
-            [(_, v1), (_, v0)] <- 
-              selectList [WikiHistoryWikiEq pid, WikiHistoryVersionIn [wikiVersion p, v]]
-                         [WikiHistoryVersionDesc] 2 0
-            return $ Just (p, v1, v0)
-      case hists' of
-        Nothing -> notFound -- FIXME
-        Just (p, v1, v0) -> do
-          let editMe = (WikiR wp, [("mode", "e")])
-              deleteMe = (WikiR wp, [("mode", "d")])
-              myHistory = (HistoryR wp, [("mode", "l"),("ver", show $ wikiVersion p)])
-              content = mkDiff v1 v0
-          defaultLayout $ do
-            setTitle $ string $ if isTop then topTitle else path
-            addCassius $(cassiusFile "wiki")
-            addWidget $(widgetFile "historyDiff")
+    diffCurrent = diffVers $ \p v -> [wikiVersion p, v]
+    
