@@ -7,6 +7,7 @@ $if (not isTop)
   %a!href=@?topView@ Top
 
 %hr
+%h2 $title$
 
 .plus  + added line
 .minus - deleted line

@@ -416,6 +416,9 @@ getHistoryR wp = do
           let editMe = (WikiR wp, [("mode", "e")])
               deleteMe = (WikiR wp, [("mode", "d")])
               myHistory = (HistoryR wp, [("mode", "l"),("ver", show $ wikiVersion p)])
+              title = if wikiVersion p == wikiHistoryVersion v1
+                      then "updated from " ++ showDate (wikiHistoryUpdated v0)
+                      else "updated between " ++ showDate (wikiHistoryUpdated v0) ++ " to " ++ showDate (wikiHistoryUpdated v1)
               content = mkDiff v1 v0
               isTop = wp == topPage
           defaultLayout $ do
