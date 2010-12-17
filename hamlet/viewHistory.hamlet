@@ -1,0 +1,20 @@
+.navbar
+  %a!href=@WikiR.wp@ View
+  %a!href=@?editMe@ Edit
+  %a!href=@?deleteMe@ Delete
+  %a!href=@?myHistory@ History
+$if (not isTop)
+  %a!href=@?topView@ Top
+
+%hr
+
+.history
+ $content$
+
+#metainfo!align=right
+  $maybe me e
+    Edited by: $userIdent.e$
+  $nothing
+    Edited by: editor deleted
+  %br
+  Last updated: $showDate.upd$

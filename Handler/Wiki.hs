@@ -289,6 +289,22 @@ getHistoryR wp = do
     (Just "r", Just v ) {-      revert      -} -> revertHistory $ read v
     _                   {-      illegal     -} -> invalidArgs ["'mode' and 'ver' parameters are required."]
   where
+    -- Utility
+    getHistory :: Int -> Handler (Maybe (String, String, Html, UTCTime, Int, Maybe User, Bool, Wiki))
+    getHistory v = do
+      let path = pathOf wp
+      runDB $ do
+        page'  <- getBy $ UniqueWiki path
+        case page' of
+          Nothing -> return Nothing
+          Just (pid', p') -> do
+            [(pid, p)] <- selectList [WikiHistoryWikiEq pid', WikiHistoryVersionEq v] [] 0 0
+            me <- get $ wikiHistoryEditor p
+            let (raw, upd, ver) = (wikiHistoryContent p, wikiHistoryUpdated p, wikiHistoryVersion p)
+                isTop = wp == topPage
+            content <- markdownToWikiHtml wikiWriterOption raw
+            return $ Just (path, raw, content, upd, ver, me, isTop, p')
+
     getHistories :: Handler (Maybe [(User, WikiHistory)])
     getHistories = do
       let path = pathOf wp
@@ -324,6 +340,7 @@ getHistoryR wp = do
         d2h (S, l) xs = "<span class='minus'>-&nbsp;" ++ l ++ "</span><br/>" ++ xs
         d2h (B, l) xs = "<span>&nbsp;&nbsp;" ++ l ++ "</span><br/>" ++ xs
         
+    -- pages
     historyList :: Int -> Handler RepHtml
     historyList v = do
       let path = pathOf wp
@@ -357,16 +374,29 @@ getHistoryR wp = do
           defaultLayout $ do
             setTitle $ string $ if isTop then topTitle else path
             addCassius $(cassiusFile "wiki")
-            addWidget $(widgetFile "historyList")
+            addWidget $(widgetFile "listHistories")
     -- TODO
     viewHistory :: Int -> Handler RepHtml
-    viewHistory = undefined
+    viewHistory v = do
+      wiki <- getHistory v
+      case wiki of
+        Nothing -> notFound
+        Just (path, raw, content, upd, ver, me, isTop, curp) -> do
+          let editMe = (WikiR wp, [("mode", "e")])
+              deleteMe = (WikiR wp, [("mode", "d")])
+              myHistory = (HistoryR wp, [("mode", "l"),("ver", show $ wikiVersion curp)])
+          defaultLayout $ do
+            setTitle $ string $ if isTop then topTitle else path
+            addCassius $(cassiusFile "wiki")
+            addStylesheet $ StaticR css_hk_kate_css
+            addWidget $(widgetFile "viewHistory")
+
     -- TODO
     editHistory :: Int -> Handler RepHtml
     editHistory = undefined
     -- TODO
     revertHistory :: Int -> Handler RepHtml
-    revertHistory = undefined
+    revertHistory v = undefined
 
     diffVers :: (Wiki -> Int -> [Int]) -> Int -> Handler RepHtml
     diffVers selver v = do
@@ -391,7 +421,7 @@ getHistoryR wp = do
           defaultLayout $ do
             setTitle $ string $ if isTop then topTitle else path
             addCassius $(cassiusFile "wiki")
-            addWidget $(widgetFile "historyDiff")
+            addWidget $(widgetFile "diffHistories")
     
     diffPrevious :: Int -> Handler RepHtml
     diffPrevious = diffVers $ \p v -> [v, v-1]
