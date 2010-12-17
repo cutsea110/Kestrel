@@ -11,10 +11,10 @@ $if (not isTop)
 .history
  $content$
 
-#metainfo!align=right
-  $maybe me e
-    Edited by: $userIdent.e$
-  $nothing
-    Edited by: editor deleted
-  %br
-  Last updated: $showDate.upd$
+ #metainfo!align=right
+   $maybe me e
+     Edited by: $userIdent.e$
+   $nothing
+     Edited by: editor deleted
+   %br
+   Last updated: $showDate.upd$
