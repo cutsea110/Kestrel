@@ -28,7 +28,7 @@ $if (not isTop)
          %a!href=@?viewVer.wikiHistoryVersion.snd3.h@ View
          |
          %a!href=@?editVer.wikiHistoryVersion.snd3.h@ Edit
-         this version|
+         &nbsp;this version|
          %a!href=@?revertVer.wikiHistoryVersion.snd3.h@ Revert
          ]
          $if (canDiff snd3.h)
