@@ -412,9 +412,23 @@ getHistoryR wp = do
             addStylesheet $ StaticR css_hk_kate_css
             addWidget $(widgetFile "editHistory")
     
-    -- TODO
     revertHistory :: Int -> Handler RepHtml
-    revertHistory v = undefined
+    revertHistory v = do
+      wiki <- getHistory v
+      case wiki of
+        Nothing -> notFound
+        Just (path, raw, content, upd, _, me, isTop, curp) -> do
+          let editMe = (WikiR wp, [("mode", "e")])
+              deleteMe = (WikiR wp, [("mode", "d")])
+              myHistory = (HistoryR wp, [("mode", "l"),("ver", show ver)])
+              ver = wikiVersion curp
+              notCurrent =  v /= ver
+              editVer = (HistoryR wp, [("mode", "e"),("ver", show v)])
+          defaultLayout $ do
+            setTitle $ string $ if isTop then topTitle else path
+            addCassius $(cassiusFile "wiki")
+            addStylesheet $ StaticR css_hk_kate_css
+            addWidget $(widgetFile "revertHistory")
 
     diffVers :: (Wiki -> Int -> [Int]) -> Int -> Handler RepHtml
     diffVers selver v = do

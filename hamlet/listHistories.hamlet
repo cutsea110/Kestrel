@@ -53,7 +53,7 @@ $if (not isTop)
           %span.description *** no log comment ***
   $maybe mnext next
     %tr
-      %td!colspan=4
+      %td!colspan=5
         [
         %a!href=@?next@ Older Histories...
         ]

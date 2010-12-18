@@ -1,0 +1,30 @@
+.navbar
+  %a!href=@WikiR.wp@ View
+  %a!href=@?editMe@ Edit
+  %a!href=@?deleteMe@ Delete
+  %a!href=@?myHistory@ History
+$if (not isTop)
+  %a!href=@?topView@ Top
+
+%hr
+
+%form!method=post!action=@HistoryR.wp@
+  %input!type=hidden!name=version!value=$show.ver$
+  %input!type=hidden!name=content!value=$raw$
+  %input!type=hidden!name=comment!value="revert this page to the old version $show.v$"
+  .warnings
+    Warning: revert the page to this old version?
+    %input!type=submit!name=commit!value="revert to this version"
+  %br
+
+
+.preview
+ $content$
+
+ #metainfo!align=right
+   $maybe me e
+     Edited by: $userIdent.e$
+   $nothing
+     Edited by: editor deleted
+   %br
+   Last updated: $showDate.upd$
