@@ -1,5 +1,8 @@
 .navbar
-  %a!href=@WikiR.wp@ View
+  $if notCurrent
+    %a!href=@WikiR.wp@ View
+  $else
+    View
   %a!href=@?editMe@ Edit
   %a!href=@?deleteMe@ Delete
   %a!href=@?myHistory@ History
@@ -8,13 +11,17 @@ $if (not isTop)
 
 %hr
 
+If you write this latest version of the original, please $
+%a!href=@?editVer@ click here
+\.
+
 .history
  $content$
 
-#metainfo!align=right
-  $maybe me e
-    Edited by: $userIdent.e$
-  $nothing
-    Edited by: editor deleted
-  %br
-  Last updated: $showDate.upd$
+ #metainfo!align=right
+   $maybe me e
+     Edited by: $userIdent.e$
+   $nothing
+     Edited by: editor deleted
+   %br
+   Last updated: $showDate.upd$

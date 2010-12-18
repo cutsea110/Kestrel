@@ -375,25 +375,43 @@ getHistoryR wp = do
             setTitle $ string $ if isTop then topTitle else path
             addCassius $(cassiusFile "wiki")
             addWidget $(widgetFile "listHistories")
-    -- TODO
+
     viewHistory :: Int -> Handler RepHtml
     viewHistory v = do
       wiki <- getHistory v
       case wiki of
         Nothing -> notFound
-        Just (path, raw, content, upd, ver, me, isTop, curp) -> do
+        Just (path, raw, content, upd, _, me, isTop, curp) -> do
           let editMe = (WikiR wp, [("mode", "e")])
               deleteMe = (WikiR wp, [("mode", "d")])
-              myHistory = (HistoryR wp, [("mode", "l"),("ver", show $ wikiVersion curp)])
+              myHistory = (HistoryR wp, [("mode", "l"),("ver", show ver)])
+              ver = wikiVersion curp
+              notCurrent =  v /= ver
+              editVer = (HistoryR wp, [("mode", "e"),("ver", show v)])
           defaultLayout $ do
             setTitle $ string $ if isTop then topTitle else path
             addCassius $(cassiusFile "wiki")
             addStylesheet $ StaticR css_hk_kate_css
             addWidget $(widgetFile "viewHistory")
 
-    -- TODO
     editHistory :: Int -> Handler RepHtml
-    editHistory = undefined
+    editHistory v = do
+      (uid, _) <- requireAuth
+      wiki <- getHistory v
+      case wiki of
+        Nothing -> notFound
+        Just (path, raw, content, upd, _, me, isTop, curp) -> do
+          let editMe = (WikiR wp, [("mode", "e")])
+              deleteMe = (WikiR wp, [("mode", "d")])
+              myHistory = (HistoryR wp, [("mode", "l"),("ver", show ver)])
+              ver = wikiVersion curp
+              notCurrent =  v /= ver
+          defaultLayout $ do
+            setTitle $ string $ if isTop then topTitle else path
+            addCassius $(cassiusFile "wiki")
+            addStylesheet $ StaticR css_hk_kate_css
+            addWidget $(widgetFile "editHistory")
+    
     -- TODO
     revertHistory :: Int -> Handler RepHtml
     revertHistory v = undefined
@@ -431,4 +449,35 @@ getHistoryR wp = do
     
     diffCurrent :: Int -> Handler RepHtml
     diffCurrent = diffVers $ \p v -> [wikiVersion p, v]
+
+
+postHistoryR :: WikiPage -> Handler RepHtml
+postHistoryR wp = do
+  (uid, _) <- requireAuth
+  submits@(preview, commit) <-
+    uncurry (liftM2 (,)) (lookupPostParam "preview", lookupPostParam "commit")
+  case submits of
+    (Just _,  Nothing) -> previewHistory
+    (Nothing, Just _ ) -> putWikiR wp
+    _ -> invalidArgs ["'preview' or 'commit' parameter is required"]
+  where
     
+    previewHistory :: Handler RepHtml
+    previewHistory = do
+      let path = pathOf wp
+          isTop = wp == topPage
+      (raw, com, ver, v) <- runFormPost' $ (,,,)
+                            <$> stringInput "content"
+                            <*> maybeStringInput "comment"
+                            <*> intInput "version"
+                            <*> intInput "original_version"
+      content <- runDB $ markdownToWikiHtml wikiWriterOption raw
+      let editMe = (WikiR wp, [("mode", "e")])
+          deleteMe = (WikiR wp, [("mode", "d")])
+          myHistory = (HistoryR wp, [("mode", "l"),("ver", show ver)])
+          notCurrent = v /= ver
+      defaultLayout $ do
+        setTitle $ string $ if isTop then topTitle else path
+        addCassius $(cassiusFile "wiki")
+        addStylesheet $ StaticR css_hk_kate_css
+        addWidget $(widgetFile "previewHistory")

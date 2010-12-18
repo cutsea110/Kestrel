@@ -84,7 +84,7 @@ th
 
 .history
     background-color: #d0d0e0
-    margin: 0 2em 2em 2em
+    margin: 2em
     padding: 1em
 
 .diff
@@ -96,3 +96,5 @@ th
     color: blue
 .minus
     color: red
+.number
+    text-align: right

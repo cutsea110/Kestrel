@@ -1,0 +1,29 @@
+.navbar
+  %a!href=@WikiR.wp@ View
+  $if notCurrent
+    %a!href=@?editMe@ Edit
+  $else
+    Edit
+  %a!href=@?deleteMe@ Delete
+  %a!href=@?myHistory@ History
+$if (not isTop)
+  %a!href=@?topView@ Top
+
+%hr
+
+%form!method=post!action=@HistoryR.wp@
+  %input!type=hidden!name=version!value=$show.ver$
+  %input!type=hidden!name=original_version!value=$show.v$
+  %input!type=submit!name=preview!value="more preview"
+  %input!type=submit!name=commit!value=commit
+
+  .preview $content$
+  %br
+  %textarea.content!name=content $raw$
+  .description ChangeLog (brief summary of your edit for later reference):
+  %textarea.comment!name=comment
+    $maybe com c
+       $c$
+  %br
+  %input!type=submit!name=preview!value="more preview"
+  %input!type=submit!name=commit!value=commit
