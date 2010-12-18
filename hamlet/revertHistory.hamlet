@@ -14,7 +14,7 @@ $if (not isTop)
   %input!type=hidden!name=comment!value="revert this page to the old version $show.v$"
   .warnings
     Warning: revert the page to this old version?
-    %input!type=submit!name=commit!value="revert to this version"
+  %input!type=submit!name=commit!value="revert to this version"
   %br
 
 
