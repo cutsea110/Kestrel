@@ -11,9 +11,14 @@ $if (not isTop)
 
 %hr
 
-If you write this latest version of the original, please $
-%a!href=@?editVer@ click here
-\.
+!align=right
+  $if notCurrent
+    %a!href=@?currDiff@ View diff from current version
+    %br
+  %a!href=@?editVer@ Edit this version
+  %br
+  %a!href=@?myHistory@ Return to the edit history
+
 
 .history
  $content$

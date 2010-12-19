@@ -84,12 +84,12 @@ th
 
 .history
     background-color: #d0d0e0
-    margin: 2em
+    margin: 1em 2em 2em 2em
     padding: 1em
 
 .diff
     background-color: #d0d0c0
-    margin: 0 5em 2em 5em
+    margin: 1em 5em 2em 5em
     padding: 3em
 
 .plus

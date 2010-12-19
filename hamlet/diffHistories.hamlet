@@ -12,5 +12,8 @@ $if (not isTop)
 .plus  + added line
 .minus - deleted line
 
+!align=right
+  %a!href=@?myHistory@ Return to the edit history
+
 .diff
  $content$

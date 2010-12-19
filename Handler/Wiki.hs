@@ -388,6 +388,7 @@ getHistoryR wp = do
               ver = wikiVersion curp
               notCurrent =  v /= ver
               editVer = (HistoryR wp, [("mode", "e"),("ver", show v)])
+              currDiff = (HistoryR wp, [("mode", "c"),("ver", show v)])
           defaultLayout $ do
             setTitle $ string $ if isTop then topTitle else path
             addCassius $(cassiusFile "wiki")
