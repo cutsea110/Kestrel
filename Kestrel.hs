@@ -28,6 +28,7 @@ module Kestrel
     , ancestory
     , topTitle
     , setpassR -- Auth.Account
+    , getBy404
       --
     , UserCrud
     , userCrud
@@ -143,6 +144,11 @@ lastNameOf = last . unWikiPage
 ancestory :: WikiPage -> [WikiPage]
 ancestory = map WikiPage . filter (/=[]) . inits . unWikiPage
 
+getBy404 ukey = do
+  mres <- getBy ukey
+  case mres of
+    Nothing -> lift notFound
+    Just res -> return res
 
 -- Please see the documentation for the Yesod typeclass. There are a number
 -- of settings which can be configured by overriding methods here.
