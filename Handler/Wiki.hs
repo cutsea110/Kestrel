@@ -377,6 +377,7 @@ getHistoryR wp = do
     
     revertHistory :: Int -> Handler RepHtml
     revertHistory v = do
+      (uid, _) <- requireAuth
       (path, raw, content, upd, _, me, isTop, curp) <- getHistory v
       let editMe = (WikiR wp, [("mode", "e")])
           deleteMe = (WikiR wp, [("mode", "d")])
