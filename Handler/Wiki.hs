@@ -317,9 +317,10 @@ getHistoryR wp = do
       let path = pathOf wp
           isTop = wp == topPage
           isNull = (""==)
+          pagingSize = 25
       hs'' <- getHistories
       let hs' = mkHistsWithDiff hs''
-          hs = take 25 $ drop (max (curver-v) 0) hs'
+          hs = take pagingSize $ drop (max (curver-v) 0) hs'
           curver = (wikiHistoryVersion.snd.head) hs''
           editMe = (WikiR wp, [("mode", "e")])
           deleteMe = (WikiR wp, [("mode", "d")])
@@ -336,8 +337,8 @@ getHistoryR wp = do
           altClass = \h -> if wikiHistoryVersion h `mod` 2 == 0
                            then "even"::String
                            else "odd"
-          mnext = if v >= 25
-                  then Just (HistoryR wp, [("mode","l"),("ver", show $ v-25)])
+          mnext = if v >= pagingSize
+                  then Just (HistoryR wp, [("mode","l"),("ver", show $ v-pagingSize)])
                   else Nothing
       defaultLayout $ do
         setTitle $ string $ if isTop then topTitle else path
