@@ -57,15 +57,17 @@ writeHtmlStr opt render pages =
 transformDoc render pages = processWith codeHighlighting . processWith (wikiLink render pages)
 
 -- wikiLink :: (KestrelRoute -> String) -> Map.Map String Wiki -> Inline -> Inline
--- Wiki Link Sign of WikiName is written as [](WikiName).
-wikiLink render pages (Link [] (s, "")) = 
+-- Wiki Link Sign of WikiName is written as [WikiName]().
+wikiLink render pages (Link ls ("", "")) = 
   case Map.lookup path pages of
     Just _  -> 
       Link [Str path] (render (WikiR $ fromPath path) [("mode", "v")], path)
     Nothing -> 
-      Emph [Str path, Link [Str "?"] (render NewR [("path", s), ("mode", "v")], path)]
+      Emph [Str path, Link [Str "?"] (render NewR [("path", path'), ("mode", "v")], path)]
   where
-    path = decodeUrl s
+    p' = inlinesToString ls
+    path = decodeUrl p'
+    path' = encodeUrl p'
 wikiLink _ _ x = x
 
 codeHighlighting :: Block -> Block
@@ -107,3 +109,31 @@ mkWikiDictionary = Map.fromList . map (((,).wikiPath.snd) <*> snd)
 
 showDate :: UTCTime -> String
 showDate = formatTime defaultTimeLocale "%Y-%m-%d %H:%M:%S"
+
+inlinesToString :: [Inline] -> String
+inlinesToString = concatMap go
+  where go x = case x of
+          Str s                   -> s
+          Emph xs                 -> concatMap go xs
+          Strong xs               -> concatMap go xs
+          Strikeout xs            -> concatMap go xs
+          Superscript xs          -> concatMap go xs
+          Subscript xs            -> concatMap go xs
+          SmallCaps xs            -> concatMap go xs
+          Quoted DoubleQuote xs   -> '"' : (concatMap go xs ++ "\"")
+          Quoted SingleQuote xs   -> '\'' : (concatMap go xs ++ "'")
+          Cite _ xs               -> concatMap go xs
+          Code s                  -> s
+          Space                   -> " "
+          EmDash                  -> "---"
+          EnDash                  -> "--"
+          Apostrophe              -> "'"
+          Ellipses                -> "..."
+          LineBreak               -> " "
+          Math DisplayMath s      -> "$$" ++ s ++ "$$"
+          Math InlineMath s       -> "$" ++ s ++ "$"
+          TeX s                   -> s
+          HtmlInline _            -> ""
+          Link xs _               -> concatMap go xs
+          Image xs _              -> concatMap go xs
+          Note _                  -> ""
