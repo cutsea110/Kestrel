@@ -16,3 +16,7 @@ div#message
 .warnings
     color: red
     font-style: bold
+
+.example
+    border: dotted 1px gray
+    background-color: #e0e0e0
