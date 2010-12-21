@@ -129,10 +129,10 @@ would produce a link if the following showed up outside of the paragraph (or at 
  [linkref]: link.address.here "link title here"
 
 %h4#__WikiLinks Wiki Links
-Wiki Links may be inline:
+Wiki Links may be inline, this looks like normal link without following empty parentheses:
 
 %pre.example
- [](Wiki Name)
+ [Wiki Name]()
 
 %h4#__Images Images
 Referring to images is similar to including links. The syntax requires an exclamation point to indicate the link refers to an image.

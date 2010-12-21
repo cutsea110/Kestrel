@@ -20,3 +20,5 @@ div#message
 .example
     border: dotted 1px gray
     background-color: #e0e0e0
+    margin: 1em
+    padding: 0.5em
