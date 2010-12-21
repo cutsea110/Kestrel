@@ -8,7 +8,7 @@ $if (not isTop)
 
 %hr
 
-%table
+%table.history
   %thead
     %tr
       %th!rowspan=2 ver.

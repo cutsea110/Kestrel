@@ -70,7 +70,7 @@ table
     border: solid 1px #000000
     border-collapse: collapse
 tr.odd
-    background-color: #efffcf
+    background-color: #cfefff
 tr.even
     background-color: #ffffff
 
@@ -79,13 +79,25 @@ td
 
 th
     border: solid 1px #000000
-    background-color: #a0ff80
+    background-color: #80a0ff
     border-bottom: double
 
 .history
     background-color: #d0d0e0
     margin: 1em 2em 2em 2em
     padding: 1em
+
+table.history
+    background-color: #ffffff
+table.history tr.odd
+    background-color: #e0e0e0
+table.history tr.even
+    background-color: #ffffff
+table.history td
+    border: solid 1px #000000
+table.history th
+    border: solid 1px #000000
+    background-color: #d0d0d0
 
 .diff
     background-color: #d0d0c0
