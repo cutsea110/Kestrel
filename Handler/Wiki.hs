@@ -55,6 +55,7 @@ getWikiR wp = do
       (path, raw, content, upd, ver, _, isTop) <- getwiki
       let deleteMe = (WikiR wp, [("mode", "d")])
           myHistory = (HistoryR wp, [("mode", "l"),("ver", show ver)])
+          markdown = $(hamletFile "markdown")
       defaultLayout $ do
         setTitle $ string $ if isTop then topTitle else path
         addCassius $(cassiusFile "wiki")
@@ -97,6 +98,7 @@ postWikiR wp = do
       content <- runDB $ markdownToWikiHtml wikiWriterOption raw
       let deleteMe = (WikiR wp, [("mode", "d")])
           myHistory = (HistoryR wp, [("mode", "l"),("ver", show ver)])
+          markdown = $(hamletFile "markdown")
       defaultLayout $ do
         setTitle $ string $ if isTop then topTitle else path
         addCassius $(cassiusFile "wiki")
@@ -182,6 +184,7 @@ getNewR = do
           let path = decodeUrl path'
               isTop = path==""
               viewMe = (NewR, [("path", path'), ("mode", "v")])
+              markdown = $(hamletFile "markdown")
           defaultLayout $ do
             setTitle $ string $ if isTop then topTitle else path
             addCassius $(cassiusFile "wiki")
@@ -212,6 +215,7 @@ postNewR = do
           path = decodeUrl path'
           isTop = path == ""
           viewMe = (NewR, [("path", path'), ("mode", "v")])
+          markdown = $(hamletFile "markdown")
       content <- runDB $ markdownToWikiHtml wikiWriterOption raw
       defaultLayout $ do
         setTitle $ string $ if isTop then topTitle else path

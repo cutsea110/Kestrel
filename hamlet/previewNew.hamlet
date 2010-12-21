@@ -21,3 +21,6 @@ $if (not isTop)
   %br
   %input!type=submit!name=preview!value="more preview"
   %input!type=submit!name=commit!value="new create"
+
+#help
+  ^markdown^
