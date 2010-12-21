@@ -32,9 +32,10 @@
 A paragraph is one or more consecutive lines of text separated by one or more blank lines. Normal paragraphs should not be indented with spaces or tabs:
 
 %pre.example
- %p This is a paragraph. It has two sentences.
-
- %p This is another paragraph. It also has two sentences.
+ This is a paragraph. It has two sentences.
+ %br
+ %br
+ This is another paragraph. It also has two sentences.
 
 %h4#__LineReturn Line return
 
@@ -43,9 +44,10 @@ Line breaks inserted in the text are removed from the final result: the web brow
 %h4#__EmphasizedText Emphasized text
 
 %pre.example
- %p *emphasis* or _emphasis_ (more common)  (e.g., italics)
-
- %p **strong emphasis** (more common) or __strong emphasis__ (e.g., boldface)
+ *emphasis* or _emphasis_ (more common)  (e.g., italics)
+ %br
+ %br
+ **strong emphasis** (more common) or __strong emphasis__ (e.g., boldface)
 
 %h4#__Code Code
 To include code (formatted in monospace font), you can either :
@@ -100,8 +102,11 @@ The first two heading levels also have an alternate syntax:
 %h4#__Blockquotes Blockquotes
 %pre.example
  > This text will be enclosed in an HTML blockquote element.
+ %br
  > Blockquote elements are reflowable. You may arbitrarily
+ %br
  > wrap the text to your liking, and it will all be parsed
+ %br
  > into a single blockquote element.
 
 The above would translate into the following HTML:
