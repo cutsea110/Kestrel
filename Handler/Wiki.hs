@@ -374,6 +374,7 @@ getHistoryR wp = do
           myHistory = (HistoryR wp, [("mode", "l"),("ver", show ver)])
           ver = wikiVersion curp
           notCurrent =  v /= ver
+          markdown = $(hamletFile "markdown")
       defaultLayout $ do
         setTitle $ string $ if isTop then topTitle else path
         addCassius $(cassiusFile "wiki")
@@ -450,6 +451,7 @@ postHistoryR wp = do
           deleteMe = (WikiR wp, [("mode", "d")])
           myHistory = (HistoryR wp, [("mode", "l"),("ver", show ver)])
           notCurrent = v /= ver
+          markdown = $(hamletFile "markdown")
       defaultLayout $ do
         setTitle $ string $ if isTop then topTitle else path
         addCassius $(cassiusFile "wiki")
