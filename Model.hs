@@ -7,6 +7,7 @@ import Yesod.Form.Core
 import Database.Persist.TH (share2)
 import Database.Persist.GenericSql (mkMigrate)
 import Data.Time
+import Data.ByteString (ByteString)
 
 -- You can define all of your database entities here. You can find more
 -- information on persistent and how to declare entities at:
@@ -41,6 +42,18 @@ WikiHistory
     editor UserId
     comment String Maybe Update
     deleted Bool default=false Eq
+
+FileHeader
+    fullname String Eq
+    name String Eq
+    extension String Eq
+    contentType String
+    creator UserId
+    created UTCTime Desc
+
+FileBody
+    header FileHeaderId
+    content ByteString
 |]
 
 passwordField' :: (IsForm f, FormType f ~ String)

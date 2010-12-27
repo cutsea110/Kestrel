@@ -115,6 +115,10 @@ mkYesodData "Kestrel" [$parseRoutes|
 /wiki/*WikiPage     WikiR GET POST PUT DELETE
 /new NewR GET POST
 /history/*WikiPage HistoryR GET POST
+
+/upload UploadR GET POST
+/file/#UserId/hid/#FileHeaderId FileR
+/filelist/#UserId FileListR GET
 |]
 
 newtype WikiPage = WikiPage { unWikiPage :: [String] } deriving (Eq, Show, Read)
