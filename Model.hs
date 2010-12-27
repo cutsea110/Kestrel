@@ -54,6 +54,7 @@ FileHeader
 FileBody
     header FileHeaderId
     content ByteString
+    UniqueFile header
 |]
 
 passwordField' :: (IsForm f, FormType f ~ String)

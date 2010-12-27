@@ -3,8 +3,9 @@ module Handler.YS3 where
 
 import Kestrel
 import Data.Time
-import qualified Data.ByteString.Lazy as L (toChunks)
+import qualified Data.ByteString.Lazy as L (fromChunks, toChunks)
 import qualified Data.ByteString as B (concat)
+import Network.Wai
 
 getUploadR :: Handler RepHtml
 getUploadR = do
@@ -36,10 +37,18 @@ postUploadR = do
           , fileBodyContent=(B.concat . L.toChunks . fileContent) fi
           }
         return fid'
-      redirect RedirectSeeOther $ FileListR uid
+      redirect RedirectSeeOther $ FileR uid fid
 
 handleFileR :: UserId -> FileHeaderId -> Handler RepHtml
-handleFileR = undefined
+handleFileR uid fid = do
+  (h, b) <- runDB $ do
+    h' <- get404 fid
+    (_, b') <- getBy404 $ UniqueFile fid
+    return (h', b')
+  liftIO $ putStrLn $ show b
+  setHeader "Content-Type" $ fileHeaderContentType h
+  return $ RepHtml $ ResponseLBS $ L.fromChunks [fileBodyContent b]
+
 
 getFileListR :: UserId -> Handler RepHtml
 getFileListR = undefined
