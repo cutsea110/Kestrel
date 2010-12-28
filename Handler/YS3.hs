@@ -3,9 +3,12 @@ module Handler.YS3 where
 
 import Kestrel
 import Data.Time
-import qualified Data.ByteString.Lazy as L (fromChunks, toChunks)
-import qualified Data.ByteString as B (concat)
+import qualified Data.ByteString.Lazy as L
 import Network.Wai
+import Data.List (intercalate)
+import System.Directory
+import System.FilePath
+import Web.Encodings (encodeUrl, decodeUrl)
 
 getUploadR :: Handler RepHtml
 getUploadR = do
@@ -16,39 +19,42 @@ getUploadR = do
 
 postUploadR :: Handler RepHtml
 postUploadR = do
-  (uid,_) <- requireAuth
+  (uid, _) <- requireAuth
   mfi <- lookupFile "upfile"
   case mfi of
     Nothing -> invalidArgs ["upload file is required"]
     Just fi -> do
       now <- liftIO getCurrentTime
-      liftIO $ (putStrLn . show  . B.concat . L.toChunks . fileContent) fi
+      let (name, ext) = splitExtension $ fileName fi
+          efname = encodeUrl $ fileName fi
+          UserId id = uid
+          s3dir = "s3" </> show id
+          s3fp = s3dir </> efname
+      liftIO $ do
+        createDirectoryIfMissing True s3dir
+        L.writeFile s3fp (fileContent fi)
       fid <- runDB $ do
-        fid' <- insert FileHeader {
+        insert FileHeader {
             fileHeaderFullname=fileName fi
+          , fileHeaderEfname=efname
           , fileHeaderContentType=fileContentType fi
-          , fileHeaderName=""
-          , fileHeaderExtension=""
+          , fileHeaderName=name
+          , fileHeaderExtension=ext
           , fileHeaderCreator=uid
           , fileHeaderCreated=now
           }
-        insert FileBody {
-            fileBodyHeader=fid'
-          , fileBodyContent=(B.concat . L.toChunks . fileContent) fi
-          }
-        return fid'
       redirect RedirectSeeOther $ FileR uid fid
+
 
 handleFileR :: UserId -> FileHeaderId -> Handler RepHtml
 handleFileR uid fid = do
-  (h, b) <- runDB $ do
-    h' <- get404 fid
-    (_, b') <- getBy404 $ UniqueFile fid
-    return (h', b')
-  liftIO $ putStrLn $ show b
+  h <- runDB $ get404 fid
+  let UserId id = fileHeaderCreator h
+      s3dir = "s3" </> show id
+      s3fp = s3dir </> fileHeaderEfname h
+  b <- liftIO $ L.readFile s3fp
   setHeader "Content-Type" $ fileHeaderContentType h
-  return $ RepHtml $ ResponseLBS $ L.fromChunks [fileBodyContent b]
-
+  return $ RepHtml $ ResponseLBS b
 
 getFileListR :: UserId -> Handler RepHtml
 getFileListR = undefined

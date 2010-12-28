@@ -45,16 +45,12 @@ WikiHistory
 
 FileHeader
     fullname String Eq
+    efname String
     name String Eq
     extension String Eq
     contentType String
     creator UserId
     created UTCTime Desc
-
-FileBody
-    header FileHeaderId
-    content ByteString
-    UniqueFile header
 |]
 
 passwordField' :: (IsForm f, FormType f ~ String)
