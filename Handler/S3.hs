@@ -1,5 +1,5 @@
 {-# LANGUAGE TemplateHaskell, OverloadedStrings #-}
-module Handler.YS3 where
+module Handler.S3 where
 
 import Kestrel
 import Data.Time
@@ -14,12 +14,12 @@ getUploadR :: Handler RepHtml
 getUploadR = do
   (uid,_) <- requireAuth
   defaultLayout $ do
-    addCassius $(cassiusFile "ys3/ys3")
-    addWidget $(widgetFile "ys3/upload")
+    addCassius $(cassiusFile "s3/s3")
+    addWidget $(widgetFile "s3/upload")
 
 postUploadR :: Handler RepHtml
 postUploadR = do
-  (uid, _) <- requireAuth
+  (uid@(UserId uid'), _) <- requireAuth
   mfi <- lookupFile "upfile"
   case mfi of
     Nothing -> invalidArgs ["upload file is required"]
@@ -27,13 +27,7 @@ postUploadR = do
       now <- liftIO getCurrentTime
       let (name, ext) = splitExtension $ fileName fi
           efname = encodeUrl $ fileName fi
-          UserId id = uid
-          s3dir = "s3" </> show id
-          s3fp = s3dir </> efname
-      liftIO $ do
-        createDirectoryIfMissing True s3dir
-        L.writeFile s3fp (fileContent fi)
-      fid <- runDB $ do
+      fid@(FileHeaderId fid') <- runDB $ do
         insert FileHeader {
             fileHeaderFullname=fileName fi
           , fileHeaderEfname=efname
@@ -43,18 +37,38 @@ postUploadR = do
           , fileHeaderCreator=uid
           , fileHeaderCreated=now
           }
+      let s3dir = "s3" </> show uid'
+          s3fp = s3dir </> show fid'
+      liftIO $ do
+        createDirectoryIfMissing True s3dir
+        L.writeFile s3fp (fileContent fi)
       redirect RedirectSeeOther $ FileR uid fid
 
 
 handleFileR :: UserId -> FileHeaderId -> Handler RepHtml
-handleFileR uid fid = do
+handleFileR uid@(UserId uid') fid@(FileHeaderId fid') = do
   h <- runDB $ get404 fid
   let UserId id = fileHeaderCreator h
-      s3dir = "s3" </> show id
-      s3fp = s3dir </> fileHeaderEfname h
+      s3dir = "s3" </> show uid'
+      s3fp = s3dir </> show fid'
   b <- liftIO $ L.readFile s3fp
   setHeader "Content-Type" $ fileHeaderContentType h
   return $ RepHtml $ ResponseLBS b
 
-getFileListR :: UserId -> Handler RepHtml
-getFileListR = undefined
+getFileListR :: UserId -> Handler RepJson
+getFileListR uid@(UserId uid') = do
+  render <- getUrlRender
+  files <- runDB $ selectList [FileHeaderCreatorEq uid] [FileHeaderCreatedDesc] 0 0
+  cacheSeconds 3600
+  jsonToRepJson $ jsonMap [("files", jsonList $ map (go render) files)]
+  where
+    go r (fid@(FileHeaderId fid'), f@FileHeader
+               { fileHeaderFullname = name
+               , fileHeaderExtension = ext
+               , fileHeaderCreated = cdate
+               }) = 
+      jsonMap [ ("name", jsonScalar name)
+              , ("ext" , jsonScalar ext)
+              , ("cdate", jsonScalar $ show cdate)
+              , ("url", jsonScalar $ r $ FileR uid fid)
+              ]

@@ -49,7 +49,7 @@ FileHeader
     name String Eq
     extension String Eq
     contentType String
-    creator UserId
+    creator UserId Eq
     created UTCTime Desc
 |]
 
