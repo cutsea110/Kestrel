@@ -106,15 +106,13 @@
         if ($.isXMLDoc(contents) || contents.XMLDocument) {
             return contents.XMLDocument || contents;
         }
-        data = $(contents).find('body').html();
+        data = $(contents).find('body').find('pre').html();
 
         switch (type) {
             case 'xml':
                 data = parseXml(data);
                 break;
             case 'json':
-                if (data[0]=="<")
-	    data = $(data).text();
                 data = window.eval('(' + data + ')');
                 break;
         }
