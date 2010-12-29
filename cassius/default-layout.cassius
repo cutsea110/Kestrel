@@ -22,3 +22,7 @@ div#message
     background-color: #e0e0e0
     margin: 1em
     padding: 0.5em
+
+a img
+   border-style: none
+

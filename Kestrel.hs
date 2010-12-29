@@ -161,8 +161,14 @@ instance Yesod Kestrel where
     
     defaultLayout widget = do
         y <- getYesod
+        render <- getUrlRender
         mu <- maybeAuth
         mmsg <- getMessage
+        let header = $(Settings.hamletFile "header")
+            footer = $(Settings.hamletFile "footer")
+            filelistr = case mu of
+              Nothing -> ""
+              Just (uid, _) -> render $ FileListR uid
         pc <- widgetToPageContent $ do
           widget
           addCassius $(Settings.cassiusFile "default-layout")
@@ -171,8 +177,6 @@ instance Yesod Kestrel where
           addScriptEither $ urlJqueryUiJs y
           addStylesheetEither $ urlJqueryUiCss y
           atomLink FeedR topTitle
-        let header = $(Settings.hamletFile "header")
-            footer = $(Settings.hamletFile "footer")
         hamletToRepHtml $(Settings.hamletFile "default-layout")
         
     -- This is done to provide an optimization for serving static files from

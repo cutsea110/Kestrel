@@ -7,9 +7,26 @@ $(function(){
   });
   $("#file-select-button").click(function(){
     $("#file_selector").dialog('open');
-    $.getJSON("@UploadR@", function(data){
-      alert(data);
-    });
+    $("#selectable_images a").remove();
+    var panel = $("#selectable_images");
+    $.getJSON("%filelistr%",
+      function(data){
+        $.each(data.files,
+          function(i,item){
+            if (imageP(item)) {
+              var img = $("<img/>").attr({src:item.url});
+              var anc = $("<a/>").attr({href:"#"}).text(item.name);
+              anc.append(img).appendTo(panel);
+            }
+        });
+      });
     return false;
   });
 })
+
+function imageP(item) {
+  return item.ext=='.gif'
+      || item.ext=='.jpg'
+      || item.ext=='.jpeg'
+      || item.ext=='.png'
+}
