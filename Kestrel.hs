@@ -116,9 +116,9 @@ mkYesodData "Kestrel" [$parseRoutes|
 /new NewR GET POST
 /history/*WikiPage HistoryR GET POST
 
-/upload UploadR GET POST
-/file/#UserId/hid/#FileHeaderId FileR
-/filelist/#UserId FileListR GET
+/s3/upload UploadR GET POST
+/s3/user/#UserId/file/#FileHeaderId FileR GET POST
+/s3/user/#UserId/list.json FileListR GET
 |]
 
 newtype WikiPage = WikiPage { unWikiPage :: [String] } deriving (Eq, Show, Read)
@@ -171,10 +171,10 @@ instance Yesod Kestrel where
           addScriptEither $ urlJqueryUiJs y
           addStylesheetEither $ urlJqueryUiCss y
           atomLink FeedR topTitle
-        let header = $(hamletFile "header")
-        let footer = $(hamletFile "footer")
+        let header = $(Settings.hamletFile "header")
+            footer = $(Settings.hamletFile "footer")
         hamletToRepHtml $(Settings.hamletFile "default-layout")
-
+        
     -- This is done to provide an optimization for serving static files from
     -- a separate domain. Please see the staticroot setting in Settings.hs
     urlRenderOverride a (StaticR s) =

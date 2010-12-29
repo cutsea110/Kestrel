@@ -27,8 +27,8 @@ postUploadR = do
       now <- liftIO getCurrentTime
       let (name, ext) = splitExtension $ fileName fi
           efname = encodeUrl $ fileName fi
-      fid@(FileHeaderId fid') <- runDB $ do
-        insert FileHeader {
+      fid@(FileHeaderId fid') <- 
+        runDB $ insert FileHeader {
             fileHeaderFullname=fileName fi
           , fileHeaderEfname=efname
           , fileHeaderContentType=fileContentType fi
@@ -45,8 +45,8 @@ postUploadR = do
       redirect RedirectSeeOther $ FileR uid fid
 
 
-handleFileR :: UserId -> FileHeaderId -> Handler RepHtml
-handleFileR uid@(UserId uid') fid@(FileHeaderId fid') = do
+getFileR :: UserId -> FileHeaderId -> Handler RepHtml
+getFileR uid@(UserId uid') fid@(FileHeaderId fid') = do
   h <- runDB $ get404 fid
   let UserId id = fileHeaderCreator h
       s3dir = "s3" </> show uid'
@@ -55,6 +55,10 @@ handleFileR uid@(UserId uid') fid@(FileHeaderId fid') = do
   setHeader "Content-Type" $ fileHeaderContentType h
   return $ RepHtml $ ResponseLBS b
 
+postFileR :: UserId -> FileHeaderId -> Handler RepHtml
+postFileR uid@(UserId uid') fid@(FileHeaderId fid') = undefined
+
+    
 getFileListR :: UserId -> Handler RepJson
 getFileListR uid@(UserId uid') = do
   render <- getUrlRender

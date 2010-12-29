@@ -1,3 +1,15 @@
 $(function(){
   $("#message").fadeOut(3000, function(){$(this).remove();});
+  $("#file_selector").hide().attr("title", "Select file").dialog({
+    autoOpen: false,
+    width: 500,
+    modal: true
+  });
+  $("#file-select-button").click(function(){
+    $("#file_selector").dialog('open');
+    $.getJSON("@UploadR@", function(data){
+      alert(data);
+    });
+    return false;
+  });
 })

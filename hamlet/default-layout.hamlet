@@ -6,7 +6,13 @@
     %body
         #title $pageTitle.pc$
         ^header^
+        $maybe mu u
+          !align=right
+            %a#file-select-button!href=@FileListR.fst.u@ View files
         $maybe mmsg msg
             #message $msg$
         ^pageBody.pc^
         ^footer^
+        $maybe mu u
+          #file_selector
+           Select from
