@@ -1,36 +1,50 @@
 $(document).ready(function(){
+
   $("#message").fadeOut(3000, function(){$(this).remove();});
+
   $("#go_upload").hide();
+
   $("#file_selector").hide().attr("title", "Select file").dialog({
     autoOpen: false,
-    width: 500,
+    width: 680,
     modal: true
   });
+
   $("#upload_file").change(function(){
     $(this).upload($("#upload_form").attr('action'),
                    function(res) {
-                     var img = $("<img/>").attr({src:res.uri});
-                     var anc = $("<a/>").attr({href:"#"}).text(res.name);
-                     anc.append(img).prependTo("#selectable_images");
+                     var g = makeImakeLink(res.uri, res.name, elm, pos);
+                     g.prependTo("#selectable_images");
                    }, 'json');
+  });
+
+
+  // focus element
+  var elm, pos;
+
+  $("#file-select-button").hover(function(){
+    elm = document.activeElement;
+    if (elm.type=='textarea')
+      pos = elm.selectionStart;
+    else
+      pos = null;
   });
   $("#file-select-button").click(function(){
     $("#file_selector").dialog('open');
-    $("#selectable_images a").remove();
-    var panel = $("#selectable_images");
+    $("#selectable_images div.image-galary").remove();
     $.getJSON($("#file-select-button").attr("href"),
       function(data){
         $.each(data.files,
           function(i,item){
             if (imageP(item)) {
-              var img = $("<img/>").attr({src:item.uri});
-              var anc = $("<a/>").attr({href:"#"}).text(item.name);
-              anc.append(img).appendTo(panel);
+              var g = makeImakeLink(item.uri, item.name, elm, pos);
+              g.appendTo("#selectable_images");
             }
         });
       });
     return false;
   });
+
 });
 
 function imageP(item) {
@@ -38,4 +52,21 @@ function imageP(item) {
       || item.ext=='.jpg'
       || item.ext=='.jpeg'
       || item.ext=='.png'
+}
+
+function makeImakeLink(uri,name,elm,pos){
+  var img = $("<img/>").attr({src:uri});
+  var anc = $("<a/>").attr({href:"#"}).text(name);
+  var div = $("<div/>").attr({class:"image-galary"});
+  anc.click(function() {
+    $("#file_selector").dialog('close');
+    if (elm.type=='textarea' && pos!=null) {
+      var txt = elm.textContent;
+      var img_markdown = "!["+name+"]("+uri+")";
+      var before = txt.substring(0,pos);
+      var after = txt.substring(pos);
+      elm.textContent = before+img_markdown+after;
+    }
+  });
+  return div.append(anc.append(img));
 }

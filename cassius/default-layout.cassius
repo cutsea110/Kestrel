@@ -25,8 +25,13 @@ div#message
 
 .scroll
     overflow: scroll
-    height: 300px
+    height: 360px
 
 a img
    border-style: none
+   width: 120px
 
+div.image-galary
+   border: solid 1px #8080ff
+   display: inline-block
+   width: 120px
