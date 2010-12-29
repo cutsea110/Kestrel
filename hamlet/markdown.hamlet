@@ -145,12 +145,12 @@ Referring to images is similar to including links. The syntax requires an exclam
 The image address may be included inline, as with links:
 
 %pre.example
- ![Alt text here](Image URL here "Image title here")
+ \![Alt text here](Image URL here "Image title here")
 
 It may also be referred to via a reference:
 
 %pre.example
- ![Alt text here][imageref]
+ \![Alt text here][imageref]
 
 Here, imageref refers to information somewhere after the image:
 
