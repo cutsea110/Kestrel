@@ -19,5 +19,6 @@
            #selectable_images.scroll
            %hr
            %form!id=upload_form!method=post!enctype=multipart/form-data!action=@UploadR@
-             %input!id=upload_file!type=file!name=upfile
-             %input!id=go_upload!type=submit!name=upload!value="Upload File"
+             #fields
+               %input!id=upload_file!type=file!name=upfile
+             %input!id=go_upload!type=button!name=upload!value="Upload File"

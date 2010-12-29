@@ -197,10 +197,10 @@ instance Yesod Kestrel where
             footer = $(Settings.hamletFile "footer")
         pc <- widgetToPageContent $ do
           widget
-          addScriptEither $ urlJqueryJs y
-          addScriptEither $ urlJqueryUiJs y
-          addStylesheetEither $ urlJqueryUiCss y
-          addScriptEither $ Left $ StaticR js_jquery_upload_1_0_2_min_js
+          addScriptEither $ Left $ StaticR js_jquery_js --urlJqueryJs y
+          addScriptEither $ Left $ StaticR js_jquery_ui_js --urlJqueryUiJs y
+          addStylesheetEither $ Left $ StaticR css_jquery_ui_css --urlJqueryUiCss y
+          addScriptEither $ Left $ StaticR js_jquery_upload_1_0_2_js
           addCassius $(Settings.cassiusFile "default-layout")
           addJulius $(Settings.juliusFile "default-layout")
 --          addScriptEither $ Left $ StaticR js_ajaxfileupload_js

@@ -1,16 +1,14 @@
 $(document).ready(function(){
   $("#message").fadeOut(3000, function(){$(this).remove();});
 
-  $("#go_upload").hide();
-
   $("#file_selector").hide().attr("title", "Select file").dialog({
     autoOpen: false,
     width: 680,
     modal: true
   });
 
-  $("#upload_file").change(function(){
-    $(this).upload($("#upload_form").attr('action'),
+  $("#go_upload").click(function(){
+    $("#fields").upload($("#upload_form").attr('action'),
                    function(res) {
                      var g = makeImakeLink(res.uri, res.name, elmName, pos);
                      g.prependTo("#selectable_images");
