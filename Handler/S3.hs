@@ -1,5 +1,12 @@
 {-# LANGUAGE TemplateHaskell, OverloadedStrings #-}
-module Handler.S3 where
+module Handler.S3 
+       ( getUploadR
+       , postUploadR
+       , putUploadR
+       , getFileR
+       , postFileR
+       , getFileListR
+       ) where
 
 import Kestrel
 import Data.Time
@@ -17,32 +24,53 @@ getUploadR = do
     addCassius $(cassiusFile "s3/s3")
     addWidget $(widgetFile "s3/upload")
 
-postUploadR :: Handler RepHtml
+upload :: UserId -> FileInfo -> Handler (FileHeaderId, String, String, UTCTime)
+upload uid@(UserId uid') fi = do
+  now <- liftIO getCurrentTime
+  let (name, ext) = splitExtension $ fileName fi
+      efname = encodeUrl $ fileName fi
+  fid@(FileHeaderId fid') <- 
+    runDB $ insert FileHeader {
+        fileHeaderFullname=fileName fi
+      , fileHeaderEfname=efname
+      , fileHeaderContentType=fileContentType fi
+      , fileHeaderName=name
+      , fileHeaderExtension=ext
+      , fileHeaderCreator=uid
+      , fileHeaderCreated=now
+      }
+  let s3dir = "s3" </> show uid'
+      s3fp = s3dir </> show fid'
+  liftIO $ do
+    createDirectoryIfMissing True s3dir
+    L.writeFile s3fp (fileContent fi)
+  return (fid, fileName fi, ext, now)
+
+postUploadR :: Handler RepJson
 postUploadR = do
-  (uid@(UserId uid'), _) <- requireAuth
+  (uid, _) <- requireAuth
   mfi <- lookupFile "upfile"
   case mfi of
     Nothing -> invalidArgs ["upload file is required"]
     Just fi -> do
-      now <- liftIO getCurrentTime
-      let (name, ext) = splitExtension $ fileName fi
-          efname = encodeUrl $ fileName fi
-      fid@(FileHeaderId fid') <- 
-        runDB $ insert FileHeader {
-            fileHeaderFullname=fileName fi
-          , fileHeaderEfname=efname
-          , fileHeaderContentType=fileContentType fi
-          , fileHeaderName=name
-          , fileHeaderExtension=ext
-          , fileHeaderCreator=uid
-          , fileHeaderCreated=now
-          }
-      let s3dir = "s3" </> show uid'
-          s3fp = s3dir </> show fid'
-      liftIO $ do
-        createDirectoryIfMissing True s3dir
-        L.writeFile s3fp (fileContent fi)
-      redirect RedirectSeeOther $ FileR uid fid
+      r <- getUrlRender
+      (fid@(FileHeaderId f), name, ext, cdate) <- upload uid fi
+      cacheSeconds 10 -- FIXME
+      jsonToRepJson $ jsonMap [("name", jsonScalar name)
+                              ,("ext", jsonScalar ext)
+                              ,("cdate", jsonScalar $ show cdate)
+                              ,("uri", jsonScalar $ r $ FileR uid fid)
+                              ]
+
+    
+putUploadR :: Handler RepHtml
+putUploadR = do
+  (uid, _) <- requireAuth
+  mfi <- lookupFile "upfile"
+  case mfi of
+    Nothing -> invalidArgs ["upload file is required"]
+    Just fi -> upload uid fi >>= 
+               \(fid, _, _, _) -> sendResponseCreated $ FileR uid fid
 
 
 getFileR :: UserId -> FileHeaderId -> Handler RepHtml
@@ -63,7 +91,7 @@ getFileListR :: UserId -> Handler RepJson
 getFileListR uid@(UserId uid') = do
   render <- getUrlRender
   files <- runDB $ selectList [FileHeaderCreatorEq uid] [FileHeaderCreatedDesc] 0 0
-  cacheSeconds 3600
+  cacheSeconds 10 -- FIXME
   jsonToRepJson $ jsonMap [("files", jsonList $ map (go render) files)]
   where
     go r (fid@(FileHeaderId fid'), f@FileHeader
@@ -74,5 +102,5 @@ getFileListR uid@(UserId uid') = do
       jsonMap [ ("name", jsonScalar name)
               , ("ext" , jsonScalar ext)
               , ("cdate", jsonScalar $ show cdate)
-              , ("url", jsonScalar $ r $ FileR uid fid)
+              , ("uri", jsonScalar $ r $ FileR uid fid)
               ]

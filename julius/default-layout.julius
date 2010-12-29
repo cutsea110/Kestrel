@@ -1,20 +1,29 @@
-$(function(){
+$(document).ready(function(){
   $("#message").fadeOut(3000, function(){$(this).remove();});
+  $("#go_upload").hide();
   $("#file_selector").hide().attr("title", "Select file").dialog({
     autoOpen: false,
     width: 500,
     modal: true
   });
+  $("#upload_file").change(function(){
+    $(this).upload($("#upload_form").attr('action'),
+                   function(res) {
+                     var img = $("<img/>").attr({src:res.uri});
+                     var anc = $("<a/>").attr({href:"#"}).text(res.name);
+                     anc.append(img).prependTo("#selectable_images");
+                   }, 'json');
+  });
   $("#file-select-button").click(function(){
     $("#file_selector").dialog('open');
     $("#selectable_images a").remove();
     var panel = $("#selectable_images");
-    $.getJSON("%filelistr%",
+    $.getJSON($("#file-select-button").attr("href"),
       function(data){
         $.each(data.files,
           function(i,item){
             if (imageP(item)) {
-              var img = $("<img/>").attr({src:item.url});
+              var img = $("<img/>").attr({src:item.uri});
               var anc = $("<a/>").attr({href:"#"}).text(item.name);
               anc.append(img).appendTo(panel);
             }
@@ -22,7 +31,7 @@ $(function(){
       });
     return false;
   });
-})
+});
 
 function imageP(item) {
   return item.ext=='.gif'

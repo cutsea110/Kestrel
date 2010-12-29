@@ -23,6 +23,10 @@ div#message
     margin: 1em
     padding: 0.5em
 
+.scroll
+    overflow: scroll
+    height: 300px
+
 a img
    border-style: none
 

@@ -54,6 +54,7 @@ import Data.Maybe (isJust)
 import Control.Monad (join, unless)
 import Control.Applicative ((<$>),(<*>))
 import Network.Mail.Mime
+import Network.Wai
 import qualified Data.Text.Lazy
 import qualified Data.Text.Lazy.Encoding
 import Text.Jasmine (minifym)
@@ -62,6 +63,7 @@ import Data.List (intercalate, inits)
 import Data.List.Split (splitOn)
 
 import Model
+import StaticFiles
 
 -- | The site argument for your application. This can be a good place to
 -- keep settings and values requiring initialization before your application
@@ -116,7 +118,7 @@ mkYesodData "Kestrel" [$parseRoutes|
 /new NewR GET POST
 /history/*WikiPage HistoryR GET POST
 
-/s3/upload UploadR GET POST
+/s3/upload UploadR GET POST PUT
 /s3/user/#UserId/file/#FileHeaderId FileR GET POST
 /s3/user/#UserId/list.json FileListR GET
 |]
@@ -159,6 +161,33 @@ getBy404 ukey = do
 instance Yesod Kestrel where
     approot _ = Settings.approot
     
+    onRequest = do
+      req' <- getRequest
+      let req = reqWaiRequest req'
+      (pp, files) <- liftIO $ reqRequestBody req'
+      ses <- getSession
+      -- Network.Wai.Request
+      liftIO $ do
+        putStrLn "----"
+        putStrLn $ "Method: " ++ (show . requestMethod) req
+        putStrLn $ "httpVer.: " ++ (show . httpVersion) req
+        putStrLn $ "Path: " ++ (show . pathInfo) req
+        putStrLn $ "query string: " ++ (show . queryString) req
+        putStrLn $ "Server Name: " ++ (show . serverName) req
+        putStrLn $ "Server Port: " ++ (show . serverPort) req
+        putStrLn $ "Request Headers: " ++ (show . requestHeaders) req
+        putStrLn $ "Secure: " ++ if isSecure req then "YES" else "NO"
+        putStrLn $ "Client Host Infomation: " ++ (show . remoteHost) req
+        -- Yesod.Request
+        putStrLn $ "Cookies: " ++ (show . reqCookies) req'
+        putStrLn $ "Lang: " ++ (show . reqLangs) req'
+        putStrLn $ "Nonce: " ++ reqNonce req'
+        putStrLn $ "GET: " ++ (show . reqGetParams) req'
+        putStrLn $ "POST: " ++ show pp ++ show files
+        -- Session
+        putStrLn $ "Session: " ++ show ses
+
+    
     defaultLayout widget = do
         y <- getYesod
         render <- getUrlRender
@@ -166,16 +195,16 @@ instance Yesod Kestrel where
         mmsg <- getMessage
         let header = $(Settings.hamletFile "header")
             footer = $(Settings.hamletFile "footer")
-            filelistr = case mu of
-              Nothing -> ""
-              Just (uid, _) -> render $ FileListR uid
         pc <- widgetToPageContent $ do
           widget
-          addCassius $(Settings.cassiusFile "default-layout")
-          addJulius $(Settings.juliusFile "default-layout")
           addScriptEither $ urlJqueryJs y
           addScriptEither $ urlJqueryUiJs y
           addStylesheetEither $ urlJqueryUiCss y
+          addScriptEither $ Left $ StaticR js_jquery_upload_1_0_2_min_js
+          addCassius $(Settings.cassiusFile "default-layout")
+          addJulius $(Settings.juliusFile "default-layout")
+--          addScriptEither $ Left $ StaticR js_ajaxfileupload_js
+--          addScriptEither $ Left $ StaticR js_default_layout_js
           atomLink FeedR topTitle
         hamletToRepHtml $(Settings.hamletFile "default-layout")
         
