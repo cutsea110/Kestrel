@@ -1,5 +1,5 @@
 %h3 simple file uploader
 
 %form!method=post!enctype=multipart/form-data!action=@UploadR@
-  %input!type=file!name=upfile
-  %input!type=submit!name=upload!value="Upload File"
+  %input!id=upload_file!type=file!name=upfile
+  %input!type=submit!id=go_upload!name=upload!value="Upload File"
