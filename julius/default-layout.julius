@@ -15,25 +15,6 @@ $(document).ready(function(){
                    }, 'json');
   });
 
-
-  // focus element
-/*
-  var pos;
-
-  $("#file-select-button").hover(function(){
-    var elm = document.activeElement;
-    if (elm.id=='content') {
-      if (jQuery.browser.msie) {
-        pos = document.selection.createRange();
-      }else{
-        pos = elm.selectionStart;
-      }
-    } else {
-      pos = null;
-    }
-  });
-*/
-
   $("#file-select-button").click(function(){
     $("#file_selector").dialog('open');
     $("#selectable_images div.image-galary").remove();
