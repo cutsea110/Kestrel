@@ -17,6 +17,8 @@ import System.Directory
 import System.FilePath
 import Web.Encodings (encodeUrl, decodeUrl)
 
+import qualified Settings (s3dir, s3root)
+
 getUploadR :: Handler RepHtml
 getUploadR = do
   (uid,_) <- requireAuth
@@ -39,7 +41,7 @@ upload uid@(UserId uid') fi = do
       , fileHeaderCreator=uid
       , fileHeaderCreated=now
       }
-  let s3dir = "s3" </> show uid'
+  let s3dir = Settings.s3dir </> show uid'
       s3fp = s3dir </> show fid'
   liftIO $ do
     createDirectoryIfMissing True s3dir
@@ -77,7 +79,7 @@ getFileR :: UserId -> FileHeaderId -> Handler RepHtml
 getFileR uid@(UserId uid') fid@(FileHeaderId fid') = do
   h <- runDB $ get404 fid
   let UserId id = fileHeaderCreator h
-      s3dir = "s3" </> show uid'
+      s3dir = Settings.s3dir </> show uid'
       s3fp = s3dir </> show fid'
   b <- liftIO $ L.readFile s3fp
   setHeader "Content-Type" $ fileHeaderContentType h

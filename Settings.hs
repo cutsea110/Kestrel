@@ -17,6 +17,8 @@ module Settings
     , approot
     , staticroot
     , staticdir
+    , s3dir
+    , s3root
     ) where
 
 import qualified Text.Hamlet as H
@@ -62,6 +64,11 @@ staticdir = "static"
 -- To see how this value is used, see urlRenderOverride in Kestrel.hs
 staticroot :: String
 staticroot = approot ++ "/static"
+
+s3dir :: FilePath
+s3dir = "s3"
+s3root :: String
+s3root = approot ++ "/s3"
 
 -- | The database connection string. The meaning of this string is backend-
 -- specific.
