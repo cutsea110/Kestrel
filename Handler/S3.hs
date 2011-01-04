@@ -1,4 +1,5 @@
 {-# LANGUAGE TemplateHaskell, OverloadedStrings #-}
+{-# LANGUAGE QuasiQuotes, CPP #-}
 module Handler.S3 
        ( getUploadR
        , postUploadR
@@ -48,7 +49,7 @@ upload uid@(UserId uid') fi = do
     L.writeFile s3fp (fileContent fi)
   return (fid, fileName fi, ext, now)
 
-postUploadR :: Handler RepJson
+postUploadR :: Handler RepXml
 postUploadR = do
   (uid, _) <- requireAuth
   mfi <- lookupFile "upfile"
@@ -58,13 +59,21 @@ postUploadR = do
       r <- getUrlRender
       (fid@(FileHeaderId f), name, ext, cdate) <- upload uid fi
       cacheSeconds 10 -- FIXME
-      jsonToRepJson $ jsonMap [("name", jsonScalar name)
-                              ,("ext", jsonScalar ext)
-                              ,("cdate", jsonScalar $ show cdate)
-                              ,("uri", jsonScalar $ r $ FileR uid fid)
-                              ]
+      let rf = r $ FileR uid fid
+      fmap RepXml $ hamletToContent
+#if GHC7
+                      [xhamlet|
+#else
+                      [$xhamlet|
+#endif
+!!!
+%file
+  %name $name$
+  %ext $ext$
+  %cdate $show.cdate$
+  %uri $rf$
+|]
 
-    
 putUploadR :: Handler RepHtml
 putUploadR = do
   (uid, _) <- requireAuth

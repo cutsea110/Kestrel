@@ -10,9 +10,12 @@ $(document).ready(function(){
   $("#go_upload").click(function(){
     $("#fields").upload($("#upload_form").attr('action'),
                    function(res) {
-                     var g = makeImakeLink(res.uri, res.name);
+                     var file = $(res).find('file');
+                     var uri = file.find('uri').text();
+                     var name = file.find('name').text();
+                     var g = makeImakeLink(uri, name);
                      g.prependTo("#selectable_images");
-                   }, 'json');
+                   }, 'xml');
   });
 
   $("#file-select-button").click(function(){
