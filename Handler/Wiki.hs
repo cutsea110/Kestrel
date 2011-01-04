@@ -125,7 +125,6 @@ putWikiR wp = do
                          , wikiHistoryVersion=ver+1
                          , wikiHistoryEditor=uid
                          , wikiHistoryComment=com
-                         , wikiHistoryDeleted=False
                          }
       update pid [ WikiContent raw
                  , WikiUpdated now
@@ -252,7 +251,6 @@ postNewR = do
         , wikiHistoryVersion=0
         , wikiHistoryEditor=uid
         , wikiHistoryComment=com
-        , wikiHistoryDeleted=False
         }
         -- FIXME: use sendResponseCreated API
       redirectParams RedirectSeeOther (WikiR $ fromPath path) [("mode", "v")]

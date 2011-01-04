@@ -41,7 +41,6 @@ WikiHistory
     version Int Eq In Desc
     editor UserId
     comment String Maybe Update
-    deleted Bool default=false Eq
 
 FileHeader
     fullname String Eq
