@@ -15,7 +15,7 @@ $if (not isTop)
 
   .preview $content$
   %br
-  %textarea.content!name=content $raw$
+  %textarea.content!id=content!name=content $raw$
   .description ChangeLog (brief summary of your edit for later reference):
   %textarea.comment!name=comment
     $maybe com c

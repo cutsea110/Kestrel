@@ -10,25 +10,30 @@ $(document).ready(function(){
   $("#go_upload").click(function(){
     $("#fields").upload($("#upload_form").attr('action'),
                    function(res) {
-                     var g = makeImakeLink(res.uri, res.name, elmName, pos);
+                     var g = makeImakeLink(res.uri, res.name);
                      g.prependTo("#selectable_images");
                    }, 'json');
   });
 
 
   // focus element
-  var elm, elmName, pos;
+/*
+  var pos;
 
   $("#file-select-button").hover(function(){
-    elm = document.activeElement;
-    if (elm.type=='textarea') {
-      pos = elm.selectionStart;
-      elmName = elm.name;
+    var elm = document.activeElement;
+    if (elm.id=='content') {
+      if (jQuery.browser.msie) {
+        pos = document.selection.createRange();
+      }else{
+        pos = elm.selectionStart;
+      }
     } else {
       pos = null;
-      elmName = null;
     }
   });
+*/
+
   $("#file-select-button").click(function(){
     $("#file_selector").dialog('open');
     $("#selectable_images div.image-galary").remove();
@@ -37,7 +42,7 @@ $(document).ready(function(){
         $.each(data.files,
           function(i,item){
             if (imageP(item)) {
-              var g = makeImakeLink(item.uri, item.name, elmName, pos);
+              var g = makeImakeLink(item.uri, item.name);
               g.appendTo("#selectable_images");
             }
         });
@@ -54,19 +59,26 @@ function imageP(item) {
       || item.ext=='.png'
 }
 
-function makeImakeLink(uri,name,elmName,pos){
+function makeImakeLink(uri,name){
   var img = $("<img/>").attr({src:uri});
   var anc = $("<a/>").attr({href:"#"}).text(name);
   var div = $("<div/>").attr({class:"image-galary"});
+  var img_markdown = "!["+name+"]("+uri+")";
+  var obj = $("#content").get(0);
+
   anc.bind('click', function() {
     $("#file_selector").dialog('close');
-    if (elmName!=null && pos!=null) {
-      var elm = $("textarea[name='"+elmName+"']");
-      var txt = elm.text();
-      var img_markdown = "!["+name+"]("+uri+")";
-      var before = txt.substring(0,pos);
-      var after = txt.substring(pos);
-      elm.text(before+img_markdown+after);
+    obj.focus();
+    if (jQuery.browser.msie) {
+      var p = document.selection.createRange();
+      p.text = img_markdown;
+      p.select();
+    }else{
+      var s = obj.value;
+      var p = obj.selectionStart;
+      var np = p + img_markdown.length;
+      obj.value = s.substr(0,p) + img_markdown + s.substr(p);
+      obj.setSelectionRange(np,np);
     }
   });
   return div.append(anc.append(img));
