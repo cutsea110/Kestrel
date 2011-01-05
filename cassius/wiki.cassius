@@ -14,6 +14,16 @@ h2, h3, h4, h5, h6, div
     font-size: 200%
     font-weight: bold
 
+#pandoc-TOC-toggle
+    font-size: 90%
+    margin: 0 1em 0 1em
+    color: #e8e8e8
+    text-decoration: none
+
+#pandoc-TOC-toggle:hover
+    color: gray
+    background-color: white
+
 #pandoc-TOC-Title
     font-size: 110%
     font-weight: bold
@@ -110,3 +120,6 @@ table.history th
     color: red
 .number
     text-align: right
+
+.hidden
+    display: none

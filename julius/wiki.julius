@@ -1,0 +1,13 @@
+$(document).ready(function(){
+  var hideTOC = true;
+
+  $("#pandoc-TOC-toggle").text(hideTOC ? 'display toc' : 'hide toc');
+  $("#pandoc-TOC-Title,#pandoc-TOC").toggleClass("hidden", hideTOC);
+
+  $("#pandoc-TOC-toggle").click(function(){
+    hideTOC = !hideTOC;
+    $(this).text(hideTOC ? 'display toc' : 'hide toc');
+    $("#pandoc-TOC-Title,#pandoc-TOC").toggleClass("hidden", hideTOC);
+    return false;
+  });
+});

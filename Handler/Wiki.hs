@@ -46,6 +46,7 @@ getWikiR wp = do
       defaultLayout $ do
         setTitle $ string $ if isTop then topTitle else path
         addCassius $(cassiusFile "wiki")
+        addJulius $(juliusFile "wiki")
         addStylesheet $ StaticR css_hk_kate_css
         addWidget $(widgetFile "viewWiki")
 
@@ -59,6 +60,7 @@ getWikiR wp = do
       defaultLayout $ do
         setTitle $ string $ if isTop then topTitle else path
         addCassius $(cassiusFile "wiki")
+        addJulius $(juliusFile "wiki")
         addStylesheet $ StaticR css_hk_kate_css
         addWidget $(widgetFile "editWiki")
             
@@ -71,6 +73,7 @@ getWikiR wp = do
       defaultLayout $ do
         setTitle $ string $ if isTop then topTitle else path
         addCassius $(cassiusFile "wiki")
+        addJulius $(juliusFile "wiki")
         addStylesheet $ StaticR css_hk_kate_css
         addWidget $(widgetFile "deleteWiki")
 
@@ -102,6 +105,7 @@ postWikiR wp = do
       defaultLayout $ do
         setTitle $ string $ if isTop then topTitle else path
         addCassius $(cassiusFile "wiki")
+        addJulius $(juliusFile "wiki")
         addStylesheet $ StaticR css_hk_kate_css
         addWidget $(widgetFile "previewWiki")
 
@@ -170,6 +174,7 @@ getNewR = do
           defaultLayout $ do
             setTitle $ string $ if isTop then topTitle else path
             addCassius $(cassiusFile "wiki")
+            addJulius $(juliusFile "wiki")
             addStylesheet $ StaticR css_hk_kate_css
             addWidget $(widgetFile "viewNew")
     
@@ -187,6 +192,7 @@ getNewR = do
           defaultLayout $ do
             setTitle $ string $ if isTop then topTitle else path
             addCassius $(cassiusFile "wiki")
+            addJulius $(juliusFile "wiki")
             addStylesheet $ StaticR css_hk_kate_css
             addWidget $(widgetFile "editNew")
   
@@ -219,6 +225,7 @@ postNewR = do
       defaultLayout $ do
         setTitle $ string $ if isTop then topTitle else path
         addCassius $(cassiusFile "wiki")
+        addJulius $(juliusFile "wiki")
         addStylesheet $ StaticR css_hk_kate_css
         addWidget $(widgetFile "previewNew")
     
@@ -345,6 +352,7 @@ getHistoryR wp = do
       defaultLayout $ do
         setTitle $ string $ if isTop then topTitle else path
         addCassius $(cassiusFile "wiki")
+        addJulius $(juliusFile "wiki")
         addWidget $(widgetFile "listHistories")
 
     viewHistory :: Int -> Handler RepHtml
@@ -360,6 +368,7 @@ getHistoryR wp = do
       defaultLayout $ do
         setTitle $ string $ if isTop then topTitle else path
         addCassius $(cassiusFile "wiki")
+        addJulius $(juliusFile "wiki")
         addStylesheet $ StaticR css_hk_kate_css
         addWidget $(widgetFile "viewHistory")
 
@@ -376,6 +385,7 @@ getHistoryR wp = do
       defaultLayout $ do
         setTitle $ string $ if isTop then topTitle else path
         addCassius $(cassiusFile "wiki")
+        addJulius $(juliusFile "wiki")
         addStylesheet $ StaticR css_hk_kate_css
         addWidget $(widgetFile "editHistory")
     
@@ -392,6 +402,7 @@ getHistoryR wp = do
       defaultLayout $ do
         setTitle $ string $ if isTop then topTitle else path
         addCassius $(cassiusFile "wiki")
+        addJulius $(juliusFile "wiki")
         addStylesheet $ StaticR css_hk_kate_css
         addWidget $(widgetFile "revertHistory")
 
@@ -415,6 +426,7 @@ getHistoryR wp = do
       defaultLayout $ do
         setTitle $ string $ if isTop then topTitle else path
         addCassius $(cassiusFile "wiki")
+        addJulius $(juliusFile "wiki")
         addWidget $(widgetFile "diffHistories")
     
     diffPrevious :: Int -> Handler RepHtml
@@ -453,5 +465,6 @@ postHistoryR wp = do
       defaultLayout $ do
         setTitle $ string $ if isTop then topTitle else path
         addCassius $(cassiusFile "wiki")
+        addJulius $(juliusFile "wiki")
         addStylesheet $ StaticR css_hk_kate_css
         addWidget $(widgetFile "previewHistory")
