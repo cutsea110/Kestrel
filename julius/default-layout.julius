@@ -46,7 +46,7 @@ function imageP(item) {
 function makeImakeLink(uri,name){
   var img = $("<img/>").attr({src:uri});
   var anc = $("<a/>").attr({href:"#"}).text(name);
-  var div = $("<div/>").attr({class:"image-galary"});
+  var div = $("<div/>").addClass("image-galary");
   var img_markdown = "!["+name+"]("+uri+")";
   var obj = $("#content").get(0);
 

@@ -66,7 +66,6 @@ postUploadR = do
 #else
                       [$xhamlet|
 #endif
-!!!
 %file
   %name $name$
   %ext $ext$
