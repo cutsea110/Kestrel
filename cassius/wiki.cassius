@@ -13,6 +13,8 @@ h2, h3, h4, h5, h6, div
     color: #7b68ee
     font-size: 200%
     font-weight: bold
+    margin: 30px 0 0 80px
+
 
 #pandoc-TOC-toggle
     font-size: 90%
@@ -47,6 +49,7 @@ h2, h3, h4, h5, h6, div
 
 .navbar
     display: inline
+    margin: 0 0 0 50px
 
 .navbar a
     margin: 2px

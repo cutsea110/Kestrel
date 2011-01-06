@@ -1,5 +1,8 @@
 body
     font-family: sans-serif
+    background-image: url(/static/img/kestrel_logo.png)
+    background-repeat: no-repeat
+    background-position: left top
 
 div#message
     font-size: 150%
