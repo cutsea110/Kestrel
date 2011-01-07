@@ -83,7 +83,7 @@ table
     border: solid 1px #000000
     border-collapse: collapse
 tr.odd
-    background-color: #cfefff
+    background-color: #e0e0f0
 tr.even
     background-color: #ffffff
 
@@ -92,7 +92,7 @@ td
 
 th
     border: solid 1px #000000
-    background-color: #80a0ff
+    background-color: #d0d0f0
     border-bottom: double
 
 .history

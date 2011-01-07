@@ -50,6 +50,13 @@ function makeImakeLink(uri,name){
   var img_markdown = "!["+name+"]("+uri+")";
   var obj = $("#content").get(0);
 
+  img.bind('load', function(){
+    var ow = $(this).attr('width'),
+        oh = $(this).attr('height');
+    $(this).attr('height', 160);
+    $(this).attr('width', ow*160/oh);
+  });
+
   anc.bind('click', function() {
     $("#file_selector").dialog('close');
     obj.focus();
