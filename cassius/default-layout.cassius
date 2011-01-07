@@ -27,11 +27,20 @@ div#message
     overflow: scroll
     height: 360px
 
-a img
-   border-style: none
-   width: 120px
-
 div.image-galary
    border: solid 1px #8080ff
    display: inline-block
    width: 120px
+   margin: 2px
+
+div.image-galary a
+   color: white
+   background-color: white
+   border-style: none
+
+div.image-galary a:hover
+   color: brack
+   background-color: white
+
+div.image-galary a img
+   max-width: 120px
