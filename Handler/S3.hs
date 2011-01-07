@@ -18,7 +18,7 @@ import System.Directory
 import System.FilePath
 import Web.Encodings (encodeUrl, decodeUrl)
 
-import qualified Settings (s3dir, s3root)
+import qualified Settings (approot, s3dir, s3root)
 
 getUploadR :: Handler RepHtml
 getUploadR = do
@@ -112,5 +112,14 @@ getFileListR uid@(UserId uid') = do
       jsonMap [ ("name", jsonScalar name)
               , ("ext" , jsonScalar ext)
               , ("cdate", jsonScalar $ show cdate)
-              , ("uri", jsonScalar $ r $ FileR uid fid)
+              , ("uri", jsonScalar $ dropPrefix Settings.approot $ r $ FileR uid fid)
               ]
+    -- TODO: remove this if yesod support Root Relative URL.
+    dropPrefix :: (Eq a) => [a] -> [a] -> [a]
+    dropPrefix xs ys = dp' ys xs ys
+      where
+        dp' :: (Eq a) => [a] -> [a] -> [a] -> [a]
+        dp' os []     ys      = ys
+        dp' os xs     []      = os
+        dp' os (x:xs) (y:ys) | x==y = dp' os xs ys
+                             | otherwise = os
