@@ -19,6 +19,14 @@ $(document).ready(function(){
   });
 
   $("#file-select-button").click(function(){
+    var obj = $("#content").get(0);
+    obj.focus();
+    var pos;
+    if (jQuery.browser.msie) {
+      pos = document.selection.createRange();
+    } else {
+      pos = obj.selectionStart;
+    }
     $("#file_selector").dialog('open');
     $("#selectable_images div.image-galary").remove();
     $.getJSON($("#file-select-button").attr("href"),
@@ -26,7 +34,7 @@ $(document).ready(function(){
         $.each(data.files,
           function(i,item){
             if (imageP(item)) {
-              var g = makeImakeLink(item.uri, item.name);
+              var g = makeImakeLink(item.uri, item.name,pos);
               g.appendTo("#selectable_images");
             }
         });
@@ -43,7 +51,7 @@ function imageP(item) {
       || item.ext=='.png'
 }
 
-function makeImakeLink(uri,name){
+function makeImakeLink(uri,name,pos){
   var img = $("<img/>").attr({src:uri});
   var anc = $("<a/>").attr({href:"#"});
   var div = $("<div/>").addClass("image-galary");
@@ -61,14 +69,12 @@ function makeImakeLink(uri,name){
     $("#file_selector").dialog('close');
     obj.focus();
     if (jQuery.browser.msie) {
-      var p = document.selection.createRange();
-      p.text = img_markdown;
-      p.select();
+      pos.text = img_markdown;
+      pos.select();
     }else{
       var s = obj.value;
-      var p = obj.selectionStart;
-      var np = p + img_markdown.length;
-      obj.value = s.substr(0,p) + img_markdown + s.substr(p);
+      var np = pos + img_markdown.length;
+      obj.value = s.substr(0,pos) + img_markdown + s.substr(pos);
       obj.setSelectionRange(np,np);
     }
   });
