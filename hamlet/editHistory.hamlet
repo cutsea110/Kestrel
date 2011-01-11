@@ -1,24 +1,28 @@
-.navbar
-  %a!href=@WikiR.wp@ View
-  %a!href=@?editMe@ Edit
-  %a!href=@?deleteMe@ Delete
-  %a!href=@?myHistory@ History
-$if (not isTop)
-  %a!href=@?topView@ Top
+%ul.tabs
+  %li
+    %a!href=@WikiR.wp@ View
+  %li
+    %a!href=@?editMe@ Edit
+  %li
+    %a!href=@?deleteMe@ Delete
+  %li.selected
+    %a!href=@?myHistory@ History
+  $if (not isTop)
+    %li
+      %a!href=@?topView@ Top
 
-%hr
+#main-content
+  %form!method=post!action=@HistoryR.wp@
+    %input!type=hidden!name=version!value=$show.ver$
+    %input!type=hidden!name=original_version!value=$show.v$
+    %textarea.content!id=content!name=content $raw$
+    .description ChangeLog (brief summary of your edit for later reference):
+    %textarea.comment!name=comment 
+      $if notCurrent
+        written back to the old version $show.v$
+    %br
+    %input!type=submit!name=preview!value=preview
+    %input!type=submit!name=commit!value=commit
 
-%form!method=post!action=@HistoryR.wp@
-  %input!type=hidden!name=version!value=$show.ver$
-  %input!type=hidden!name=original_version!value=$show.v$
-  %textarea.content!id=content!name=content $raw$
-  .description ChangeLog (brief summary of your edit for later reference):
-  %textarea.comment!name=comment 
-    $if notCurrent
-      written back to the old version $show.v$
-  %br
-  %input!type=submit!name=preview!value=preview
-  %input!type=submit!name=commit!value=commit
-
-#help
-  ^markdown^
+  #help
+    ^markdown^

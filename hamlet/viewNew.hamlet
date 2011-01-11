@@ -1,11 +1,13 @@
-.navbar
-  View
-  %a!href=@?editMe@ Edit
-$if (not isTop)
-  %a!href=@?topView@ Top
+%ul.tabs
+  %li.selected
+    %a!href=@?viewMe@ View
+  %li
+    %a!href=@?editMe@ Edit
+  $if (not isTop)
+    %li
+      %a!href=@?topView@ Top
 
-%hr
-
-There is no page '$path$'. You maycreate the page by $
-%a!href=@?editMe@ Clicking here
-\.
+#main-content
+  There is no page '$path$'. You maycreate the page by $
+  %a!href=@?editMe@ Clicking here
+  \.

@@ -1,30 +1,33 @@
-.navbar
-  %a!href=@WikiR.wp@ View
-  %a!href=@?editMe@ Edit
-  %a!href=@?deleteMe@ Delete
-  %a!href=@?myHistory@ History
-$if (not isTop)
-  %a!href=@?topView@ Top
+%ul.tabs
+  %li
+    %a!href=@WikiR.wp@ View
+  %li
+    %a!href=@?editMe@ Edit
+  %li
+    %a!href=@?deleteMe@ Delete
+  %li.selected
+    %a!href=@?myHistory@ History
+  $if (not isTop)
+    %li
+      %a!href=@?topView@ Top
 
-%hr
+#main-content
+  %form!method=post!action=@HistoryR.wp@
+    %input!type=hidden!name=version!value=$show.ver$
+    %input!type=hidden!name=content!value=$raw$
+    %input!type=hidden!name=comment!value="revert this page to the old version $show.v$"
+    .warnings
+      Warning: revert the page to this old version?
+    %input!type=submit!name=commit!value="revert to this version"
+    %br
 
-%form!method=post!action=@HistoryR.wp@
-  %input!type=hidden!name=version!value=$show.ver$
-  %input!type=hidden!name=content!value=$raw$
-  %input!type=hidden!name=comment!value="revert this page to the old version $show.v$"
-  .warnings
-    Warning: revert the page to this old version?
-  %input!type=submit!name=commit!value="revert to this version"
-  %br
+  .preview
+    $content$
 
-
-.preview
- $content$
-
- #metainfo!align=right
-   $maybe me e
-     Edited by: $userIdent.e$
-   $nothing
-     Edited by: editor deleted
-   %br
-   Last updated: $showDate.upd$
+  #metainfo!align=right
+    $maybe me e
+      Edited by: $userIdent.e$
+    $nothing
+      Edited by: editor deleted
+    %br
+    Last updated: $showDate.upd$

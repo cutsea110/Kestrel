@@ -4,15 +4,21 @@
         %title $pageTitle.pc$
         ^pageHead.pc^
     %body
-        #title $pageTitle.pc$
-        ^header^
-        $maybe mu u
-          !align=right
-            %a#file-select-button!href=@FileListR.fst.u@ View files
-        $maybe mmsg msg
-            #message $msg$
-        ^pageBody.pc^
-        ^footer^
+        #doc.kui-t1
+          #kui-main
+            #maincol.kui-b
+              #userbox
+                ^header^
+              $maybe mmsg msg
+                #message $msg$
+              ^pageBody.pc^
+              #footer
+                ^footer^
+          #sidebar.kui-b
+            #kestrel-logo
+              %img!src=@StaticR.img_kestrel_logo_png@
+            .sidebox
+              $sidepane$
         $maybe mu u
           #file_selector
            Select from

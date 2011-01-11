@@ -1,15 +1,19 @@
-.navbar
-  %a!href=@WikiR.wp@ View
-  %a!href=@?editMe@ Edit
-  Delete
-  %a!href=@?myHistory@ History
-$if (not isTop)
-  %a!href=@?topView@ Top
+%ul.tabs
+  %li
+    %a!href=@WikiR.wp@ View
+  %li
+    %a!href=@?editMe@ Edit
+  %li.selected
+    %a!href=@?deleteMe@ Delete
+  %li
+    %a!href=@?myHistory@ History
+  $if (not isTop)
+    %li
+      %a!href=@?topView@ Top
 
-%hr
+#main-content
+  .warnings
+    Warning: deleting the page cannot be undone. Are you sure?
 
-.warnings
-  Warning: deleting the page cannot be undone. Are you sure?
-
-%form!method=post!action=@WikiR.wp@
-  %input!type=submit!name=delete!value="i'm sure, delete it!"
+  %form!method=post!action=@WikiR.wp@
+    %input!type=submit!name=delete!value="i'm sure, delete it!"

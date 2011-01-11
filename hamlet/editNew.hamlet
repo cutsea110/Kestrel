@@ -1,19 +1,21 @@
-.navbar
-  %a!href=@?viewMe@ View
-  Edit
-$if (not isTop)
-  %a!href=@?topView@ Top
+%ul.tabs
+  %li
+    %a!href=@?viewMe@ View
+  %li.selected
+    %a!href=@?editMe@ Edit
+  $if (not isTop)
+    %li
+      %a!href=@?topView@ Top
 
-%hr
+#main-content
+  %form!method=post!action=@NewR@
+    %input!type=hidden!name=path!value=$path'$
+    %textarea.content!id=content!name=content
+    .description ChangeLog (brief summary of your edit for later reference):
+    %textarea.comment!name=comment
+    %br
+    %input!type=submit!name=preview!value=preview
+    %input!type=submit!name=commit!value="new create"
 
-%form!method=post!action=@NewR@
-  %input!type=hidden!name=path!value=$path'$
-  %textarea.content!id=content!name=content
-  .description ChangeLog (brief summary of your edit for later reference):
-  %textarea.comment!name=comment
-  %br
-  %input!type=submit!name=preview!value=preview
-  %input!type=submit!name=commit!value="new create"
-
-#help
-  ^markdown^
+  #help
+    ^markdown^

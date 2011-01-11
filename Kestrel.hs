@@ -192,6 +192,7 @@ instance Yesod Kestrel where
         mmsg <- getMessage
         let header = $(Settings.hamletFile "header")
             footer = $(Settings.hamletFile "footer")
+            sidepane = "Side Pane!!!"::String
         pc <- widgetToPageContent $ do
           widget
           addScriptEither $ urlJqueryJs y

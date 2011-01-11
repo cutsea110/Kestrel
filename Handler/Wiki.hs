@@ -55,7 +55,8 @@ getWikiR wp = do
     editWiki = do
       (uid, _) <- requireAuth
       (path, raw, content, upd, ver, _, isTop) <- getwiki
-      let deleteMe = (WikiR wp, [("mode", "d")])
+      let editMe = (WikiR wp, [("mode", "e")])
+          deleteMe = (WikiR wp, [("mode", "d")])
           myHistory = (HistoryR wp, [("mode", "l"),("ver", show ver)])
           markdown = $(hamletFile "markdown")
       defaultLayout $ do
@@ -70,6 +71,7 @@ getWikiR wp = do
       (uid, _) <- requireAuth
       (path, raw, content, upd, ver, me, isTop) <- getwiki
       let editMe = (WikiR wp, [("mode", "e")])
+          deleteMe = (WikiR wp, [("mode", "d")])
           myHistory = (HistoryR wp, [("mode", "l"),("ver", show ver)])
       defaultLayout $ do
         setTitle $ string $ if isTop then topTitle else path
@@ -100,7 +102,8 @@ postWikiR wp = do
                          <*> maybeStringInput "comment"
                          <*> intInput "version"
       content <- runDB $ markdownToWikiHtml wikiWriterOption raw
-      let deleteMe = (WikiR wp, [("mode", "d")])
+      let editMe = (WikiR wp, [("mode", "e")])
+          deleteMe = (WikiR wp, [("mode", "d")])
           myHistory = (HistoryR wp, [("mode", "l"),("ver", show ver)])
           markdown = $(hamletFile "markdown")
       defaultLayout $ do
@@ -171,6 +174,7 @@ getNewR = do
         Just path' -> do
           let path = decodeUrl path'
               isTop = path==Settings.topTitle
+              viewMe = (NewR, [("path", path'), ("mode", "v")])
               editMe = (NewR, [("path", path'), ("mode", "e")])
           defaultLayout $ do
             setTitle $ string $ if isTop then topTitle else path
@@ -189,6 +193,7 @@ getNewR = do
           let path = decodeUrl path'
               isTop = path==Settings.topTitle
               viewMe = (NewR, [("path", path'), ("mode", "v")])
+              editMe = (NewR, [("path", path'), ("mode", "e")])
               markdown = $(hamletFile "markdown")
           defaultLayout $ do
             setTitle $ string $ if isTop then topTitle else path
@@ -218,6 +223,7 @@ postNewR = do
       let path = decodeUrl path'
           isTop = path == Settings.topTitle
           viewMe = (NewR, [("path", path'), ("mode", "v")])
+          editMe = (NewR, [("path", path'), ("mode", "e")])
           markdown = $(hamletFile "markdown")
       content <- runDB $ markdownToWikiHtml wikiWriterOption raw
       defaultLayout $ do
@@ -328,6 +334,7 @@ getHistoryR wp = do
           curver = (wikiHistoryVersion.snd.head) hs''
           editMe = (WikiR wp, [("mode", "e")])
           deleteMe = (WikiR wp, [("mode", "d")])
+          myHistory = (HistoryR wp, [("mode", "l"),("ver", show v)])
           viewVer = \v -> (HistoryR wp, [("mode", "v"),("ver", show v)])
           editVer = \v -> (HistoryR wp, [("mode", "e"),("ver", show v)])
           revertVer = \v -> (HistoryR wp, [("mode", "r"),("ver", show v)])

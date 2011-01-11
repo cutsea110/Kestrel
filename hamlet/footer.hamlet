@@ -1,7 +1,5 @@
-%hr
-!align=center
-  powered by $
-  %a!href="http://docs.yesodweb.com" yesod.
+powered by $
+%a!href="http://docs.yesodweb.com" yesod.
 
 <!-- AddThis Button BEGIN -->
 <div class="addthis_toolbox addthis_default_style ">

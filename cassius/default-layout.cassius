@@ -1,8 +1,7 @@
 body
     font-family: sans-serif
-    background-image: url(/static/img/kestrel_logo.png)
-    background-repeat: no-repeat
-    background-position: left top
+    margin: 0
+    padding: 0
 
 div#message
     font-size: 150%
@@ -30,6 +29,82 @@ div#message
     overflow: scroll
     height: 360px
 
+.kui-t1
+   margin: auto
+   text-align: left
+   width: 57.69em
+
+#doc
+   margin: auto 10px;
+   width: auto
+   text-align: left
+
+#kui-main
+   float: right;
+   width: 100%
+   margin-left: -25em
+
+.kui-b
+   position: relative
+
+.kui-t1 .kui-b
+   float: left
+   width: 12.3077em
+
+.kui-t1 #kui-main .kui-b
+   margin-left: 13.3077em
+
+#kui-main .kui-b
+   float: none
+   width: auto
+   position: static
+
+#userbox
+   font-weight: bold
+   margin: 1em
+   text-align: right
+
+ul.tabs
+   margin: 0 0 1px
+   padding: 0
+
+ul.tabs li.selected
+   border-bottom: 3px solid white
+
+ul.tabs li
+   background: none repeat scroll 0 0 white
+   border-color: #cccccc
+   border-style: solid solid none
+   border-width: 1px 1px medium
+   display: inline
+   margin: 0 0 0 1.2em
+   padding: 0 0.6em
+
+ul.tabs li a
+   color: #3366CC
+   font-size: 93%
+   font-weight: bold
+   margin: 0px
+   text-decoration: none
+
+#main-content
+   background-color: #ffffff
+   border: 1px solid #CCCCCC
+   font-size: 108%
+   padding: 1em
+
+ol, ul, dl
+   margin-left: 2em
+
+ul
+   list-style-type: square
+
+#footer
+   color: #888888
+   font-size: 93%
+   padding: 1em
+   text-align: center
+
 div.image-galary
    border: solid 1px #8080ff
    display: inline-block
@@ -40,6 +115,3 @@ div.image-galary a
    background-color: white
    border-style: none
 
-div.image-galary a:hover
-   color: brack
-   background-color: white

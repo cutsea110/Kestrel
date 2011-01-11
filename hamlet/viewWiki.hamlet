@@ -1,14 +1,18 @@
-.navbar
-  View
-  %a!href=@?editMe@ Edit
-  %a!href=@?deleteMe@ Delete
-  %a!href=@?myHistory@ History
-$if (not isTop)
-  %a!href=@?topView@ Top
+%ul.tabs
+  %li.selected
+    %a!href=@WikiR.wp@ View
+  %li
+    %a!href=@?editMe@ Edit
+  %li
+    %a!href=@?deleteMe@ Delete
+  %li
+    %a!href=@?myHistory@ History
+  $if (not isTop)
+    %li
+      %a!href=@?topView@ Top
 
-%hr
-
-$content$
+#main-content
+  $content$
 
 #metainfo!align=right
   $maybe me e

@@ -1,19 +1,24 @@
-.navbar
-  %a!href=@WikiR.wp@ View
-  %a!href=@?editMe@ Edit
-  %a!href=@?deleteMe@ Delete
-  %a!href=@?myHistory@ History
-$if (not isTop)
-  %a!href=@?topView@ Top
+%ul.tabs
+  %li
+    %a!href=@WikiR.wp@ View
+  %li
+    %a!href=@?editMe@ Edit
+  %li
+    %a!href=@?deleteMe@ Delete
+  %li.selected
+    %a!href=@?myHistory@ History
+  $if (not isTop)
+    %li
+      %a!href=@?topView@ Top
 
-%hr
-%h2 $title$
+#main-content
+  %h2 $title$
 
-.plus  + added line
-.minus - deleted line
+  .plus  + added line
+  .minus - deleted line
 
-!align=right
-  %a!href=@?myHistory@ Return to the edit history
+  !align=right
+    %a!href=@?myHistory@ Return to the edit history
 
-.diff
- $content$
+  .diff
+    $content$

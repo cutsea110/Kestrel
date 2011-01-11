@@ -1,59 +1,63 @@
-.navbar
-  %a!href=@WikiR.wp@ View
-  %a!href=@?editMe@ Edit
-  %a!href=@?deleteMe@ Delete
-  History
-$if (not isTop)
-  %a!href=@?topView@ Top
+%ul.tabs
+  %li
+    %a!href=@WikiR.wp@ View
+  %li
+    %a!href=@?editMe@ Edit
+  %li
+    %a!href=@?deleteMe@ Delete
+  %li.selected
+    %a!href=@?myHistory@ History
+  $if (not isTop)
+    %li
+      %a!href=@?topView@ Top
 
-%hr
-
-%table.history
-  %thead
-    %tr
-      %th!rowspan=2 ver.
-      %th!rowspan=2 updated date
-      %th editor
-      %th changes
-      %th operation
-    %tr
-      %th!colspan=3 log comment
-  %tbody
-  $forall hs h
-    %tr!class=$altClass.snd3.h$
-      %td.number!rowspan=2 $show.wikiHistoryVersion.snd3.h$
-      %td!rowspan=2 $showDate.wikiHistoryUpdated.snd3.h$
-      %td $userIdent.fst3.h$
-      %td +$show.fst.thd3.h$,$show.snd.thd3.h$ line(s)
-      %td
-         [
-         %a!href=@?viewVer.wikiHistoryVersion.snd3.h@ View
-         |
-         %a!href=@?editVer.wikiHistoryVersion.snd3.h@ Edit
-         &nbsp;this version|
-         %a!href=@?revertVer.wikiHistoryVersion.snd3.h@ Revert
-         ]
-         $if (canDiff snd3.h)
-           [Diff to $
-           $if (notCurrent snd3.h)
-             %a!href=@?currDiff.wikiHistoryVersion.snd3.h@ current
-           $if (canDiff2 snd3.h)
-             |
-           $if (notEpoch snd3.h)
-             %a!href=@?prevDiff.wikiHistoryVersion.snd3.h@ previous
+#main-content
+  %table.history
+    %thead
+      %tr
+        %th!rowspan=2 ver.
+        %th!rowspan=2 updated date
+        %th editor
+        %th changes
+        %th operation
+      %tr
+        %th!colspan=3 log comment
+    %tbody
+    $forall hs h
+      %tr!class=$altClass.snd3.h$
+        %td.number!rowspan=2 $show.wikiHistoryVersion.snd3.h$
+        %td!rowspan=2 $showDate.wikiHistoryUpdated.snd3.h$
+        %td $userIdent.fst3.h$
+        %td +$show.fst.thd3.h$,$show.snd.thd3.h$ line(s)
+        %td
+           [
+           %a!href=@?viewVer.wikiHistoryVersion.snd3.h@ View
+           |
+           %a!href=@?editVer.wikiHistoryVersion.snd3.h@ Edit
+           &nbsp;this version|
+           %a!href=@?revertVer.wikiHistoryVersion.snd3.h@ Revert
            ]
-    %tr!class=$altClass.snd3.h$
-      %td!colspan=3
-        $maybe wikiHistoryComment.snd3.h com
-          $if (isNull com)
+           $if (canDiff snd3.h)
+             [Diff to $
+             $if (notCurrent snd3.h)
+               %a!href=@?currDiff.wikiHistoryVersion.snd3.h@ current
+             $if (canDiff2 snd3.h)
+               |
+             $if (notEpoch snd3.h)
+               %a!href=@?prevDiff.wikiHistoryVersion.snd3.h@ previous
+             ]
+      %tr!class=$altClass.snd3.h$
+        %td!colspan=3
+          $maybe wikiHistoryComment.snd3.h com
+            $if (isNull com)
+              %span.description *** no log comment ***
+            $else
+              %span $com$
+          $nothing
             %span.description *** no log comment ***
-          $else
-            %span $com$
-        $nothing
-          %span.description *** no log comment ***
-  $maybe mnext next
-    %tr
-      %td!colspan=5
-        [
-        %a!href=@?next@ Older Histories...
-        ]
+    $maybe mnext next
+      %tr
+        %td!colspan=5
+          [
+          %a!href=@?next@ Older Histories...
+          ]
