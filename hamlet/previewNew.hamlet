@@ -1,7 +1,7 @@
 %ul.tabs
-  %li.selected
-    %a!href=@?viewMe@ View
   %li
+    %a!href=@?viewMe@ View
+  %li.selected
     %a!href=@?editMe@ Edit
   $if (not isTop)
     %li
