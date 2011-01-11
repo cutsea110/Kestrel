@@ -12,6 +12,7 @@ import Web.Encodings (encodeUrl, decodeUrl)
 import Data.Tuple.HT
 import Data.Algorithm.Diff
 
+import Settings (topTitle)
 import StaticFiles
 
 getWikiR :: WikiPage -> Handler RepHtml
@@ -169,7 +170,7 @@ getNewR = do
         Nothing -> invalidArgs ["'path' query paramerter is required"]
         Just path' -> do
           let path = decodeUrl path'
-              isTop = path==""
+              isTop = path==Settings.topTitle
               editMe = (NewR, [("path", path'), ("mode", "e")])
           defaultLayout $ do
             setTitle $ string $ if isTop then topTitle else path
@@ -186,7 +187,7 @@ getNewR = do
         Nothing -> invalidArgs ["'path' query paramerter is required"]
         Just path' -> do
           let path = decodeUrl path'
-              isTop = path==""
+              isTop = path==Settings.topTitle
               viewMe = (NewR, [("path", path'), ("mode", "v")])
               markdown = $(hamletFile "markdown")
           defaultLayout $ do

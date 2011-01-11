@@ -45,7 +45,7 @@ wikiWriterOption =
           writerStandalone = True
         , writerTemplate = "$if(toc)$\n<a id='pandoc-TOC-toggle' href=''></a><div id='pandoc-TOC-Title'>Table of Contents</div>\n$toc$\n$endif$\n$body$"
         , writerTableOfContents = True
-        , writerNumberSections = True
+        , writerNumberSections = False
         , writerIdentifierPrefix = "pandoc-"
         }
 

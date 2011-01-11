@@ -6,13 +6,18 @@ import Kestrel.WikiParser
 import Yesod.Helpers.AtomFeed
 import Yesod.Helpers.Sitemap
 
+import qualified Settings (topTitle)
+
 getRootR :: Handler RepHtml
+getRootR = uncurry (redirectParams RedirectTemporary) topView
+{--
 getRootR = do
-    let wikiTop = WikiPage []
+    let wikiTop = topPage
     defaultLayout $ do
         h2id <- newIdent
         setTitle "kestrel homepage"
         addWidget $(widgetFile "homepage")
+--}
 
 -- Some default handlers that ship with the Yesod site template. You will
 -- very rarely need to modify this.
@@ -35,7 +40,7 @@ getFeedR = runDB $ do
   entries <- markdownsToWikiHtmls noToc $ map (wikiContent . snd) top10
   let uday = (wikiUpdated . snd . head) top10
   lift $ atomFeed AtomFeed
-    { atomTitle = topTitle
+    { atomTitle = Settings.topTitle
     , atomLinkSelf = FeedR
     , atomLinkHome = RootR
     , atomUpdated = uday

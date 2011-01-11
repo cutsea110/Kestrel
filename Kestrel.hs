@@ -26,7 +26,6 @@ module Kestrel
     , fromPath
     , fromWiki
     , ancestory
-    , topTitle
     , setpassR -- Auth.Account
     , getBy404
       --
@@ -128,10 +127,8 @@ instance MultiPiece WikiPage where
   toMultiPiece = unWikiPage
   fromMultiPiece = Right . WikiPage
 
-topTitle :: String
-topTitle = "Kestrel = WIKI"
 topPage :: WikiPage
-topPage = WikiPage []
+topPage = WikiPage [Settings.topTitle]
 topView :: (KestrelRoute, [(String, String)])
 topView = (WikiR topPage, [("mode","v")])
 
@@ -203,7 +200,7 @@ instance Yesod Kestrel where
           addScriptEither $ Left $ StaticR js_jquery_upload_1_0_2_js
           addCassius $(Settings.cassiusFile "default-layout")
           addJulius $(Settings.juliusFile "default-layout")
-          atomLink FeedR topTitle
+          atomLink FeedR Settings.topTitle
         hamletToRepHtml $(Settings.hamletFile "default-layout")
         
     -- This is done to provide an optimization for serving static files from

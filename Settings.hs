@@ -19,6 +19,8 @@ module Settings
     , staticdir
     , s3dir
     , s3root
+    , topTitle
+    , sidePaneTitle
     ) where
 
 import qualified Text.Hamlet as H
@@ -69,6 +71,11 @@ s3dir :: FilePath
 s3dir = "s3"
 s3root :: String
 s3root = approot ++ "/s3"
+
+topTitle :: String
+topTitle = "Kestrel"
+sidePaneTitle :: String
+sidePaneTitle = "_side"
 
 -- | The database connection string. The meaning of this string is backend-
 -- specific.
