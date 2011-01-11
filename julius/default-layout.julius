@@ -19,13 +19,14 @@ $(document).ready(function(){
   });
 
   $("#file-select-button").click(function(){
-    var obj = $("#content").get(0);
-    obj.focus();
-    var pos;
-    if (jQuery.browser.msie) {
-      pos = document.selection.createRange();
-    } else {
-      pos = obj.selectionStart;
+    var pos, obj = $("#content").get(0);
+    if (obj) {
+      obj.focus();
+      if (jQuery.browser.msie) {
+        pos = document.selection.createRange();
+      } else {
+        pos = obj.selectionStart;
+      }
     }
     $("#file_selector").dialog('open');
     $("#selectable_images div.image-galary").remove();
@@ -65,18 +66,20 @@ function makeImakeLink(uri,name,pos){
     $(this).attr('width', ow*160/oh);
   });
 
-  anc.bind('click', function() {
-    $("#file_selector").dialog('close');
-    obj.focus();
-    if (jQuery.browser.msie) {
-      pos.text = img_markdown;
-      pos.select();
-    }else{
-      var s = obj.value;
-      var np = pos + img_markdown.length;
-      obj.value = s.substr(0,pos) + img_markdown + s.substr(pos);
-      obj.setSelectionRange(np,np);
-    }
-  });
+  if (pos) {
+    anc.bind('click', function() {
+      $("#file_selector").dialog('close');
+      obj.focus();
+      if (jQuery.browser.msie) {
+        pos.text = img_markdown;
+        pos.select();
+      }else{
+        var s = obj.value;
+        var np = pos + img_markdown.length;
+        obj.value = s.substr(0,pos) + img_markdown + s.substr(pos);
+        obj.setSelectionRange(np,np);
+      }
+    });
+  }
   return div.append(anc.append(img));
 }
