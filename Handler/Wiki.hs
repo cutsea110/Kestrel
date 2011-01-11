@@ -211,15 +211,12 @@ postNewR = do
     previewWiki :: Handler RepHtml
     previewWiki = do
       (uid, _) <- requireAuth
-      (path'', raw, com) <- runFormPost' $ (,,)
-                           <$> maybeStringInput "path"
+      (path', raw, com) <- runFormPost' $ (,,)
+                           <$> stringInput "path"
                            <*> stringInput "content"
                            <*> maybeStringInput "comment"
-      let path' = case path'' of
-            Nothing -> "" -- TOP Page
-            Just p -> p
-          path = decodeUrl path'
-          isTop = path == ""
+      let path = decodeUrl path'
+          isTop = path == Settings.topTitle
           viewMe = (NewR, [("path", path'), ("mode", "v")])
           markdown = $(hamletFile "markdown")
       content <- runDB $ markdownToWikiHtml wikiWriterOption raw
@@ -233,14 +230,11 @@ postNewR = do
     createWiki :: Handler RepHtml
     createWiki = do
       (uid, _) <- requireAuth
-      (path'', raw, com) <- runFormPost' $ (,,)
-                           <$> maybeStringInput "path"
+      (path', raw, com) <- runFormPost' $ (,,)
+                           <$> stringInput "path"
                            <*> stringInput "content"
                            <*> maybeStringInput "comment"
-      let path' = case path'' of
-            Nothing -> ""
-            Just p -> p
-          path = decodeUrl path'
+      let path = decodeUrl path'
       now <- liftIO getCurrentTime
       runDB $ do
         pid <- insert Wiki { 
