@@ -47,13 +47,6 @@ h2, h3, h4, h5, h6, div
 #metainfo
     color: gray
 
-.navbar
-    display: inline
-    margin: 0 0 0 50px
-
-.navbar a
-    margin: 2px
-
 h1 a, h2 a, h3 a, h4 a, h5 a, h6 a
     text-decoration: none
 
