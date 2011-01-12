@@ -93,8 +93,12 @@ ul.tabs li a
    font-size: 108%
    padding: 1em
 
+.sidebox
+   margin-top: 25px
+
 .sidebox ul
    margin-left: 0
+   -webkit-padding-start: 15px
 
 ol, ul, dl
    margin-left: 2em
