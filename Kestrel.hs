@@ -21,6 +21,7 @@ module Kestrel
     , WikiPage(..)
     , topPage
     , topView
+    , sidePaneNew
     , lastNameOf
     , pathOf
     , fromPath
@@ -145,6 +146,9 @@ topPage :: WikiPage
 topPage = WikiPage [Settings.topTitle]
 topView :: (KestrelRoute, [(String, String)])
 topView = (WikiR topPage, [("mode","v")])
+
+sidePaneNew :: (KestrelRoute, [(String, String)])
+sidePaneNew = (NewR, [("path", encodeUrl Settings.sidePaneTitle), ("mode", "e")])
 
 pathOf :: WikiPage -> String
 pathOf = intercalate ":" . unWikiPage

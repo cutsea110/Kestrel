@@ -21,6 +21,9 @@
                 %fieldset
                   %legend $spTitle$
                   $sp$
+            $nothing
+              $maybe mu u
+                %a!href=@?sidePaneNew@ Edit $spTitle$
             #recent-changes.sidebox
               %fieldset
                 %legend Recent Changes
