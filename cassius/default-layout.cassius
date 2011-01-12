@@ -96,12 +96,8 @@ ul.tabs li a
 .sidebox
    margin-top: 25px
 
-.sidebox ul
-   margin-left: 0
+ul, ol
    -webkit-padding-start: 15px
-
-ol, ul, dl
-   margin-left: 2em
 
 ul
    list-style-type: square

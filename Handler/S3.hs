@@ -19,6 +19,7 @@ import System.FilePath
 import Web.Encodings (encodeUrl, decodeUrl)
 
 import qualified Settings (approot, s3dir, s3root)
+import Settings (widgetFile, cassiusFile)
 
 getUploadR :: Handler RepHtml
 getUploadR = do

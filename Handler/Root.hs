@@ -2,7 +2,6 @@
 module Handler.Root where
 
 import Kestrel
-import Kestrel.WikiParser
 import Yesod.Helpers.AtomFeed
 import Yesod.Helpers.Sitemap
 

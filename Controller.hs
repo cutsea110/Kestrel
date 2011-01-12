@@ -25,7 +25,7 @@ mkYesodDispatch "Kestrel" resourcesKestrel
 -- place to put your migrate statements to have automatic database
 -- migrations handled by Yesod.
 withKestrel :: (Application -> IO a) -> IO a
-withKestrel f = Settings.withConnectionPool $ \p -> do
+withKestrel f = withConnectionPool $ \p -> do
     runConnectionPool (runMigration migrateAll) p
     let h = Kestrel s p
     toWaiApp h >>= f

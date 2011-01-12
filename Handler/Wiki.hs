@@ -2,7 +2,6 @@
 module Handler.Wiki where
 
 import Kestrel
-import Kestrel.WikiParser
 
 import Control.Monad
 import Data.Time
@@ -12,7 +11,7 @@ import Web.Encodings (encodeUrl, decodeUrl)
 import Data.Tuple.HT
 import Data.Algorithm.Diff
 
-import Settings (topTitle)
+import Settings (topTitle, hamletFile, cassiusFile, juliusFile, widgetFile)
 import StaticFiles
 
 getWikiR :: WikiPage -> Handler RepHtml

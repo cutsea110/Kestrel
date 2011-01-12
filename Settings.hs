@@ -75,7 +75,7 @@ s3root = approot ++ "/s3"
 topTitle :: String
 topTitle = "Kestrel"
 sidePaneTitle :: String
-sidePaneTitle = "_side"
+sidePaneTitle = "Site Navigation"
 
 -- | The database connection string. The meaning of this string is backend-
 -- specific.
