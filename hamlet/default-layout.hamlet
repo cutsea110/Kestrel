@@ -17,6 +17,13 @@
           #sidebar.kui-b
             #kestrel-logo
               %img!src=@StaticR.img_kestrel_logo_png@
+            #recent-changes.sidebox
+              %fieldset
+                %legend Recent Changes
+                %ul
+                  $forall rc e
+                    %li
+                     %a!href=@WikiR.(fromPath.(wikiPath.snd.e))@ $wikiPath.snd.e$
             .sidebox
               $sidepane$
         $maybe mu u

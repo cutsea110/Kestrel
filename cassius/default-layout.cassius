@@ -93,6 +93,9 @@ ul.tabs li a
    font-size: 108%
    padding: 1em
 
+.sidebox ul
+   margin-left: 0
+
 ol, ul, dl
    margin-left: 2em
 

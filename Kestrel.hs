@@ -190,6 +190,8 @@ instance Yesod Kestrel where
         render <- getUrlRender
         mu <- maybeAuth
         mmsg <- getMessage
+        rc <- runDB $ do
+          selectList [] [WikiUpdatedDesc] 10 0
         let header = $(Settings.hamletFile "header")
             footer = $(Settings.hamletFile "footer")
             sidepane = "Side Pane!!!"::String
