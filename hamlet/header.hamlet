@@ -1,9 +1,11 @@
-$maybe mu u
-  Now Logged in as $userIdent.snd.u$. $
-  %a!href=@AuthR.LogoutR@ Logout
-  %a!href=@AuthR.setpassR@ Change Password
-$nothing
-  %a!href=@AuthR.LoginR@ Login
-$maybe mu u
-  %br
-  %a#file-select-button!href=@FileListR.fst.u@ View files
+#userbox
+  $maybe mu u
+    Now Logged in as $userIdent.snd.u$. $
+    %a!href=@AuthR.LogoutR@ [Logout]
+    \ 
+    %a!href=@AuthR.setpassR@ [Change Password]
+  $nothing
+    %a!href=@AuthR.LoginR@ [Login]
+#file-list-view
+  $maybe mu u
+    %a#file-select-button!href=@FileListR.fst.u@ [View files]

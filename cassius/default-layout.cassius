@@ -59,10 +59,17 @@ div#message
    width: auto
    position: static
 
-#userbox
+#userbox, #file-list-view
+   font-size: 93%
+   color: #888
    font-weight: bold
-   margin: 1em
    text-align: right
+
+#userbox
+   margin-top: 1em
+
+#userbox a, #file-list-view a
+   color: #8080ff
 
 ul.tabs
    margin: 0 0 1px
@@ -101,6 +108,9 @@ ul, ol
 
 ul
    list-style-type: square
+
+img
+   border-style: none
 
 #footer
    color: #888888
