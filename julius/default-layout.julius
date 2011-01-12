@@ -8,12 +8,21 @@ $(document).ready(function(){
   });
 
   $("#go_upload").click(function(){
+    var pos, obj = $("#content").get(0);
+    if (obj) {
+      obj.focus();
+      if (jQuery.browser.msie) {
+        pos = document.selection.createRange();
+      } else {
+        pos = obj.selectionStart;
+      }
+    }
     $("#fields").upload($("#upload_form").attr('action'),
                    function(res) {
                      var file = $(res).find('file');
                      var uri = file.find('uri').text();
                      var name = file.find('name').text();
-                     var g = makeImakeLink(uri, name);
+                     var g = makeImakeLink(uri, name, pos);
                      g.prependTo("#selectable_images");
                    }, 'xml');
   });
@@ -35,7 +44,7 @@ $(document).ready(function(){
         $.each(data.files,
           function(i,item){
             if (imageP(item)) {
-              var g = makeImakeLink(item.uri, item.name,pos);
+              var g = makeImakeLink(item.uri, item.name, pos);
               g.appendTo("#selectable_images");
             }
         });
