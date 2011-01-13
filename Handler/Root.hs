@@ -66,4 +66,5 @@ getRecentChangesR = do
     go r (wid@(WikiId wid'), w) = 
       jsonMap [ ("title", jsonScalar (wikiPath w))
               , ("uri", jsonScalar $ dropPrefix Settings.approot $ r $ WikiR $ fromPath (wikiPath w))
+              , ("uday", jsonScalar $ show (wikiUpdated w))
               ]
