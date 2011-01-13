@@ -64,16 +64,18 @@ $(document).ready(function(){
 
 });
 
-function imageP(ext) {
-  return ext=='.gif'
-      || ext=='.jpg'
-      || ext=='.jpeg'
-      || ext=='.png'
+function thumbnailUri(ext) {
+  if (ext=='.gif'||ext=='.jpg'||ext=='.jpeg'||ext=='.png') {
+    return '';
+  }else{
+    return "@StaticR.img_file_icon_png@";
+  }
 }
 
 function makeImageLink(uri,name,ext,pos){
-  var imgP = imageP(ext),
-      iconsrc = imgP ? uri : "@StaticR.img_file_icon_png@",
+  var thumbnail = thumbnailUri(ext),
+      imgP = !thumbnail,
+      iconsrc = thumbnail || uri,
       img = $("<img/>").attr({src:iconsrc}),
       anc = $("<a/>").attr({href:"#"}),
       div = $("<div/>").addClass("image-galary"),
