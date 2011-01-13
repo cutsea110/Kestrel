@@ -92,6 +92,7 @@ getFileR uid@(UserId uid') fid@(FileHeaderId fid') = do
       s3fp = s3dir </> show fid'
   b <- liftIO $ L.readFile s3fp
   setHeader "Content-Type" $ fileHeaderContentType h
+  setHeader "Content-Disposition" $ "attachment; filename=" ++ fileHeaderEfname h
   return $ RepHtml $ ResponseLBS b
 
 postFileR :: UserId -> FileHeaderId -> Handler RepHtml
