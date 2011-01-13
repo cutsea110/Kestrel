@@ -1,15 +1,36 @@
 $(document).ready(function(){
   $("#message").fadeOut(3000, function(){$(this).remove();});
 
+  $.ajax({
+    type: 'GET',
+    url: '@?simpleSidePane@',
+    dataType: 'html',
+    success: function(data) {
+      var fs = $('<fieldset><legend>%spTitle%</legend></fieldset>'),
+          sp = $(data);
+      $('#sidenavi').append(fs.append(sp));
+    },
+    error: function(msg, status) {
+      if ('%show.mu%'!='Nothing') {
+        var anc = $('<a/>').attr({href:'@?sidePaneNew@'}).text('Edit %spTitle%');
+        $('#sidenavi').append(anc);
+      }
+    }
+  });
+
+
   $.getJSON('@RecentChangesR@', function(json){
+      var fs = $('<fieldset><legend>Recent Changes</legend></fieldset>'),
+          ul = $('<ul/>');
       $.each(json.entries, function(i, item){
             var url = item.uri,
                 ttl = item.title;
             var li = $('<li/>');
             var anc = $('<a/>').attr({href:url}).text(ttl);
-            $('#recent-changes-items').append(li.append(anc));
-          });
-    });
+            ul.append(li.append(anc));
+      });
+      $('#recent-changes').append(fs.append(ul));
+  });
 
 
   $("#file_selector").hide().attr("title", "Select file").dialog({

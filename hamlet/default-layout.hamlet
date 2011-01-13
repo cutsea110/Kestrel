@@ -16,18 +16,8 @@
           #sidebar.kui-b
             #kestrel-logo
               %img!src=@StaticR.img_kestrel_logo_png@
-            $maybe msp sp
-              .sidebox
-                %fieldset
-                  %legend $spTitle$
-                  $sp$
-            $nothing
-              $maybe mu u
-                %a!href=@?sidePaneNew@ Edit $spTitle$
+            #sidenavi.sidebox
             #recent-changes.sidebox
-              %fieldset
-                %legend Recent Changes
-                %ul#recent-changes-items
         $maybe mu u
           #file_selector
            Select from

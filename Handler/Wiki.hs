@@ -1,4 +1,5 @@
-{-# LANGUAGE TemplateHaskell, OverloadedStrings #-}
+{-# LANGUAGE QuasiQuotes, TemplateHaskell, OverloadedStrings #-}
+{-# LANGUAGE CPP #-}
 module Handler.Wiki where
 
 import Kestrel
@@ -21,6 +22,7 @@ getWikiR wp = do
     Just "v" {-  view  page  -} -> viewWiki
     Just "e" {-  edit  page  -} -> editWiki
     Just "d" {- delete page  -} -> deleteWiki
+    Just "s" {- simple page  -} -> simpleViewWiki
     Just _   {- default mode -} -> viewWiki  -- FIXME
     Nothing  {- default mode -} -> viewWiki  -- FIXME
   where
@@ -37,6 +39,11 @@ getWikiR wp = do
         return (path, raw, content, upd, ver, me, isTop)
     
     -- Pages
+    simpleViewWiki :: Handler RepHtml
+    simpleViewWiki = do
+      (_, _, content, _, _, _, _) <- getwiki
+      hamletToRepHtml [$hamlet|$content$|]
+    
     viewWiki :: Handler RepHtml
     viewWiki = do
       (path, raw, content, upd, ver, me, isTop) <- getwiki

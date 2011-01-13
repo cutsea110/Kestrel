@@ -21,7 +21,9 @@ module Kestrel
     , WikiPage(..)
     , topPage
     , topView
+    , sidePane
     , sidePaneNew
+    , simpleSidePane
     , lastNameOf
     , pathOf
     , fromPath
@@ -130,7 +132,7 @@ mkYesodData "Kestrel" [$parseRoutes|
 
 /admin AdminR UserCrud userCrud
 
-/wiki/*WikiPage     WikiR GET POST PUT DELETE
+/wiki/*WikiPage WikiR GET POST PUT DELETE
 /new NewR GET POST
 /history/*WikiPage HistoryR GET POST
 
@@ -149,8 +151,13 @@ topPage = WikiPage [Settings.topTitle]
 topView :: (KestrelRoute, [(String, String)])
 topView = (WikiR topPage, [("mode","v")])
 
+sidePane :: WikiPage
+sidePane = WikiPage [Settings.sidePaneTitle]
 sidePaneNew :: (KestrelRoute, [(String, String)])
 sidePaneNew = (NewR, [("path", encodeUrl Settings.sidePaneTitle), ("mode", "e")])
+
+simpleSidePane :: (KestrelRoute, [(String, String)])
+simpleSidePane = (WikiR sidePane, [("mode", "s")])
 
 pathOf :: WikiPage -> String
 pathOf = intercalate ":" . unWikiPage
@@ -543,7 +550,7 @@ dropPrefix :: (Eq a) => [a] -> [a] -> [a]
 dropPrefix xs ys = dp' ys xs ys
   where
     dp' :: (Eq a) => [a] -> [a] -> [a] -> [a]
-    dp' os []     ys      = ys
-    dp' os xs     []      = os
-    dp' os (x:xs) (y:ys) | x==y = dp' os xs ys
-                         | otherwise = os
+    dp' _  []     ys'     = ys'
+    dp' os _      []      = os
+    dp' os (x:xs') (y:ys') | x==y = dp' os xs' ys'
+                           | otherwise = os
