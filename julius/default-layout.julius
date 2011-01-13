@@ -1,6 +1,17 @@
 $(document).ready(function(){
   $("#message").fadeOut(3000, function(){$(this).remove();});
 
+  $.getJSON('@RecentChangesR@', function(json){
+      $.each(json.entries, function(i, item){
+            var url = item.uri,
+                ttl = item.title;
+            var li = $('<li/>');
+            var anc = $('<a/>').attr({href:url}).text(ttl);
+            $('#recent-changes-items').append(li.append(anc));
+          });
+    });
+
+
   $("#file_selector").hide().attr("title", "Select file").dialog({
     autoOpen: false,
     width: 680,

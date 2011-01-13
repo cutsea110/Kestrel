@@ -35,6 +35,7 @@ module Kestrel
     , wikiWriterOption
     , WriterOptions(..)
     , showDate
+    , dropPrefix
       --
     , UserCrud
     , userCrud
@@ -123,6 +124,7 @@ mkYesodData "Kestrel" [$parseRoutes|
 /robots.txt RobotsR GET
 /sitemap.xml SitemapR GET
 /feed FeedR GET
+/recent-changes.json RecentChangesR GET
 
 / RootR GET
 
@@ -208,14 +210,13 @@ instance Yesod Kestrel where
         render <- getUrlRender
         mu <- maybeAuth
         mmsg <- getMessage
-        (rc, spTitle, msp) <- runDB $ do
-          rc' <- selectList [] [WikiUpdatedDesc] 10 0
+        (spTitle, msp) <- runDB $ do
           msp' <- getBy $ UniqueWiki Settings.sidePaneTitle
           case msp' of
-            Nothing -> return (rc', Settings.sidePaneTitle, Nothing)
+            Nothing -> return (Settings.sidePaneTitle, Nothing)
             Just (_, sp'') -> do
               sp' <- markdownToWikiHtml wikiWriterOption $ wikiContent sp''
-              return (rc', Settings.sidePaneTitle, Just sp')
+              return (Settings.sidePaneTitle, Just sp')
         let header = $(Settings.hamletFile "header")
             footer = $(Settings.hamletFile "footer")
         pc <- widgetToPageContent $ do
@@ -536,3 +537,13 @@ inlinesToString = concatMap go
           Link xs _               -> concatMap go xs
           Image xs _              -> concatMap go xs
           Note _                  -> ""
+
+-- TODO: remove this if yesod support Root Relative URL.
+dropPrefix :: (Eq a) => [a] -> [a] -> [a]
+dropPrefix xs ys = dp' ys xs ys
+  where
+    dp' :: (Eq a) => [a] -> [a] -> [a] -> [a]
+    dp' os []     ys      = ys
+    dp' os xs     []      = os
+    dp' os (x:xs) (y:ys) | x==y = dp' os xs ys
+                         | otherwise = os

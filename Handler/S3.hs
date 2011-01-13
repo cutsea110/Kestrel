@@ -60,7 +60,7 @@ postUploadR = do
       r <- getUrlRender
       (fid@(FileHeaderId f), name, ext, cdate) <- upload uid fi
       cacheSeconds 10 -- FIXME
-      let rf = r $ FileR uid fid
+      let rf = dropPrefix Settings.approot $ r $ FileR uid fid
       fmap RepXml $ hamletToContent
 #if GHC7
                       [xhamlet|
@@ -115,12 +115,3 @@ getFileListR uid@(UserId uid') = do
               , ("cdate", jsonScalar $ show cdate)
               , ("uri", jsonScalar $ dropPrefix Settings.approot $ r $ FileR uid fid)
               ]
-    -- TODO: remove this if yesod support Root Relative URL.
-    dropPrefix :: (Eq a) => [a] -> [a] -> [a]
-    dropPrefix xs ys = dp' ys xs ys
-      where
-        dp' :: (Eq a) => [a] -> [a] -> [a] -> [a]
-        dp' os []     ys      = ys
-        dp' os xs     []      = os
-        dp' os (x:xs) (y:ys) | x==y = dp' os xs ys
-                             | otherwise = os

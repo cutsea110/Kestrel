@@ -27,10 +27,7 @@
             #recent-changes.sidebox
               %fieldset
                 %legend Recent Changes
-                %ul
-                  $forall rc e
-                    %li
-                     %a!href=@WikiR.(fromPath.(wikiPath.snd.e))@ $wikiPath.snd.e$
+                %ul#recent-changes-items
         $maybe mu u
           #file_selector
            Select from

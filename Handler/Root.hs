@@ -5,7 +5,7 @@ import Kestrel
 import Yesod.Helpers.AtomFeed
 import Yesod.Helpers.Sitemap
 
-import qualified Settings (topTitle)
+import qualified Settings
 
 getRootR :: Handler RepHtml
 getRootR = uncurry (redirectParams RedirectTemporary) topView
@@ -55,3 +55,15 @@ getFeedR = runDB $ do
     noToc = wikiWriterOption
       { writerTableOfContents = False
       }
+
+getRecentChangesR :: Handler RepJson
+getRecentChangesR = do 
+  render <- getUrlRender
+  entries <- runDB $ selectList [] [WikiUpdatedDesc] 10 0
+  cacheSeconds 10 -- FIXME
+  jsonToRepJson $ jsonMap [("entries", jsonList $ map (go render) entries)]
+  where
+    go r (wid@(WikiId wid'), w) = 
+      jsonMap [ ("title", jsonScalar (wikiPath w))
+              , ("uri", jsonScalar $ dropPrefix Settings.approot $ r $ WikiR $ fromPath (wikiPath w))
+              ]
