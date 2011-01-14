@@ -97,6 +97,7 @@ postLoginR = do
         Just _aid -> do
             setCreds False $ Creds "account" account [] -- FIXME aid?
             y <- getYesod
+            setMessage $ string "You are now Logged in"
             redirectUltDest RedirectTemporary $ loginDest y
         Nothing -> do
             setMessage $ string "Invalid account/password combination"
