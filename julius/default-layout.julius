@@ -97,18 +97,20 @@ function makeImageLink(uri,name,ext,pos){
   var thumbnail = thumbnailUri(ext),
       imgP = !thumbnail,
       iconsrc = thumbnail || uri,
-      img = $("<img/>").attr({src:iconsrc}),
+      img = $("<img/>").attr({src:iconsrc+"?uncache="+(new Date).getTime(), alt:name}),
       anc = $("<a/>").attr({href:"#"}),
       div = $("<div/>").addClass("image-galary"),
       img_markdown = (imgP ? "!" : "") + "["+name+"]("+uri+")",
       obj = $("#content").get(0);
 
-  img.bind('load readystatechange', function(){
+  img.bind('load', function(){
     var ow = $(this).attr('width'),
-        oh = $(this).attr('height');
+        oh = $(this).attr('height'),
+        nh = oh > 40 ? 40 : oh,
+        nw = oh > 40 ? ow*40/oh : ow;
     $(this).attr({
-      'height': 40,
-      'width': ow*40/oh
+      height: nh,
+      width: nw
     });
   });
 
