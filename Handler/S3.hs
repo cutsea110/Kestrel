@@ -11,6 +11,7 @@ module Handler.S3
 
 import Kestrel
 import Data.Time
+import Data.Int
 import qualified Data.ByteString.Lazy as L
 import Network.Wai
 import Data.List (intercalate)
@@ -28,16 +29,18 @@ getUploadR = do
     addCassius $(cassiusFile "s3/s3")
     addWidget $(widgetFile "s3/upload")
 
-upload :: UserId -> FileInfo -> Handler (FileHeaderId, String, String, UTCTime)
+upload :: UserId -> FileInfo -> Handler (FileHeaderId, String, String, Int64, UTCTime)
 upload uid@(UserId uid') fi = do
   now <- liftIO getCurrentTime
   let (name, ext) = splitExtension $ fileName fi
       efname = encodeUrl $ fileName fi
+      fsize = L.length $ fileContent fi
   fid@(FileHeaderId fid') <- 
     runDB $ insert FileHeader {
         fileHeaderFullname=fileName fi
       , fileHeaderEfname=efname
       , fileHeaderContentType=fileContentType fi
+      , fileHeaderFileSize=fsize
       , fileHeaderName=name
       , fileHeaderExtension=ext
       , fileHeaderCreator=uid
@@ -48,7 +51,7 @@ upload uid@(UserId uid') fi = do
   liftIO $ do
     createDirectoryIfMissing True s3dir
     L.writeFile s3fp (fileContent fi)
-  return (fid, fileName fi, ext, now)
+  return (fid, fileName fi, ext, fsize, now)
 
 postUploadR :: Handler RepXml
 postUploadR = do
@@ -58,7 +61,7 @@ postUploadR = do
     Nothing -> invalidArgs ["upload file is required"]
     Just fi -> do
       r <- getUrlRender
-      (fid@(FileHeaderId f), name, ext, cdate) <- upload uid fi
+      (fid@(FileHeaderId f), name, ext, fsize, cdate) <- upload uid fi
       cacheSeconds 10 -- FIXME
       let rf = dropPrefix Settings.approot $ r $ FileR uid fid
       fmap RepXml $ hamletToContent
@@ -70,6 +73,7 @@ postUploadR = do
 %file
   %name $name$
   %ext $ext$
+  %size $show.fsize$
   %cdate $show.cdate$
   %uri $rf$
 |]
@@ -81,7 +85,7 @@ putUploadR = do
   case mfi of
     Nothing -> invalidArgs ["upload file is required"]
     Just fi -> upload uid fi >>= 
-               \(fid, _, _, _) -> sendResponseCreated $ FileR uid fid
+               \(fid, _, _, _, _) -> sendResponseCreated $ FileR uid fid
 
 
 getFileR :: UserId -> FileHeaderId -> Handler RepHtml
@@ -109,10 +113,12 @@ getFileListR uid@(UserId uid') = do
     go r (fid@(FileHeaderId fid'), f@FileHeader
                { fileHeaderFullname = name
                , fileHeaderExtension = ext
+               , fileHeaderFileSize = size
                , fileHeaderCreated = cdate
                }) = 
       jsonMap [ ("name", jsonScalar name)
               , ("ext" , jsonScalar ext)
+              , ("size", jsonScalar $ show size)
               , ("cdate", jsonScalar $ show cdate)
               , ("uri", jsonScalar $ dropPrefix Settings.approot $ r $ FileR uid fid)
               ]

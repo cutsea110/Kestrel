@@ -8,6 +8,7 @@ import Database.Persist.TH (share2)
 import Database.Persist.GenericSql (mkMigrate)
 import Data.Time
 import Data.ByteString (ByteString)
+import Data.Int
 
 -- You can define all of your database entities here. You can find more
 -- information on persistent and how to declare entities at:
@@ -48,6 +49,7 @@ FileHeader
     name String Eq
     extension String Eq
     contentType String
+    fileSize Int64
     creator UserId Eq
     created UTCTime Desc
 |]
