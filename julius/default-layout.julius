@@ -94,10 +94,11 @@ function thumbnailUri(ext) {
 }
 
 function makeImageLink(uri,name,ext,pos){
-  var thumbnail = thumbnailUri(ext),
+  var uncache = jQuery.browser.msie ? "?uncache="+(new Date).getTime() : "",
+      thumbnail = thumbnailUri(ext),
       imgP = !thumbnail,
       iconsrc = thumbnail || uri,
-      img = $("<img/>").attr({src:iconsrc+"?uncache="+(new Date).getTime(), alt:name}),
+      img = $("<img/>").attr({src:iconsrc+uncache, alt:name}),
       anc = $("<a/>").attr({href:"#"}),
       div = $("<div/>").addClass("image-galary"),
       img_markdown = (imgP ? "!" : "") + "["+name+"]("+uri+")",
