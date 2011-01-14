@@ -106,8 +106,10 @@ function makeImageLink(uri,name,ext,pos){
   img.bind('load', function(){
     var ow = $(this).attr('width'),
         oh = $(this).attr('height');
-    $(this).attr('height', 40);
-    $(this).attr('width', ow*40/oh);
+    $(this).attr({
+      'height': 40,
+      'width': ow*40/oh
+    });
   });
 
   if (pos!=null) {

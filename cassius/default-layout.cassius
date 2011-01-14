@@ -119,6 +119,8 @@ img
    text-align: center
 
 div.image-galary
+   text-align: center
+   vertical-align: middle
    border: solid 1px #8080ff
    display: inline-block
    margin: 2px
