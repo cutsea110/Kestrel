@@ -103,7 +103,7 @@ function makeImageLink(uri,name,ext,pos){
       img_markdown = (imgP ? "!" : "") + "["+name+"]("+uri+")",
       obj = $("#content").get(0);
 
-  img.bind('load', function(){
+  img.bind('load readystatechange', function(){
     var ow = $(this).attr('width'),
         oh = $(this).attr('height');
     $(this).attr({
