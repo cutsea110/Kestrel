@@ -232,6 +232,7 @@ instance Yesod Kestrel where
           addScriptEither $ urlJqueryUiJs y
           addStylesheetEither $ urlJqueryUiCss y
           addScriptEither $ Left $ StaticR js_jquery_upload_1_0_2_js
+          addScriptEither $ Left $ StaticR js_jquery_bubbleup_js
           addCassius $(Settings.cassiusFile "default-layout")
           addJulius $(Settings.juliusFile "default-layout")
           atomLink FeedR Settings.topTitle

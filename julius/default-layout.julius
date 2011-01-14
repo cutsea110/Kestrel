@@ -71,7 +71,7 @@ $(document).ready(function(){
       }
     }
     $("#file_selector").dialog('open');
-    $("#selectable_images div.image-galary").remove();
+    $("#selectable_images .image-galary").remove();
     $.getJSON($("#file-select-button").attr("href"),
       function(data){
         $.each(data.files,
@@ -100,7 +100,7 @@ function makeImageLink(uri,name,ext,pos){
       iconsrc = thumbnail || uri,
       img = $("<img/>").attr({src:iconsrc+uncache, alt:name}),
       anc = $("<a/>").attr({href:"#"}),
-      div = $("<div/>").addClass("image-galary"),
+      li = $("<li/>").addClass("image-galary"),
       img_markdown = (imgP ? "!" : "") + "["+name+"]("+uri+")",
       obj = $("#content").get(0);
 
@@ -109,10 +109,9 @@ function makeImageLink(uri,name,ext,pos){
         oh = $(this).attr('height'),
         nh = oh > 40 ? 40 : oh,
         nw = oh > 40 ? ow*40/oh : ow;
-    $(this).attr({
-      height: nh,
-      width: nw
-    });
+    $(this).attr({height: nh, width: nw})
+           .bubbleup({tooltip:true, scale: 60})
+           .closest('li').css({width: nw, height: nh});
   });
 
   if (pos!=null) {
@@ -130,5 +129,5 @@ function makeImageLink(uri,name,ext,pos){
       }
     });
   }
-  return div.append(anc.append(img));
+  return li.append(anc.append(img));
 }
