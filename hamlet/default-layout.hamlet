@@ -22,9 +22,11 @@
           #file_selector
            Select from
            #photo-galary.scroll
-             %ul#selectable_images
+             %ul#selectable_images.inline
            %hr
            %form!id=upload_form!method=post!enctype=multipart/form-data!action=@UploadR@
-             #fields
+             #fields.inline
                %input!id=upload_file!type=file!name=upfile
              %input!id=go_upload!type=button!name=upload!value="Upload File"
+           #trash-area.right
+             %img.transparent!id=trashbox!src=@StaticR.img_trash_empty64_png@

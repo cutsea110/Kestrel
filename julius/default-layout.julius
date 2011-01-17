@@ -76,6 +76,28 @@ $(document).ready(function(){
     return false;
   });
 
+  $("#trashbox")
+  .css({opacity: 0.2})
+  .draggable({
+    containment: '#trash-area',
+    opacity: 0.6
+  })
+  .droppable({
+    accept: '.image-galary',
+    over: function(e, ui) {
+      $(this).css({opacity: 1.0});
+    },
+    out: function(e, ui) {
+      $(this).css({opacity: 0.2});
+    },
+    drop: function(e, ui) {
+      ui.helper.remove();
+//alert(ui.draggable.find('img').attr('fname')+':'+ui.draggable.find('img').attr('src'));
+      ui.draggable.remove();
+      $(this).css({opacity: 0.2});
+    }
+  });
+
 });
 
 function thumbnailUri(ext) {
@@ -103,9 +125,16 @@ function makeImageLink(uri,name,ext,size,pos){
         nh = 36,
         nw = ow*36/oh,
         altstr = imgP ? name + ' [' + oh + 'x' + ow + ']' : name + ' [' + addFigure(size) + ']';
-    $(this).attr({height: nh, width: nw, alt: altstr})
+    $(this).attr({height: nh, width: nw, alt: altstr, fname: name})
            .bubbleup({tooltip:true, scale: 64})
            .closest('li').css({width: nw, height: nh});
+  });
+
+  li.draggable({
+    helper: 'clone',
+    revert: true,
+    containment: '#file_selector',
+    opacity: 0.6
   });
 
   if (pos!=null) {
