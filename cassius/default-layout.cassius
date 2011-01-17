@@ -122,8 +122,10 @@ img
    text-align: center
    vertical-align: middle
 
-ul#selectable_images
+.inline
    display: inline-block
+
+ul#selectable_images
    list-style: none
    margin: 5px 0px
 
@@ -155,3 +157,9 @@ ul#selectable_images li a img
    color: white
    background-color: white
    border-style: none
+
+.right
+   text-align: right
+
+#trashbox
+   margin-right: 20px
