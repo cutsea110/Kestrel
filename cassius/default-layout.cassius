@@ -136,14 +136,14 @@ ul#selectable_images li
    position: relative
 
 ul#selectable_images li a
-   position: absolute
+   position: relative
 
 ul#selectable_images li a img
    display: block
-   margin: 0px 8px 0px 0px
+   margin: 0px
    overflow: hidden
    padding: 0px
-   position: absolute
+   position: relative
 
 .image-galary
    text-align: center

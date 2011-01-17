@@ -38,7 +38,7 @@
                   top: position.top - tipHeight, 
                   left: position.left + position.width / 2 - tipWidth / 2,
                   visibility: 'visible'
-               }).animate({top:'-='+opt.scale/2-h/2+opt.fontSize},opt.inSpeed); 
+               }).animate({top:'-='+(opt.scale/2-h/2+opt.fontSize)},opt.inSpeed); 
             }
             
             $(this).closest('li').css({'z-index':100000});
@@ -46,8 +46,8 @@
             $(this).stop().css({'z-index':100000,'top':0,'left':0,'width':w,'height':h}).animate({
                left:-(w*opt.scale/h)/2+w/2,
                top:-opt.scale/2+h/2,
-	width:w*opt.scale/h,
-	height:opt.scale
+               width:w*opt.scale/h,
+               height:opt.scale
             },opt.inSpeed);
          }).mouseout(function(){
             
@@ -56,9 +56,13 @@
             $(this).closest('li').next().children('img').css({'z-index':0});
             
             if(opt.tooltip){tip.remove()}
-            $(this).stop().animate({left:0,top:0,width:w,height:h},opt.outSpeed,function(){
+            $(this).stop().animate({
+               left:0,
+               top:0,
+               width:w,
+               height:h
+            },opt.outSpeed,function(){
                $(this).css({'z-index':0});
-               
             });
          })
       })
