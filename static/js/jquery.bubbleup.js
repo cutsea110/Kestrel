@@ -55,7 +55,7 @@
             $(this).closest('li').next().css({'z-index':0});
             $(this).closest('li').next().children('img').css({'z-index':0});
             
-            if(opt.tooltip){tip.remove()}
+            if(opt.tooltip && tip!=null){tip.remove();}
             $(this).stop().animate({
                left:0,
                top:0,
