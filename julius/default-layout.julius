@@ -32,23 +32,15 @@ $(document).ready(function(){
       $('#recent-changes').append(fs.append(ul));
   });
 
-
   $("#file_selector").hide().attr("title", "Select file").dialog({
     autoOpen: false,
     width: 680,
     modal: true
   });
 
+  var pos;
+
   $("#go_upload").click(function(){
-    var pos, obj = $("#content").get(0);
-    if (obj) {
-      obj.focus();
-      if (jQuery.browser.msie) {
-        pos = document.selection.createRange();
-      } else {
-        pos = obj.selectionStart;
-      }
-    }
     $("#fields").upload($("#upload_form").attr('action'),
                    function(res) {
                      var file = $(res).find('file'),
@@ -62,7 +54,7 @@ $(document).ready(function(){
   });
 
   $("#file-select-button").click(function(){
-    var pos, obj = $("#content").get(0);
+    var obj = $("#content")[0];
     if (obj) {
       obj.focus();
       if (jQuery.browser.msie) {
@@ -103,7 +95,7 @@ function makeImageLink(uri,name,ext,size,pos){
       anc = $("<a/>").attr({href:"#"}),
       li = $("<li/>").addClass("image-galary"),
       img_markdown = (imgP ? "!" : "") + "["+name+"]("+uri+")",
-      obj = $("#content").get(0);
+      obj = $("#content")[0];
 
   img.bind('load', function(){
     var ow = $(this).width(),
