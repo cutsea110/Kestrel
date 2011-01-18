@@ -91,9 +91,9 @@ $(document).ready(function(){
       $(this).css({opacity: 0.2});
     },
     drop: function(e, ui) {
-      ui.helper.remove();
+      $(ui.helper).remove();
 //alert(ui.draggable.find('img').attr('fname')+':'+ui.draggable.find('img').attr('src'));
-      ui.draggable.remove();
+      $(ui.draggable).fadeOut('normal', function() {$(this).remove();});
       $(this).css({opacity: 0.2});
     }
   });
@@ -133,7 +133,7 @@ function makeImageLink(uri,name,ext,size,pos){
 
   li.draggable({
     helper: 'clone',
-    revert: true,
+    revert: false,
     containment: '#file_selector',
     opacity: 0.6
   });
