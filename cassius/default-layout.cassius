@@ -119,7 +119,7 @@ img
    text-align: center
 
 #photo-galary
-   text-align: center
+   text-align: left
    vertical-align: middle
 
 .inline
