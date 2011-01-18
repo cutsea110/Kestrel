@@ -137,7 +137,7 @@ mkYesodData "Kestrel" [$parseRoutes|
 /history/*WikiPage HistoryR GET POST
 
 /s3/upload UploadR GET POST PUT
-/s3/user/#UserId/file/#FileHeaderId FileR GET POST
+/s3/user/#UserId/file/#FileHeaderId FileR GET POST DELETE
 /s3/user/#UserId/list.json FileListR GET
 |]
 

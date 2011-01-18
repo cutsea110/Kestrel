@@ -6,6 +6,7 @@ module Handler.S3
        , putUploadR
        , getFileR
        , postFileR
+       , deleteFileR
        , getFileListR
        ) where
 
