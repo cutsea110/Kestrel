@@ -101,7 +101,8 @@ $(document).ready(function(){
 });
 
 function thumbnailUri(ext) {
-  if (ext=='.gif'||ext=='.jpg'||ext=='.jpeg'||ext=='.png') {
+  extLow = ext.toLowerCase();
+  if (extLow=='.gif'||extLow=='.jpg'||extLow=='.jpeg'||extLow=='.png') {
     return '';
   }else{
     return "@StaticR.img_file_icon_png@";
