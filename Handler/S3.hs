@@ -109,12 +109,19 @@ postFileR uid@(UserId uid') fid@(FileHeaderId fid') = do
     Nothing -> invalidArgs ["'delete' parameter is required"]
 
 deleteFileR :: UserId -> FileHeaderId -> Handler RepXml
-deleteFileR uid fid = do
-  (uid, _) <- requireAuth
-  r <- getUrlRender
-  runDB $ delete fid
-  let rf = dropPrefix Settings.approot $ r $ FileR uid fid
-  fmap RepXml $ hamletToContent
+deleteFileR uid@(UserId uid') fid@(FileHeaderId fid') = do
+  (uid'', _) <- requireAuth
+  if uid/=uid''
+    then
+    invalidArgs ["You couldn't delete this resource"]
+    else do
+    r <- getUrlRender
+    runDB $ delete fid
+    let s3dir = Settings.s3dir </> show uid'
+        s3fp = s3dir </> show fid'
+        rf = dropPrefix Settings.approot $ r $ FileR uid fid
+    liftIO $ removeFile s3fp
+    fmap RepXml $ hamletToContent
 #if GHC7
                   [xhamlet|
 #else
@@ -123,7 +130,7 @@ deleteFileR uid fid = do
 %deleted
   %uri $rf$
 |]
-    
+
 getFileListR :: UserId -> Handler RepJson
 getFileListR uid@(UserId uid') = do
   render <- getUrlRender
