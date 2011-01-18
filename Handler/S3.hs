@@ -99,9 +99,29 @@ getFileR uid@(UserId uid') fid@(FileHeaderId fid') = do
   setHeader "Content-Disposition" $ "attachment; filename=" ++ fileHeaderEfname h
   return $ RepHtml $ ResponseLBS b
 
-postFileR :: UserId -> FileHeaderId -> Handler RepHtml
-postFileR uid@(UserId uid') fid@(FileHeaderId fid') = undefined -- TODO
+postFileR :: UserId -> FileHeaderId -> Handler RepXml
+postFileR uid@(UserId uid') fid@(FileHeaderId fid') = do
+  (uid, _) <- requireAuth
+  delete <- lookupPostParam "delete"
+  case delete of
+    Just _ -> deleteFileR uid fid
+    Nothing -> invalidArgs ["'delete' parameter is required"]
 
+deleteFileR :: UserId -> FileHeaderId -> Handler RepXml
+deleteFileR uid fid = do
+  (uid, _) <- requireAuth
+  r <- getUrlRender
+  runDB $ delete fid
+  let rf = dropPrefix Settings.approot $ r $ FileR uid fid
+  fmap RepXml $ hamletToContent
+#if GHC7
+                  [xhamlet|
+#else
+                  [$xhamlet|
+#endif
+%deleted
+  %uri $rf$
+|]
     
 getFileListR :: UserId -> Handler RepJson
 getFileListR uid@(UserId uid') = do

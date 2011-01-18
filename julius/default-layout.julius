@@ -92,9 +92,12 @@ $(document).ready(function(){
     },
     drop: function(e, ui) {
       $(ui.helper).remove();
-//alert(ui.draggable.find('img').attr('fname')+':'+ui.draggable.find('img').attr('src'));
-      $(ui.draggable).fadeOut('normal', function() {$(this).remove();});
-      $(this).css({opacity: 0.2});
+      $.post($(ui.draggable).find('img').attr('uri'),
+             {'delete': ''},
+             function(res){
+               $(ui.draggable).fadeOut('normal', function() {$(this).remove();});
+               $(this).css({opacity: 0.2});
+             }, 'xml');
     }
   });
 
@@ -126,7 +129,7 @@ function makeImageLink(uri,name,ext,size,pos){
         nh = 36,
         nw = ow*36/oh,
         altstr = imgP ? name + ' [' + oh + 'x' + ow + ']' : name + ' [' + addFigure(size) + ']';
-    $(this).attr({height: nh, width: nw, alt: altstr, fname: name})
+    $(this).attr({height: nh, width: nw, uri: uri, alt: altstr, fname: name})
            .bubbleup({tooltip:true, scale: 64})
            .closest('li').css({width: nw, height: nh});
   });
