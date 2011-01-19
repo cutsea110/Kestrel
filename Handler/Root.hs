@@ -35,15 +35,15 @@ getSitemapR = do
 
 getFeedR :: Handler RepAtom
 getFeedR = runDB $ do
-  top10 <- selectList [] [WikiUpdatedDesc] 10 0
-  entries <- markdownsToWikiHtmls noToc $ map (wikiContent . snd) top10
-  let uday = (wikiUpdated . snd . head) top10
+  tops <- selectList [] [WikiUpdatedDesc] 10 0
+  entries <- markdownsToWikiHtmls noToc $ map (wikiContent . snd) tops
+  let uday = (wikiUpdated . snd . head) tops
   lift $ atomFeed AtomFeed
     { atomTitle = Settings.topTitle
     , atomLinkSelf = FeedR
     , atomLinkHome = RootR
     , atomUpdated = uday
-    , atomEntries = map go $ zip top10 entries
+    , atomEntries = map go $ zip tops entries
     }
   where
     go ((_, w), e) = AtomFeedEntry
