@@ -11,8 +11,7 @@
               $maybe mmsg msg
                 #message $msg$
               ^pageBody.pc^
-              #footer
-                ^footer^
+              ^footer^
           #sidebar.kui-b
             #kestrel-logo
               %img!src=@StaticR.img_kestrel_logo_png@

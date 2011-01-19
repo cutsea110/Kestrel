@@ -1,6 +1,21 @@
-powered by $
-%a!href="http://docs.yesodweb.com" yesod.
+<div class='left inline'>
+<!-- Twitter Tweet Button BEGIN -->
+<a href="http://twitter.com/share" class="twitter-share-button" data-count="horizontal">Tweet</a>
+<script type="text/javascript" src="http://platform.twitter.com/widgets.js"></script>
+<!-- Twitter Tweet Button END -->
+</div>
 
+<div class='left inline'>
+<!-- Facebook Like Button BEGIN -->
+<script type="text/javascript">
+  var url = "http://www.facebook.com/plugins/like.php?href=" + encodeURIComponent(location.href) + "&layout=button_count&show_faces=true&width=450&action=like&colorscheme=light";
+  document.write('<iframe src="' + url + '" allowtransparency="true" style="border: medium none ; overflow: hidden; width: 120px; height: 20px;" frameborder="0" scrolling="no"></iframe>');
+</script>
+<!-- Facebook Like Button END -->
+</div>
+
+<!-- W A R N I N G !! GET Account Site by Site -->
+<div class='left inline'>
 <!-- AddThis Button BEGIN -->
 <div class="addthis_toolbox addthis_default_style ">
 <a href="http://www.addthis.com/bookmark.php?v=250&amp;username=cutsea110" class="addthis_button_compact">Share</a>
@@ -13,7 +28,9 @@ powered by $
 <script type="text/javascript">var addthis_config = {"data_track_clickback":true};</script>
 <script type="text/javascript" src="http://s7.addthis.com/js/250/addthis_widget.js#username=cutsea110"></script>
 <!-- AddThis Button END -->
+</div>
 
+<!-- W A R N I N G !! GET Account Site by Site -->
 <!-- Google Analytics BEGIN -->
 <script type="text/javascript">
 
@@ -29,3 +46,7 @@ powered by $
 
 </script>
 <!-- Google Analytics END -->
+
+#footer.center
+  powered by $
+  %a!href="http://docs.yesodweb.com" yesod.
