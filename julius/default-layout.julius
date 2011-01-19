@@ -64,7 +64,7 @@ $(document).ready(function(){
       }
     }
     $("#file_selector").dialog('open');
-    $("#selectable_images .image-galary").remove();
+    $("#selectable_images .image-gallery").remove();
     $.getJSON($("#file-select-button").attr("href"),
       function(data){
         $.each(data.files,
@@ -83,7 +83,7 @@ $(document).ready(function(){
     opacity: 0.6
   })
   .droppable({
-    accept: '.image-galary',
+    accept: '.image-gallery',
     over: function(e, ui) {
       $(this).css({opacity: 1.0});
     },
@@ -119,7 +119,7 @@ function makeImageLink(uri,name,ext,size,pos){
       iconsrc = thumbnail || uri,
       img = $("<img/>").attr({src:iconsrc+uncache}),
       anc = $("<a/>").attr({href:"#"}),
-      li = $("<li/>").addClass("image-galary"),
+      li = $("<li/>").addClass("image-gallery"),
       img_markdown = (imgP ? "!" : "") + "["+name+"]("+uri+")",
       obj = $("#content")[0];
 

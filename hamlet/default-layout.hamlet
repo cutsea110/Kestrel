@@ -21,7 +21,7 @@
         $maybe mu u
           #file_selector
            Select from
-           #photo-galary.scroll
+           #photo-gallery.scroll
              %ul#selectable_images.inline
            %hr
            %form!id=upload_form!method=post!enctype=multipart/form-data!action=@UploadR@
