@@ -281,7 +281,8 @@ getHistoryR wp = do
     (Just "p", Just v ) {- diff to previous -} -> diffPrevious $ read v
     (Just "c", Just v ) {- diff to current  -} -> diffCurrent $ read v
     (Just "r", Just v ) {-      revert      -} -> revertHistory $ read v
-    _                   {-      illegal     -} -> invalidArgs ["'mode' and 'ver' parameters are required."]
+    _                   {-      illegal     -} -> invalidArgs ["The possible values of 'mode' are l,v,e,p,c,r",
+                                                               "And 'ver' is required without l"]
   where
     -- Utility
     getHistory :: Int -> Handler (String, String, Html, UTCTime, Int, Maybe User, Bool, Wiki)
