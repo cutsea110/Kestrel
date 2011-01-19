@@ -14,7 +14,8 @@
               ^footer^
           #sidebar.kui-b
             #kestrel-logo
-              %img!src=@StaticR.img_kestrel_logo_png@
+              %a!href=@?topView@
+                %img!src=@StaticR.img_kestrel_logo_png@
             #sidenavi.sidebox
             #recent-changes.sidebox
         $maybe mu u
