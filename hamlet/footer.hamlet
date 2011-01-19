@@ -1,6 +1,11 @@
-powered by $
-%a!href="http://docs.yesodweb.com" yesod.
+<!-- Twitter Tweet Button BEGIN -->
+<div class='left inline'>
+<a href="http://twitter.com/share" class="twitter-share-button" data-count="horizontal">Tweet</a>
+<script type="text/javascript" src="http://platform.twitter.com/widgets.js"></script>
+</div>
+<!-- Twitter Tweet Button END -->
 
+<div class='inline left'>
 <!-- AddThis Button BEGIN -->
 <div class="addthis_toolbox addthis_default_style ">
 <a href="http://www.addthis.com/bookmark.php?v=250&amp;username=cutsea110" class="addthis_button_compact">Share</a>
@@ -13,6 +18,7 @@ powered by $
 <script type="text/javascript">var addthis_config = {"data_track_clickback":true};</script>
 <script type="text/javascript" src="http://s7.addthis.com/js/250/addthis_widget.js#username=cutsea110"></script>
 <!-- AddThis Button END -->
+</div>
 
 <!-- Google Analytics BEGIN -->
 <script type="text/javascript">
@@ -29,3 +35,6 @@ powered by $
 
 </script>
 <!-- Google Analytics END -->
+#footer.center
+  powered by $
+  %a!href="http://docs.yesodweb.com" yesod.

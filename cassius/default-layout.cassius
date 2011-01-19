@@ -116,14 +116,10 @@ img
    color: #888888
    font-size: 93%
    padding: 1em
-   text-align: center
 
 #photo-galary
    text-align: left
    vertical-align: middle
-
-.inline
-   display: inline-block
 
 ul#selectable_images
    list-style: none
@@ -158,8 +154,15 @@ ul#selectable_images li a img
    background-color: white
    border-style: none
 
+.left
+   text-align: left
+.center
+   text-align: center
 .right
    text-align: right
+
+.inline
+   display: inline-block
 
 #trashbox
    margin-right: 20px
