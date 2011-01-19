@@ -1,15 +1,20 @@
-<!-- Twitter Tweet Button BEGIN -->
 <div class='left inline'>
+<!-- Twitter Tweet Button BEGIN -->
 <a href="http://twitter.com/share" class="twitter-share-button" data-count="horizontal">Tweet</a>
 <script type="text/javascript" src="http://platform.twitter.com/widgets.js"></script>
-</div>
 <!-- Twitter Tweet Button END -->
+</div>
 
+<div class='left inline'>
 <!-- Facebook Like Button BEGIN -->
-<iframe src="http://www.facebook.com/plugins/like.php?href=http%3A%2F%2Fresearch.timedia.co.jp&amp;layout=button_count&amp;show_faces=true&amp;width=450&amp;action=like&amp;colorscheme=light&amp;height=21" scrolling="no" frameborder="0" style="border:none; overflow:hidden; width:80px; height:21px;" allowTransparency="true"></iframe>
+<script type="text/javascript">
+  var url = "http://www.facebook.com/plugins/like.php?href=" + encodeURIComponent(location.href) + "&layout=button_count&show_faces=true&width=450&action=like&colorscheme=light";
+  document.write('<iframe src="' + url + '" allowtransparency="true" style="border: medium none ; overflow: hidden; width: 120px; height: 20px;" frameborder="0" scrolling="no"></iframe>');
+</script>
 <!-- Facebook Like Button END -->
+</div>
 
-<div class='inline left'>
+<div class='left inline'>
 <!-- AddThis Button BEGIN -->
 <div class="addthis_toolbox addthis_default_style ">
 <a href="http://www.addthis.com/bookmark.php?v=250&amp;username=cutsea110" class="addthis_button_compact">Share</a>
@@ -39,6 +44,7 @@
 
 </script>
 <!-- Google Analytics END -->
+
 #footer.center
   powered by $
   %a!href="http://docs.yesodweb.com" yesod.
