@@ -50,11 +50,11 @@
         %td!colspan=3
           $maybe wikiHistoryComment.snd3.h com
             $if (isNull com)
-              %span.description *** no log comment ***
+              %span.inplaceedit.description *** no log comment ***
             $else
-              %span $com$
+              %span.inplaceedit $com$
           $nothing
-            %span.description *** no log comment ***
+            %span.inplaceedit.description *** no log comment ***
     $maybe mnext next
       %tr
         %td!colspan=5

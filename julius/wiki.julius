@@ -10,4 +10,14 @@ $(document).ready(function(){
     $("#pandoc-TOC-Title,#pandoc-TOC").toggleClass("hidden", hideTOC);
     return false;
   });
+
+  $('table.history').delegate('span.inplaceedit', 'mouseover focus', function(){
+    var target = $(this);
+    target.exInPlaceEditor({
+      nowHover: true,
+      displayStyle: 'inline',
+      editorType: 'input'
+    });
+  });
+
 });
