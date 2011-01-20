@@ -93,7 +93,7 @@ $(document).ready(function(){
     drop: function(e, ui) {
       $(ui.helper).remove();
       $.post($(ui.draggable).find('img').attr('uri'),
-             {'delete': ''},
+             {'_method': 'delete'},
              function(res){
                $(ui.draggable).fadeOut('normal', function() {$(this).remove();});
                $("#trashbox").css({opacity: 0.2});

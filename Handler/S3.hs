@@ -103,10 +103,10 @@ getFileR uid@(UserId uid') fid@(FileHeaderId fid') = do
 postFileR :: UserId -> FileHeaderId -> Handler RepXml
 postFileR uid@(UserId uid') fid@(FileHeaderId fid') = do
   (uid, _) <- requireAuth
-  delete <- lookupPostParam "delete"
-  case delete of
-    Just _ -> deleteFileR uid fid
-    Nothing -> invalidArgs ["'delete' parameter is required"]
+  _method <- lookupPostParam "_method"
+  case _method of
+    Just "delete" -> deleteFileR uid fid
+    Nothing       -> invalidArgs ["The possible values of '_method' are delete"]
 
 deleteFileR :: UserId -> FileHeaderId -> Handler RepXml
 deleteFileR uid@(UserId uid') fid@(FileHeaderId fid') = do

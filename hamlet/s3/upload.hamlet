@@ -2,4 +2,4 @@
 
 %form!method=post!enctype=multipart/form-data!action=@UploadR@
   %input!id=upload_file!type=file!name=upfile
-  %input!type=submit!id=go_upload!name=upload!value="Upload File"
+  %button!type=submit!id=go_upload!name=_method!value=upload Upload File
