@@ -48,13 +48,22 @@
              ]
       %tr!class=$altClass.snd3.h$
         %td!colspan=3
-          $maybe wikiHistoryComment.snd3.h com
-            $if (isNull com)
-              %textarea.inplaceedit!name=comment!uri=@@
-            $else
-              %textarea.inplaceedit!name=comment!uri=@@ $com$
+          $maybe mu u
+            $maybe wikiHistoryComment.snd3.h com
+              $if (isNull com)
+                %textarea.inplaceedit!name=comment!uri=@(HistoryR.(wikiHistoryVersion.snd3.h)).wp@
+              $else
+                %textarea.inplaceedit!name=comment!uri=@(HistoryR.(wikiHistoryVersion.snd3.h)).wp@ $com$
+            $nothing
+              %textarea.inplaceedit!name=comment!uri=@(HistoryR.(wikiHistoryVersion.snd3.h)).wp@
           $nothing
-            %textarea.inplaceedit!name=comment!uri=@@
+            $maybe wikiHistoryComment.snd3.h com
+              $if (isNull com)
+                %span *** no log comment ***
+              $else
+                %span $com$
+            $nothing
+              %span *** no log comment ***
     $maybe mnext next
       %tr
         %td!colspan=5

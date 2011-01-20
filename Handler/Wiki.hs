@@ -92,7 +92,7 @@ postWikiR wp = do
     Just "preview" -> previewWiki
     Just "commit"  -> putWikiR wp
     Just "delete"  -> deleteWikiR wp
-    _ -> invalidArgs ["The possible values of '_method' are preview,commit,delete"]
+    _ -> invalidArgs ["The possible values of '_method' are preview,commit,delete."]
   where
     
     previewWiki :: Handler RepHtml
@@ -171,7 +171,7 @@ getNewR = do
     viewNew = do
       path'' <- lookupGetParam "path"
       case path'' of
-        Nothing -> invalidArgs ["'path' query paramerter is required"]
+        Nothing -> invalidArgs ["'path' query paramerter is required."]
         Just path' -> do
           let path = decodeUrl path'
               isTop = path==Settings.topTitle
@@ -189,7 +189,7 @@ getNewR = do
       (uid, _) <- requireAuth
       path'' <- lookupGetParam "path"
       case path'' of
-        Nothing -> invalidArgs ["'path' query paramerter is required"]
+        Nothing -> invalidArgs ["'path' query paramerter is required."]
         Just path' -> do
           let path = decodeUrl path'
               isTop = path==Settings.topTitle
@@ -210,7 +210,7 @@ postNewR = do
   case _method of
     Just "preview" -> previewWiki
     Just "commit"  -> createWiki
-    _              -> invalidArgs ["The possible values of '_method' are preview,commit"]
+    _              -> invalidArgs ["The possible values of '_method' are preview,commit."]
   where
     previewWiki :: Handler RepHtml
     previewWiki = do
@@ -296,6 +296,7 @@ getHistoriesR wp = do
     -- pages
     historyList :: Version -> Handler RepHtml
     historyList v = do
+      mu <- maybeAuth
       let path = pathOf wp
           isTop = wp == topPage
           isNull = (""==)
@@ -340,7 +341,7 @@ getHistoryR v wp = do
     Just "p" {- diff to previous -} -> diffPrevious v
     Just "c" {- diff to current  -} -> diffCurrent v
     Just "r" {-      revert      -} -> revertHistory v
-    _        {-      illegal     -} -> invalidArgs ["The possible values of 'mode' are l,v,e,p,c,r"]
+    _        {-      illegal     -} -> invalidArgs ["The possible values of 'mode' are l,v,e,p,c,r."]
   where
     -- Utility
     getHistory :: Version -> Handler (String, String, Html, UTCTime, Version, Maybe User, Bool, Wiki)
@@ -348,7 +349,7 @@ getHistoryR v wp = do
       let path = pathOf wp
       runDB $ do
         (pid', p') <- getBy404 $ UniqueWiki path
-        [(pid, p)] <- selectList [WikiHistoryWikiEq pid', WikiHistoryVersionEq v] [] 0 0
+        (pid, p) <- getBy404 $ UniqueWikiHistory pid' v
         me <- get $ wikiHistoryEditor p
         let (raw, upd, ver) = (wikiHistoryContent p, wikiHistoryUpdated p, wikiHistoryVersion p)
             isTop = wp == topPage
@@ -460,7 +461,8 @@ postHistoryR v wp = do
   case _method of
     Just "preview" -> previewHistory
     Just "commit"  -> putWikiR wp
-    _              -> invalidArgs ["The possible values of '_method' are preview,commit"]
+    Just "modify"  -> putHistoryR v wp
+    _              -> invalidArgs ["The possible values of '_method' are preview,commit,modify", "hogehoge."]
   where
     
     previewHistory :: Handler RepHtml
@@ -483,3 +485,26 @@ postHistoryR v wp = do
         addJulius $(juliusFile "wiki")
         addStylesheet $ StaticR css_hk_kate_css
         addWidget $(widgetFile "previewHistory")
+
+putHistoryR :: Version -> WikiPage -> Handler RepHtml
+putHistoryR v wp = do
+  (uid, _) <- requireAuth
+  let path = pathOf wp
+  com <- runFormPost' $ maybeStringInput "comment"
+  runDB $ do
+    (pid, _) <- getBy404 $ UniqueWiki path
+    (hid, h) <- getBy404 $ UniqueWikiHistory pid v
+    if uid == wikiHistoryEditor h
+      then update hid [ WikiHistoryComment com ]
+      else lift $ invalidArgs ["You couldn't modify the history editted by the others."]
+  hamletToRepHtml
+#if GHC7
+    [hamlet|
+#else
+    [$hamlet|
+#endif
+$maybe com c
+  %span $c$
+$nothing
+  %span *** no log comment ***
+|]

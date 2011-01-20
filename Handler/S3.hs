@@ -59,7 +59,7 @@ postUploadR = do
   (uid, _) <- requireAuth
   mfi <- lookupFile "upfile"
   case mfi of
-    Nothing -> invalidArgs ["upload file is required"]
+    Nothing -> invalidArgs ["upload file is required."]
     Just fi -> do
       r <- getUrlRender
       (fid@(FileHeaderId f), name, ext, fsize, cdate) <- upload uid fi
@@ -84,7 +84,7 @@ putUploadR = do
   (uid, _) <- requireAuth
   mfi <- lookupFile "upfile"
   case mfi of
-    Nothing -> invalidArgs ["upload file is required"]
+    Nothing -> invalidArgs ["upload file is required."]
     Just fi -> upload uid fi >>= 
                \(fid, _, _, _, _) -> sendResponseCreated $ FileR uid fid
 
@@ -106,14 +106,14 @@ postFileR uid@(UserId uid') fid@(FileHeaderId fid') = do
   _method <- lookupPostParam "_method"
   case _method of
     Just "delete" -> deleteFileR uid fid
-    Nothing       -> invalidArgs ["The possible values of '_method' are delete"]
+    Nothing       -> invalidArgs ["The possible values of '_method' are delete."]
 
 deleteFileR :: UserId -> FileHeaderId -> Handler RepXml
 deleteFileR uid@(UserId uid') fid@(FileHeaderId fid') = do
   (uid'', _) <- requireAuth
   if uid/=uid''
     then
-    invalidArgs ["You couldn't delete this resource"]
+    invalidArgs ["You couldn't delete this resource."]
     else do
     r <- getUrlRender
     runDB $ delete fid

@@ -44,6 +44,7 @@ WikiHistory
     version Version Eq In Desc
     editor UserId
     comment String Maybe Update
+    UniqueWikiHistory wiki version
 
 FileHeader
     fullname String Eq
