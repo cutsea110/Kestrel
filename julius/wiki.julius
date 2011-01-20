@@ -11,13 +11,14 @@ $(document).ready(function(){
     return false;
   });
 
-  $('table.history').delegate('span.inplaceedit', 'mouseover focus', function(){
-    var target = $(this);
-    target.exInPlaceEditor({
-      nowHover: true,
-      displayStyle: 'inline',
-      editorType: 'input'
-    });
+  $(".inplaceedit").exInPlaceEditor({
+    nulltext: "*** no log message ***",
+    onsave: function(api) {
+      var data = api.getEditor().attr('name')+'='+api.getValue();
+      api.saving();
+      api.saveComplete();
+      return false;
+    }
   });
 
 });
