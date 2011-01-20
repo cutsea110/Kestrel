@@ -27,7 +27,7 @@ getWikiR wp = do
     Nothing  {- default mode -} -> viewWiki  -- FIXME
   where
     -- Utility
-    getwiki :: Handler (String, String, Html, UTCTime, Int, Maybe User, Bool)
+    getwiki :: Handler (String, String, Html, UTCTime, Version, Maybe User, Bool)
     getwiki = do
       let path = pathOf wp
       runDB $ do
@@ -49,7 +49,6 @@ getWikiR wp = do
       (path, raw, content, upd, ver, me, isTop) <- getwiki
       let editMe = (WikiR wp, [("mode", "e")])
           deleteMe = (WikiR wp, [("mode", "d")])
-          myHistory = (HistoryR wp, [("mode", "l")])
       defaultLayout $ do
         setTitle $ string $ if isTop then topTitle else path
         addCassius $(cassiusFile "wiki")
@@ -63,7 +62,6 @@ getWikiR wp = do
       (path, raw, content, upd, ver, _, isTop) <- getwiki
       let editMe = (WikiR wp, [("mode", "e")])
           deleteMe = (WikiR wp, [("mode", "d")])
-          myHistory = (HistoryR wp, [("mode", "l")])
           markdown = $(hamletFile "markdown")
       defaultLayout $ do
         setTitle $ string $ if isTop then topTitle else path
@@ -78,7 +76,6 @@ getWikiR wp = do
       (path, raw, content, upd, ver, me, isTop) <- getwiki
       let editMe = (WikiR wp, [("mode", "e")])
           deleteMe = (WikiR wp, [("mode", "d")])
-          myHistory = (HistoryR wp, [("mode", "l")])
       defaultLayout $ do
         setTitle $ string $ if isTop then topTitle else path
         addCassius $(cassiusFile "wiki")
@@ -110,7 +107,6 @@ postWikiR wp = do
       content <- runDB $ markdownToWikiHtml wikiWriterOption raw
       let editMe = (WikiR wp, [("mode", "e")])
           deleteMe = (WikiR wp, [("mode", "d")])
-          myHistory = (HistoryR wp, [("mode", "l")])
           markdown = $(hamletFile "markdown")
       defaultLayout $ do
         setTitle $ string $ if isTop then topTitle else path
@@ -269,23 +265,88 @@ postNewR = do
         -- FIXME: use sendResponseCreated API
       redirectParams RedirectSeeOther (WikiR $ fromPath path) [("mode", "v")]
 
-getHistoryR :: WikiPage -> Handler RepHtml
-getHistoryR wp = do
-  params@(mode, ver) <- uncurry (liftM2 (,)) 
-                        (lookupGetParam "mode", lookupGetParam "ver")
-  case params of
-    (Just "l", Nothing) {-       list       -} -> historyList $ -1
-    (Just "l", Just v ) {-       list       -} -> historyList $ read v
-    (Just "v", Just v ) {-       view       -} -> viewHistory $ read v
-    (Just "e", Just v ) {-       edit       -} -> editHistory $ read v
-    (Just "p", Just v ) {- diff to previous -} -> diffPrevious $ read v
-    (Just "c", Just v ) {- diff to current  -} -> diffCurrent $ read v
-    (Just "r", Just v ) {-      revert      -} -> revertHistory $ read v
-    _                   {-      illegal     -} -> invalidArgs ["The possible values of 'mode' are l,v,e,p,c,r",
-                                                               "And 'ver' is required without l"]
+getHistoriesR :: WikiPage -> Handler RepHtml
+getHistoriesR wp = do
+  ver <- lookupGetParam "ver"
+  case ver of
+    Nothing -> historyList $ -1
+    Just v  -> historyList $ read v
   where
     -- Utility
-    getHistory :: Int -> Handler (String, String, Html, UTCTime, Int, Maybe User, Bool, Wiki)
+    getHistories :: Handler [(User, WikiHistory)]
+    getHistories = do
+      let path = pathOf wp
+      runDB $ do
+        (pid, _) <- getBy404 $ UniqueWiki path
+        hists' <- selectList [WikiHistoryWikiEq pid] [WikiHistoryVersionDesc] 0 0
+        hists <- forM hists' $ \(hid, h) -> do
+          Just u <- get $ wikiHistoryEditor h
+          return (u, h)
+        return hists
+    
+    mkHistsWithDiff :: [(User, WikiHistory)] -> [(User, WikiHistory, (Version, Version))]
+    mkHistsWithDiff hs = zipWith p2t hs diffs
+      where 
+        p2t :: (a, b) -> c -> (a, b, c)
+        p2t (x, y) z = (x, y, z)
+        new = map (lines . wikiHistoryContent . snd) hs
+        old = tail new ++ [[]]
+        diffs = zipWith ((foldr dc (0,0).).getDiff) new old
+        dc (F,_) (f,s) = (f+1,s)
+        dc (S,_) (f,s) = (f,s-1)
+        dc _     fs    = fs
+    
+    -- pages
+    historyList :: Version -> Handler RepHtml
+    historyList v = do
+      let path = pathOf wp
+          isTop = wp == topPage
+          isNull = (""==)
+          pagingSize = 25
+      hs'' <- getHistories
+      let hs' = mkHistsWithDiff hs''
+          v' = if v >= 0 then v else curver
+          hs = take pagingSize $ drop (max (curver-v') 0) hs'
+          curver = (wikiHistoryVersion.snd.head) hs''
+          editMe = (WikiR wp, [("mode", "e")])
+          deleteMe = (WikiR wp, [("mode", "d")])
+          viewVer = \v -> (HistoryR v wp, [("mode", "v")])
+          editVer = \v -> (HistoryR v wp, [("mode", "e")])
+          revertVer = \v -> (HistoryR v wp, [("mode", "r")])
+          prevDiff = \v -> (HistoryR v wp, [("mode", "p")])
+          currDiff = \v -> (HistoryR v wp, [("mode", "c")])
+          notCurrent = \h -> wikiHistoryVersion h /= curver
+          notEpoch = \h -> wikiHistoryVersion h /= 0
+          canDiff = \h -> notCurrent h || notEpoch h
+          canDiff2 = \h -> notCurrent h && notEpoch h
+          showDate = formatTime defaultTimeLocale "%Y-%m-%d %H:%M:%S"
+          altClass = \h -> if wikiHistoryVersion h `mod` 2 == 0
+                           then "even"::String
+                           else "odd"
+          mnext = if v' >= pagingSize
+                  then Just (HistoriesR wp, [("ver", show $ v'-pagingSize)])
+                  else Nothing
+      defaultLayout $ do
+        setTitle $ string $ if isTop then topTitle else path
+        addCassius $(cassiusFile "wiki")
+        addJulius $(juliusFile "wiki")
+        addWidget $(widgetFile "listHistories")
+
+        
+
+getHistoryR :: Version -> WikiPage -> Handler RepHtml
+getHistoryR v wp = do
+  mode <- lookupGetParam "mode"
+  case mode of
+    Just "v" {-       view       -} -> viewHistory v
+    Just "e" {-       edit       -} -> editHistory v
+    Just "p" {- diff to previous -} -> diffPrevious v
+    Just "c" {- diff to current  -} -> diffCurrent v
+    Just "r" {-      revert      -} -> revertHistory v
+    _        {-      illegal     -} -> invalidArgs ["The possible values of 'mode' are l,v,e,p,c,r"]
+  where
+    -- Utility
+    getHistory :: Version -> Handler (String, String, Html, UTCTime, Version, Maybe User, Bool, Wiki)
     getHistory v = do
       let path = pathOf wp
       runDB $ do
@@ -308,18 +369,6 @@ getHistoryR wp = do
           return (u, h)
         return hists
             
-    mkHistsWithDiff :: [(User, WikiHistory)] -> [(User, WikiHistory, (Int, Int))]
-    mkHistsWithDiff hs = zipWith p2t hs diffs
-      where 
-        p2t :: (a, b) -> c -> (a, b, c)
-        p2t (x, y) z = (x, y, z)
-        new = map (lines . wikiHistoryContent . snd) hs
-        old = tail new ++ [[]]
-        diffs = zipWith ((foldr dc (0,0).).getDiff) new old
-        dc (F,_) (f,s) = (f+1,s)
-        dc (S,_) (f,s) = (f,s-1)
-        dc _     fs    = fs
-    
     mkDiff :: WikiHistory -> WikiHistory -> Html
     mkDiff new old = preEscapedString $ foldr d2h "" diffs
       where
@@ -330,52 +379,15 @@ getHistoryR wp = do
         d2h (B, l) xs = "<span>&nbsp;&nbsp;" ++ l ++ "</span><br/>" ++ xs
         
     -- pages
-    historyList :: Int -> Handler RepHtml
-    historyList v = do
-      let path = pathOf wp
-          isTop = wp == topPage
-          isNull = (""==)
-          pagingSize = 25
-      hs'' <- getHistories
-      let hs' = mkHistsWithDiff hs''
-          v' = if v >= 0 then v else curver
-          hs = take pagingSize $ drop (max (curver-v') 0) hs'
-          curver = (wikiHistoryVersion.snd.head) hs''
-          editMe = (WikiR wp, [("mode", "e")])
-          deleteMe = (WikiR wp, [("mode", "d")])
-          myHistory = (HistoryR wp, [("mode", "l")])
-          viewVer = \v -> (HistoryR wp, [("mode", "v"),("ver", show v)])
-          editVer = \v -> (HistoryR wp, [("mode", "e"),("ver", show v)])
-          revertVer = \v -> (HistoryR wp, [("mode", "r"),("ver", show v)])
-          prevDiff = \v -> (HistoryR wp, [("mode", "p"),("ver", show v)])
-          currDiff = \v -> (HistoryR wp, [("mode", "c"),("ver", show v)])
-          notCurrent = \h -> wikiHistoryVersion h /= curver
-          notEpoch = \h -> wikiHistoryVersion h /= 0
-          canDiff = \h -> notCurrent h || notEpoch h
-          canDiff2 = \h -> notCurrent h && notEpoch h
-          showDate = formatTime defaultTimeLocale "%Y-%m-%d %H:%M:%S"
-          altClass = \h -> if wikiHistoryVersion h `mod` 2 == 0
-                           then "even"::String
-                           else "odd"
-          mnext = if v' >= pagingSize
-                  then Just (HistoryR wp, [("mode","l"),("ver", show $ v'-pagingSize)])
-                  else Nothing
-      defaultLayout $ do
-        setTitle $ string $ if isTop then topTitle else path
-        addCassius $(cassiusFile "wiki")
-        addJulius $(juliusFile "wiki")
-        addWidget $(widgetFile "listHistories")
-
-    viewHistory :: Int -> Handler RepHtml
+    viewHistory :: Version -> Handler RepHtml
     viewHistory v = do
       (path, raw, content, upd, _, me, isTop, curp) <- getHistory v
       let editMe = (WikiR wp, [("mode", "e")])
           deleteMe = (WikiR wp, [("mode", "d")])
-          myHistory = (HistoryR wp, [("mode", "l")])
           ver = wikiVersion curp
           notCurrent =  v /= ver
-          editVer = (HistoryR wp, [("mode", "e"),("ver", show v)])
-          currDiff = (HistoryR wp, [("mode", "c"),("ver", show v)])
+          editVer = (HistoryR v wp, [("mode", "e")])
+          currDiff = (HistoryR v wp, [("mode", "c")])
       defaultLayout $ do
         setTitle $ string $ if isTop then topTitle else path
         addCassius $(cassiusFile "wiki")
@@ -383,13 +395,12 @@ getHistoryR wp = do
         addStylesheet $ StaticR css_hk_kate_css
         addWidget $(widgetFile "viewHistory")
 
-    editHistory :: Int -> Handler RepHtml
+    editHistory :: Version -> Handler RepHtml
     editHistory v = do
       (uid, _) <- requireAuth
       (path, raw, content, upd, _, me, isTop, curp) <- getHistory v
       let editMe = (WikiR wp, [("mode", "e")])
           deleteMe = (WikiR wp, [("mode", "d")])
-          myHistory = (HistoryR wp, [("mode", "l")])
           ver = wikiVersion curp
           notCurrent =  v /= ver
           markdown = $(hamletFile "markdown")
@@ -400,16 +411,15 @@ getHistoryR wp = do
         addStylesheet $ StaticR css_hk_kate_css
         addWidget $(widgetFile "editHistory")
     
-    revertHistory :: Int -> Handler RepHtml
+    revertHistory :: Version -> Handler RepHtml
     revertHistory v = do
       (uid, _) <- requireAuth
       (path, raw, content, upd, _, me, isTop, curp) <- getHistory v
       let editMe = (WikiR wp, [("mode", "e")])
           deleteMe = (WikiR wp, [("mode", "d")])
-          myHistory = (HistoryR wp, [("mode", "l")])
           ver = wikiVersion curp
           notCurrent =  v /= ver
-          editVer = (HistoryR wp, [("mode", "e"),("ver", show v)])
+          editVer = (HistoryR v wp, [("mode", "e")])
       defaultLayout $ do
         setTitle $ string $ if isTop then topTitle else path
         addCassius $(cassiusFile "wiki")
@@ -417,7 +427,7 @@ getHistoryR wp = do
         addStylesheet $ StaticR css_hk_kate_css
         addWidget $(widgetFile "revertHistory")
 
-    diffVers :: (Wiki -> Int -> [Int]) -> Int -> Handler RepHtml
+    diffVers :: (Wiki -> Version -> [Version]) -> Version -> Handler RepHtml
     diffVers selver v = do
       let path = pathOf wp
       (p, v1, v0) <- runDB $ do
@@ -428,7 +438,6 @@ getHistoryR wp = do
         return (p, v1, v0)
       let editMe = (WikiR wp, [("mode", "e")])
           deleteMe = (WikiR wp, [("mode", "d")])
-          myHistory = (HistoryR wp, [("mode", "l")])
           title = if wikiVersion p == wikiHistoryVersion v1
                   then "updated from " ++ showDate (wikiHistoryUpdated v0)
                   else "updated between " ++ showDate (wikiHistoryUpdated v0) ++ " to " ++ showDate (wikiHistoryUpdated v1)
@@ -440,15 +449,15 @@ getHistoryR wp = do
         addJulius $(juliusFile "wiki")
         addWidget $(widgetFile "diffHistories")
     
-    diffPrevious :: Int -> Handler RepHtml
+    diffPrevious :: Version -> Handler RepHtml
     diffPrevious = diffVers $ \p v -> [v, v-1]
     
-    diffCurrent :: Int -> Handler RepHtml
+    diffCurrent :: Version -> Handler RepHtml
     diffCurrent = diffVers $ \p v -> [wikiVersion p, v]
 
 
-postHistoryR :: WikiPage -> Handler RepHtml
-postHistoryR wp = do
+postHistoryR :: Version -> WikiPage -> Handler RepHtml
+postHistoryR v wp = do
   (uid, _) <- requireAuth
   submits@(preview, commit) <-
     uncurry (liftM2 (,)) (lookupPostParam "preview", lookupPostParam "commit")
@@ -470,7 +479,6 @@ postHistoryR wp = do
       content <- runDB $ markdownToWikiHtml wikiWriterOption raw
       let editMe = (WikiR wp, [("mode", "e")])
           deleteMe = (WikiR wp, [("mode", "d")])
-          myHistory = (HistoryR wp, [("mode", "l")])
           notCurrent = v /= ver
           markdown = $(hamletFile "markdown")
       defaultLayout $ do

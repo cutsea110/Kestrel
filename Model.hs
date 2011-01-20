@@ -10,6 +10,8 @@ import Data.Time
 import Data.ByteString (ByteString)
 import Data.Int
 
+type Version = Int
+
 -- You can define all of your database entities here. You can find more
 -- information on persistent and how to declare entities at:
 -- http://docs.yesodweb.com/book/persistent/
@@ -29,7 +31,7 @@ Wiki
     path String Asc
     content String Update
     updated UTCTime Update Desc
-    version Int default=0 Add
+    version Version default=0 Add
     editor UserId Update
     comment String Maybe Update
     UniqueWiki path
@@ -39,7 +41,7 @@ WikiHistory
     path String Asc Eq
     content String
     updated UTCTime Desc
-    version Int Eq In Desc
+    version Version Eq In Desc
     editor UserId
     comment String Maybe Update
 

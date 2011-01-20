@@ -134,7 +134,8 @@ mkYesodData "Kestrel" [$parseRoutes|
 
 /wiki/*WikiPage WikiR GET POST PUT DELETE
 /new NewR GET POST
-/history/*WikiPage HistoryR GET POST
+/histories/*WikiPage HistoriesR GET
+/history/#Version/*WikiPage HistoryR GET POST
 
 /s3/upload UploadR GET POST PUT
 /s3/user/#UserId/file/#FileHeaderId FileR GET POST DELETE
@@ -145,7 +146,7 @@ newtype WikiPage = WikiPage { unWikiPage :: [String] } deriving (Eq, Show, Read)
 instance MultiPiece WikiPage where
   toMultiPiece = unWikiPage
   fromMultiPiece = Right . WikiPage
-
+  
 topPage :: WikiPage
 topPage = WikiPage [Settings.topTitle]
 topView :: (KestrelRoute, [(String, String)])

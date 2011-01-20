@@ -6,13 +6,13 @@
   %li
     %a!href=@?deleteMe@ Delete
   %li.selected
-    %a!href=@?myHistory@ History
+    %a!href=@HistoriesR.wp@ History
   $if (not isTop)
     %li
       %a!href=@?topView@ Top
 
 #main-content
-  %form!method=post!action=@HistoryR.wp@
+  %form!method=post!action=@(HistoryR.v).wp@
     %input!type=hidden!name=version!value=$show.ver$
     %input!type=hidden!name=original_version!value=$show.v$
     %input!type=submit!name=preview!value="more preview"

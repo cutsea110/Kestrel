@@ -6,7 +6,7 @@
   %li
     %a!href=@?deleteMe@ Delete
   %li.selected
-    %a!href=@?myHistory@ History
+    %a!href=@HistoriesR.wp@ History
   $if (not isTop)
     %li
       %a!href=@?topView@ Top
@@ -18,7 +18,7 @@
   .minus - deleted line
 
   !align=right
-    %a!href=@?myHistory@ Return to the edit history
+    %a!href=@HistoriesR.wp@ Return to the edit history
 
   .diff
     $content$
