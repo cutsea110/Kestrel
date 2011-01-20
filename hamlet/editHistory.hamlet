@@ -21,8 +21,8 @@
       $if notCurrent
         written back to the old version $show.v$
     %br
-    %input!type=submit!name=preview!value=preview
-    %input!type=submit!name=commit!value=commit
+    %button!type=submit!name=_method!value=preview preview
+    %button!type=submit!name=_method!value=commit commit
 
   #help
     ^markdown^

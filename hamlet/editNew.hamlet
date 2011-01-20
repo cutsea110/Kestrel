@@ -14,8 +14,8 @@
     .description ChangeLog (brief summary of your edit for later reference):
     %textarea.comment!name=comment
     %br
-    %input!type=submit!name=preview!value=preview
-    %input!type=submit!name=commit!value="new create"
+    %button!type=submit!name=_method!value=preview preview
+    %button!type=submit!name=_method!value=commit new create
 
   #help
     ^markdown^

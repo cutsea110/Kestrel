@@ -87,13 +87,12 @@ getWikiR wp = do
 postWikiR :: WikiPage -> Handler RepHtml
 postWikiR wp = do
   (uid, _) <- requireAuth
-  submits@(preview, commit, delete) <-
-    uncurry3 (liftM3 (,,)) (lookupPostParam "preview", lookupPostParam "commit", lookupPostParam "delete")
-  case submits of
-    (Just _,  Nothing, Nothing) -> previewWiki
-    (Nothing, Just _ , Nothing) -> putWikiR wp
-    (Nothing, Nothing, Just _ ) -> deleteWikiR wp
-    _ -> invalidArgs ["'preview' or 'commit' or 'delete' parameter is required"]
+  _method <- lookupPostParam "_method"
+  case _method of
+    Just "preview" -> previewWiki
+    Just "commit"  -> putWikiR wp
+    Just "delete"  -> deleteWikiR wp
+    _ -> invalidArgs ["The possible values of '_method' are preview,commit,delete"]
   where
     
     previewWiki :: Handler RepHtml
@@ -207,13 +206,11 @@ getNewR = do
 postNewR :: Handler RepHtml
 postNewR = do
   (uid, _) <- requireAuth
-  submits@(preview, commit) <-
-    uncurry (liftM2 (,)) (lookupPostParam "preview", lookupPostParam "commit")
-  case submits of
-    (Nothing, Nothing) -> invalidArgs ["'preview' or 'commit' parameter is required"]
-    (Just _,  Just _)  -> invalidArgs ["'preview' and 'commit' parameters are alternative"]
-    (Just _,  Nothing) -> previewWiki
-    (Nothing, Just _)  -> createWiki
+  _method <- lookupPostParam "_method"
+  case _method of
+    Just "preview" -> previewWiki
+    Just "commit"  -> createWiki
+    _              -> invalidArgs ["The possible values of '_method' are preview,commit"]
   where
     previewWiki :: Handler RepHtml
     previewWiki = do
@@ -459,12 +456,11 @@ getHistoryR v wp = do
 postHistoryR :: Version -> WikiPage -> Handler RepHtml
 postHistoryR v wp = do
   (uid, _) <- requireAuth
-  submits@(preview, commit) <-
-    uncurry (liftM2 (,)) (lookupPostParam "preview", lookupPostParam "commit")
-  case submits of
-    (Just _,  Nothing) -> previewHistory
-    (Nothing, Just _ ) -> putWikiR wp
-    _ -> invalidArgs ["'preview' or 'commit' parameter is required"]
+  _method <- lookupPostParam "_method"
+  case _method of
+    Just "preview" -> previewHistory
+    Just "commit"  -> putWikiR wp
+    _              -> invalidArgs ["The possible values of '_method' are preview,commit"]
   where
     
     previewHistory :: Handler RepHtml

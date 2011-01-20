@@ -15,8 +15,8 @@
   %form!method=post!action=@(HistoryR.v).wp@
     %input!type=hidden!name=version!value=$show.ver$
     %input!type=hidden!name=original_version!value=$show.v$
-    %input!type=submit!name=preview!value="more preview"
-    %input!type=submit!name=commit!value=commit
+    %button!type=submit!name=_method!value=preview More Preview
+    %button!type=submit!name=_method!value=commit Commit
 
     .preview $content$
     %br
@@ -26,8 +26,8 @@
       $maybe com c
          $c$
     %br
-    %input!type=submit!name=preview!value="more preview"
-    %input!type=submit!name=commit!value=commit
+    %button!type=submit!name=_method!value=preview More Preview
+    %button!type=submit!name=_method!value=commit Commit
 
   #help
     ^markdown^

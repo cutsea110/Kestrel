@@ -16,4 +16,4 @@
     Warning: deleting the page cannot be undone. Are you sure?
 
   %form!method=post!action=@WikiR.wp@
-    %input!type=submit!name=delete!value="i'm sure, delete it!"
+    %button!type=submit!name=_method!value=delete i'm sure, delete it!
