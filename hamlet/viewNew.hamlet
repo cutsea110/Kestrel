@@ -8,6 +8,6 @@
       %a!href=@?topView@ Top
 
 #main-content
-  There is no page '$path$'. You maycreate the page by $
+  There is no page '$path$'. You may create the page by $
   %a!href=@?editMe@ Clicking here
   \.
