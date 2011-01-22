@@ -279,9 +279,9 @@ instance YesodPersist Kestrel where
     runDB db = fmap connPool getYesod >>= Settings.runConnectionPool db
     
 instance YesodJquery Kestrel where
-  urlJqueryJs _ = Left $ StaticR js_jquery_js
-  urlJqueryUiJs _ = Left $ StaticR js_jquery_ui_js
-  urlJqueryUiCss _ = Left $ StaticR css_jquery_ui_css
+  urlJqueryJs _ = Left $ StaticR js_jquery_1_4_4_min_js
+  urlJqueryUiJs _ = Left $ StaticR js_jquery_ui_1_8_9_custom_min_js
+  urlJqueryUiCss _ = Left $ StaticR css_jquery_ui_1_8_9_custom_css
     
 instance Item User where
   itemTitle = userIdent
