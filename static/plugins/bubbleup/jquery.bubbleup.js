@@ -38,7 +38,7 @@
                   top: position.top - tipHeight, 
                   left: position.left + position.width / 2 - tipWidth / 2,
                   visibility: 'visible'
-               }).animate({top:'-='+(opt.scale/2-h/2+opt.fontSize)},opt.inSpeed); 
+               }).animate({top:'-='+(opt.scale/2-h/2)},opt.inSpeed); 
             }
             
             $(this).closest('li').css({'z-index':100000});
