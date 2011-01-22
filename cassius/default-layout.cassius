@@ -49,10 +49,10 @@ div#message
 
 .kui-t1 .kui-b
    float: left
-   width: 12.3077em
+   width: 14.3077em
 
 .kui-t1 #kui-main .kui-b
-   margin-left: 13.3077em
+   margin-left: 15.3077em
 
 #kui-main .kui-b
    float: none
@@ -103,6 +103,19 @@ ul.tabs li a
 
 .sidebox
    margin-top: 25px
+
+.sidebox input[type=text]
+   font-size: 93%
+   width: 8.5em
+   border: 1px solid #CCC
+   mergin-right: 0.3em
+
+.sidebox button[type=submit]
+   font-size: 93%
+   color: white
+   background-color: #CCC
+   border: none
+   margin: 0.1em 0.5em 0.1em 0.5em
 
 ul, ol
    -webkit-padding-start: 15px
