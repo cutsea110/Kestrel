@@ -14,7 +14,7 @@
               ^footer^
           #sidebar.kui-b
             #kestrel-logo
-              %a!href=@?topView@
+              %a!title="Go to top page"!alt="site logo"!href=@?topView@
                 %img!src=@StaticR.img_kestrel_logo_png@
             #sidenavi.sidebox
             #recent-changes.sidebox
