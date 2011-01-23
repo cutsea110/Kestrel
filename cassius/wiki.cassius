@@ -113,6 +113,7 @@ table.history th
     border: solid 1px #000000
     background-color: #d0d0d0
 .inplaceedit
+    height: 2em
     width: 98%
 
 .diff
