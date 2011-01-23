@@ -1,51 +1,33 @@
-<div class='left inline'>
-<!-- Twitter Tweet Button BEGIN -->
-<a href="http://twitter.com/share" class="twitter-share-button" data-count="horizontal">Tweet</a>
-<script type="text/javascript" src="http://platform.twitter.com/widgets.js"></script>
-<!-- Twitter Tweet Button END -->
-</div>
+$maybe maTUser aTUser
+  <div class='left inline'>
+  <!-- AddThis Button BEGIN -->
+  <div class="addthis_toolbox addthis_default_style ">
+  <a class="addthis_button_tweet"></a>
+  <a class="addthis_button_facebook_like" fb:like:layout="button_count"></a>
+  <a class="addthis_counter addthis_pill_style"></a>
+  </div>
+  <script type="text/javascript">var addthis_config = {"data_track_clickback":true};</script>
+  <script type="text/javascript" src="http://s7.addthis.com/js/250/addthis_widget.js#username=$aTUser$"></script>
+  <!-- AddThis Button END -->
+  </div>
 
-<div class='left inline'>
-<!-- Facebook Like Button BEGIN -->
-<script type="text/javascript">
-  var url = "http://www.facebook.com/plugins/like.php?href=" + encodeURIComponent(location.href) + "&layout=button_count&show_faces=true&width=450&action=like&colorscheme=light";
-  document.write('<iframe src="' + url + '" allowtransparency="true" style="border: medium none ; overflow: hidden; width: 120px; height: 20px;" frameborder="0" scrolling="no"></iframe>');
-</script>
-<!-- Facebook Like Button END -->
-</div>
 
-<!-- W A R N I N G !! GET Account Site by Site -->
-<div class='left inline'>
-<!-- AddThis Button BEGIN -->
-<div class="addthis_toolbox addthis_default_style ">
-<a href="http://www.addthis.com/bookmark.php?v=250&amp;username=cutsea110" class="addthis_button_compact">Share</a>
-<span class="addthis_separator">|</span>
-<a class="addthis_button_preferred_1"></a>
-<a class="addthis_button_preferred_2"></a>
-<a class="addthis_button_preferred_3"></a>
-<a class="addthis_button_preferred_4"></a>
-</div>
-<script type="text/javascript">var addthis_config = {"data_track_clickback":true};</script>
-<script type="text/javascript" src="http://s7.addthis.com/js/250/addthis_widget.js#username=cutsea110"></script>
-<!-- AddThis Button END -->
-</div>
-
-<!-- W A R N I N G !! GET Account Site by Site -->
-<!-- Google Analytics BEGIN -->
-<script type="text/javascript">
-
-  var _gaq = _gaq || [];
-  _gaq.push(['_setAccount', 'UA-2279508-3']);
-  _gaq.push(['_trackPageview']);
-
-  (function() {
-    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
-    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
-    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
-  })();
-
-</script>
-<!-- Google Analytics END -->
+$maybe mgaUA gaUA
+  <!-- Google Analytics BEGIN -->
+  <script type="text/javascript">
+  
+    var _gaq = _gaq || [];
+    _gaq.push(['_setAccount', '$gaUA$']);
+    _gaq.push(['_trackPageview']);
+  
+    (function() {
+      var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+      ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+      var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+    })();
+  
+  </script>
+  <!-- Google Analytics END -->
 
 #footer.center
   powered by $

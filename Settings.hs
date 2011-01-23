@@ -23,6 +23,8 @@ module Settings
     , sidePaneTitle
     , facebookApplicationId
     , facebookApplicationSecret
+    , googleAnalyticsUA
+    , addThisUser
     ) where
 
 import qualified Text.Hamlet as H
@@ -83,6 +85,12 @@ facebookApplicationId :: String
 facebookApplicationId = "123456789012345"
 facebookApplicationSecret :: String
 facebookApplicationSecret =  "0102030405060708090a0b0c0d0e0f10"
+
+googleAnalyticsUA :: Maybe String
+googleAnalyticsUA = Just "UA-1234567-8"
+
+addThisUser :: Maybe String
+addThisUser = Just "cutsea110"
 
 -- | The database connection string. The meaning of this string is backend-
 -- specific.

@@ -228,7 +228,9 @@ instance Yesod Kestrel where
             Just (_, sp'') -> do
               sp' <- markdownToWikiHtml wikiWriterOption $ wikiContent sp''
               return (Settings.sidePaneTitle, Just sp')
-        let header = $(Settings.hamletFile "header")
+        let mgaUA = Settings.googleAnalyticsUA
+            maTUser = Settings.addThisUser
+            header = $(Settings.hamletFile "header")
             footer = $(Settings.hamletFile "footer")
             login = $(Settings.hamletFile "login")
         pc <- widgetToPageContent $ do

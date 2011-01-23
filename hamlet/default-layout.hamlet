@@ -39,4 +39,3 @@
         #login
           %h3 Login with
           ^login^
-          
