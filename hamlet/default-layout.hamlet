@@ -36,3 +36,7 @@
              %input!id=go_upload!type=button!name=upload!value="Upload File"
            #trash-area.right
              %img.transparent!id=trashbox!src=@StaticR.img_trash_empty64_png@
+        #login
+          %h3 Login with
+          ^login^
+          

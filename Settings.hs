@@ -21,6 +21,8 @@ module Settings
     , s3root
     , topTitle
     , sidePaneTitle
+    , facebookApplicationId
+    , facebookApplicationSecret
     ) where
 
 import qualified Text.Hamlet as H
@@ -76,6 +78,11 @@ topTitle :: String
 topTitle = "Kestrel"
 sidePaneTitle :: String
 sidePaneTitle = "Site Navigation"
+
+facebookApplicationId :: String
+facebookApplicationId = "123456789012345"
+facebookApplicationSecret :: String
+facebookApplicationSecret =  "0102030405060708090a0b0c0d0e0f10"
 
 -- | The database connection string. The meaning of this string is backend-
 -- specific.

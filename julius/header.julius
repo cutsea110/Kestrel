@@ -1,0 +1,6 @@
+$(document).ready(function(){
+  $("#login-button").click(function(){
+    $("#login").dialog("open");
+    return false;
+  });
+});

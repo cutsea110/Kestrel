@@ -50,6 +50,7 @@ import Yesod.Helpers.Auth
 import qualified Kestrel.Helpers.Auth.Account as A (saltPass)
 import Kestrel.Helpers.Auth.Account
 import Yesod.Helpers.Auth.OpenId
+import Yesod.Helpers.Auth.Facebook
 import Yesod.Helpers.Auth.Email
 import Yesod.Helpers.Crud
 import Yesod.Form.Jquery
@@ -229,6 +230,7 @@ instance Yesod Kestrel where
               return (Settings.sidePaneTitle, Just sp')
         let header = $(Settings.hamletFile "header")
             footer = $(Settings.hamletFile "footer")
+            login = $(Settings.hamletFile "login")
         pc <- widgetToPageContent $ do
           widget
           addScriptEither $ urlJqueryJs y
@@ -241,6 +243,8 @@ instance Yesod Kestrel where
           addScriptEither $ Left $ StaticR plugins_watermark_jquery_watermark_js
           addCassius $(Settings.cassiusFile "default-layout")
           addJulius $(Settings.juliusFile "default-layout")
+          addJulius $(Settings.juliusFile "header")
+          addCassius $(Settings.cassiusFile "header")
           atomLink FeedR Settings.topTitle
         hamletToRepHtml $(Settings.hamletFile "default-layout")
         
@@ -344,6 +348,9 @@ instance YesodAuth Kestrel where
 
     authPlugins = [ authAccount
                   , authOpenId
+                  , authFacebook Settings.facebookApplicationId 
+                                 Settings.facebookApplicationSecret 
+                                 []
                   , authEmail ]
 
 instance YesodAuthAccount Kestrel where

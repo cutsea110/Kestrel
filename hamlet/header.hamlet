@@ -5,7 +5,7 @@
     \ 
     %a!href=@AuthR.setpassR@ [Change Password]
   $nothing
-    %a!href=@AuthR.LoginR@ [Login]
+    %a#login-button!href=@AuthR.LoginR@ [Login]
 #file-list-view
   $maybe mu u
     %a#file-select-button!href=@FileListR.fst.u@ [View files]
