@@ -58,6 +58,18 @@ div.preview
     background-color: #f8f8f8
     padding: 10px
 
+fieldset.blocks
+    margin: 0.5em 0 0.5em 0
+
+.block
+    background-color: #f8f8f8
+    border: 1px solid #CCC
+    margin: 0.5em 0 0.5em 0
+
+.highlight
+    background-color: yellow
+    color: red
+
 .description
     color: #333333
 

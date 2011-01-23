@@ -18,6 +18,12 @@
                 %img!src=@StaticR.img_kestrel_logo_png@
             #sidenavi.sidebox
             #recent-changes.sidebox
+            #tools.sidebox
+              %fieldset
+                %legend Tools
+                %form!method=get!action=@WikiListR@
+                  %input.watermark!type=text!name=q!placeholder=Search...
+                  %button!type=submit!name=_method!value=search Go
         $maybe mu u
           #file_selector
            Select from

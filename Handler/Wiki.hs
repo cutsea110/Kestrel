@@ -11,9 +11,34 @@ import Control.Applicative ((<$>),(<*>))
 import Web.Encodings (encodeUrl, decodeUrl)
 import Data.Tuple.HT
 import Data.Algorithm.Diff
+import Data.List (intercalate, groupBy)
+import Data.List.Split (splitOn)
 
 import Settings (topTitle, hamletFile, cassiusFile, juliusFile, widgetFile)
 import StaticFiles
+
+getWikiListR :: Handler RepHtml
+getWikiListR = do
+  method <- lookupGetParam "_method"
+  case method of
+    Nothing -> invalidArgs [""]
+    Just "search" -> searchWiki
+  where
+    -- pages
+    searchWiki :: Handler RepHtml
+    searchWiki = do
+      q <- lookupGetParam "q"
+      case q of
+        Nothing  -> invalidArgs ["'q' parameter is required."]
+        Just []  -> invalidArgs ["Please specify your search."]
+        Just [x] -> invalidArgs ["Search term must be given two or more characters."]
+        Just key -> do
+          defaultLayout $ do
+            setTitle $ string "Search Result"
+            addCassius $(cassiusFile "wiki")
+            addJulius $(juliusFile "wikilist")
+            addStylesheet $ StaticR css_hk_kate_css
+            addWidget $(widgetFile "searchWiki")
 
 getWikiR :: WikiPage -> Handler RepHtml
 getWikiR wp = do
@@ -23,6 +48,7 @@ getWikiR wp = do
     Just "e" {-  edit  page  -} -> editWiki
     Just "d" {- delete page  -} -> deleteWiki
     Just "s" {- simple page  -} -> simpleViewWiki
+    Just "q" {- query  word  -} -> queryViewWiki
     Just _   {- default mode -} -> viewWiki  -- FIXME
     Nothing  {- default mode -} -> viewWiki  -- FIXME
   where
@@ -38,7 +64,60 @@ getWikiR wp = do
         content <- markdownToWikiHtml wikiWriterOption raw
         return (path, raw, content, upd, ver, me, isTop)
     
+    searchWord :: String -> String -> [Html]
+    searchWord key content = pileUp $ map (search key) $ lines content
+      where
+        search :: String -> String -> (Bool, String)
+        search word line = (found, highlighted)
+          where 
+            splitted = splitOn word line
+            found = length splitted > 1
+            highlighted = intercalate ("<span class='highlight'>"++word++"</span>") splitted
+            
+        pileUp :: [(Bool, String)] -> [Html]
+        pileUp = map toHtml . group . remark 3
+          where
+            remark :: Int -> [(Bool, String)] -> [(Bool, String)]
+            remark 1 xs = transmit xs shiftL shiftR
+              where
+                shiftL = drop 1 xs ++ [(False, undefined)]
+                shiftR = (False, undefined):xs
+                transmit :: [(Bool, String)] -> [(Bool, String)] -> [(Bool, String)] -> [(Bool, String)]
+                transmit [] _ _ = []
+                transmit ((o,os):os') ((l,ls):ls') ((r,rs):rs') = (or [o,l,r], os):transmit os' ls' rs'
+            remark n xs = remark 1 $ remark (n-1) xs
+                
+            group :: [(Bool, String)] -> [[String]]
+            group = map (map snd) . filter (fst.head) . groupBy (\x y -> fst x == fst y)
+            toHtml :: [String] -> Html
+            toHtml = preEscapedString . intercalate "<br/>"
+
+    
     -- Pages
+    queryViewWiki :: Handler RepHtml
+    queryViewWiki = do
+      q <- lookupGetParam "q"
+      case q of
+        Nothing  -> invalidArgs []
+        Just key -> do
+          let path =pathOf wp
+          (_, p) <- runDB $ getBy404 $ UniqueWiki path
+          let blocks = searchWord key $ wikiContent p
+              isNull = (==[])
+          hamletToRepHtml
+#if GHC7
+             [hamlet|
+#else
+             [$hamlet|
+#endif
+$if (not (isNull blocks))
+  %fieldset.blocks
+    %legend 
+      %a!href=@WikiR.wp@ $path$
+    $forall blocks block
+      %div.block $block$
+|]
+        
     simpleViewWiki :: Handler RepHtml
     simpleViewWiki = do
       (_, _, content, _, _, _, _) <- getwiki
