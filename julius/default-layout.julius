@@ -59,6 +59,7 @@ $(document).ready(function(){
                          g = makeImageLink(uri, name, ext, size, pos);
                      g.prependTo("#selectable_images");
                    }, 'xml');
+    return false;
   });
 
   $("#file-select-button").click(function(){
@@ -162,6 +163,7 @@ function makeImageLink(uri,name,ext,size,pos){
         obj.value = s.substr(0,pos) + img_markdown + s.substr(pos);
         obj.setSelectionRange(np,np);
       }
+      return false;
     });
   }
   return li.append(anc.append(img));
