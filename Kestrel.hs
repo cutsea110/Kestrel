@@ -238,6 +238,7 @@ instance Yesod Kestrel where
           addScriptEither $ Left $ StaticR plugins_bubbleup_jquery_bubbleup_js
           addScriptEither $ Left $ StaticR plugins_exinplaceeditor_jquery_exinplaceeditor_0_1_3_js
           addStylesheetEither $ Left $ StaticR plugins_exinplaceeditor_exinplaceeditor_css
+          addScriptEither $ Left $ StaticR plugins_watermark_jquery_watermark_js
           addCassius $(Settings.cassiusFile "default-layout")
           addJulius $(Settings.juliusFile "default-layout")
           atomLink FeedR Settings.topTitle

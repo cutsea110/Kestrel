@@ -103,7 +103,7 @@ getWikiR wp = do
              [$hamlet|
 #endif
 $if (not (isNull blocks))
-  %fieldset
+  %fieldset.blocks
     %legend 
       %a!href=@WikiR.wp@ $path$
     $forall blocks block

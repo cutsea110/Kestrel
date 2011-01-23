@@ -1,6 +1,8 @@
 $(document).ready(function(){
   $("#message").fadeOut(3000, function(){$(this).remove();});
 
+  $(".watermark").watermark();
+
   $.ajax({
     type: 'GET',
     url: '@?simpleSidePane@',
