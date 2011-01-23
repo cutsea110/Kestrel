@@ -11,6 +11,7 @@ import Control.Applicative ((<$>),(<*>))
 import Web.Encodings (encodeUrl, decodeUrl)
 import Data.Tuple.HT
 import Data.Algorithm.Diff
+import Data.List (intercalate, groupBy)
 import Data.List.Split (splitOn)
 
 import Settings (topTitle, hamletFile, cassiusFile, juliusFile, widgetFile)
@@ -64,14 +65,25 @@ getWikiR wp = do
         return (path, raw, content, upd, ver, me, isTop)
     
     searchWord :: String -> String -> [Html]
-    searchWord key content = map (preEscapedString.(foldr (++) "")) test
+    searchWord key content = pileUp $ map (search key) $ lines content
       where
-        test =  [["<span>hogehoge</span><br/>"
-                 ,"<span>[<span class='highlight'>Kestrel</span>]()</span><br/>"
-                 ,"<span>fugafuga</span><br/>"],
-                 ["<span>うきゃうきゃ</span><br/>"
-                 ,"<span>ちょー[<span class='highlight'>Kestrel</span>]()</span><br/>"
-                 ,"<span>========</span><br/>"]]
+        search :: String -> String -> (Bool, String)
+        search word line = (found, highlighted)
+          where 
+            splitted = splitOn word line
+            found = length splitted > 1
+            highlighted = intercalate ("<span class='highlight'>"++word++"</span>") splitted
+            
+        pileUp :: [(Bool, String)] -> [Html]
+        pileUp = map toHtml . group . remark
+          where
+            remark :: [(Bool, String)] -> [(Bool, String)]
+            remark = id -- FIXME
+            group :: [(Bool, String)] -> [[String]]
+            group = map (map snd) . filter (fst.head) . groupBy (\x y -> fst x == fst y)
+            toHtml :: [String] -> Html
+            toHtml = preEscapedString . intercalate "<br/>"
+
     
     -- Pages
     queryViewWiki :: Handler RepHtml
