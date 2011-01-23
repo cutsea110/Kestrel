@@ -75,10 +75,18 @@ getWikiR wp = do
             highlighted = intercalate ("<span class='highlight'>"++word++"</span>") splitted
             
         pileUp :: [(Bool, String)] -> [Html]
-        pileUp = map toHtml . group . remark
+        pileUp = map toHtml . group . remark 3
           where
-            remark :: [(Bool, String)] -> [(Bool, String)]
-            remark = id -- FIXME
+            remark :: Int -> [(Bool, String)] -> [(Bool, String)]
+            remark 1 xs = transmit xs shiftL shiftR
+              where
+                shiftL = drop 1 xs ++ [(False, undefined)]
+                shiftR = (False, undefined):xs
+                transmit :: [(Bool, String)] -> [(Bool, String)] -> [(Bool, String)] -> [(Bool, String)]
+                transmit [] _ _ = []
+                transmit ((o,os):os') ((l,ls):ls') ((r,rs):rs') = (or [o,l,r], os):transmit os' ls' rs'
+            remark n xs = remark 1 $ remark (n-1) xs
+                
             group :: [(Bool, String)] -> [[String]]
             group = map (map snd) . filter (fst.head) . groupBy (\x y -> fst x == fst y)
             toHtml :: [String] -> Html
