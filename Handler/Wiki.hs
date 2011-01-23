@@ -11,9 +11,33 @@ import Control.Applicative ((<$>),(<*>))
 import Web.Encodings (encodeUrl, decodeUrl)
 import Data.Tuple.HT
 import Data.Algorithm.Diff
+import Data.List.Split (splitOn)
 
 import Settings (topTitle, hamletFile, cassiusFile, juliusFile, widgetFile)
 import StaticFiles
+
+getWikiListR :: Handler RepHtml
+getWikiListR = do
+  method <- lookupGetParam "_method"
+  case method of
+    Nothing -> invalidArgs [""]
+    Just "search" -> searchWiki
+  where
+    -- pages
+    searchWiki :: Handler RepHtml
+    searchWiki = do
+      q <- lookupGetParam "q"
+      case q of
+        Nothing  -> invalidArgs ["'q' parameter is required."]
+        Just []  -> invalidArgs ["Please specify your search."]
+        Just [x] -> invalidArgs ["Search term must be given two or more characters."]
+        Just key -> do
+          defaultLayout $ do
+            setTitle $ string "Search Result"
+            addCassius $(cassiusFile "wiki")
+            addJulius $(juliusFile "wikilist")
+            addStylesheet $ StaticR css_hk_kate_css
+            addWidget $(widgetFile "searchWiki")
 
 getWikiR :: WikiPage -> Handler RepHtml
 getWikiR wp = do
@@ -23,6 +47,7 @@ getWikiR wp = do
     Just "e" {-  edit  page  -} -> editWiki
     Just "d" {- delete page  -} -> deleteWiki
     Just "s" {- simple page  -} -> simpleViewWiki
+    Just "q" {- query  word  -} -> queryViewWiki
     Just _   {- default mode -} -> viewWiki  -- FIXME
     Nothing  {- default mode -} -> viewWiki  -- FIXME
   where
@@ -38,7 +63,41 @@ getWikiR wp = do
         content <- markdownToWikiHtml wikiWriterOption raw
         return (path, raw, content, upd, ver, me, isTop)
     
+    searchWord :: String -> String -> [Html]
+    searchWord key content = map (preEscapedString.(foldr (++) "")) test
+      where
+        test =  [["<span>hogehoge</span><br/>"
+                 ,"<span>[<span class='highlight'>Kestrel</span>]()</span><br/>"
+                 ,"<span>fugafuga</span><br/>"],
+                 ["<span>うきゃうきゃ</span><br/>"
+                 ,"<span>ちょー[<span class='highlight'>Kestrel</span>]()</span><br/>"
+                 ,"<span>========</span><br/>"]]
+    
     -- Pages
+    queryViewWiki :: Handler RepHtml
+    queryViewWiki = do
+      q <- lookupGetParam "q"
+      case q of
+        Nothing  -> invalidArgs []
+        Just key -> do
+          let path =pathOf wp
+          (_, p) <- runDB $ getBy404 $ UniqueWiki path
+          let blocks = searchWord key $ wikiContent p
+              isNull = (==[])
+          hamletToRepHtml
+#if GHC7
+             [hamlet|
+#else
+             [$hamlet|
+#endif
+$if (not (isNull blocks))
+  %fieldset
+    %legend 
+      %a!href=@WikiR.wp@ $path$
+    $forall blocks block
+      %div.block $block$
+|]
+        
     simpleViewWiki :: Handler RepHtml
     simpleViewWiki = do
       (_, _, content, _, _, _, _) <- getwiki

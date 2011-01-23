@@ -21,8 +21,8 @@
             #tools.sidebox
               %fieldset
                 %legend Tools
-                %form!method=get!action=@@
-                  %input!type=text!name=keyword!placeholder=search...
+                %form!method=get!action=@WikiListR@
+                  %input!type=text!name=q!placeholder=Search...
                   %button!type=submit!name=_method!value=search Go
         $maybe mu u
           #file_selector

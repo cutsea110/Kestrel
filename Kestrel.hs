@@ -137,6 +137,8 @@ mkYesodData "Kestrel" [$parseRoutes|
 /histories/*WikiPage HistoriesR GET
 /history/#Version/*WikiPage HistoryR GET POST PUT
 
+/wikilist WikiListR GET
+
 /s3/upload UploadR GET POST PUT
 /s3/user/#UserId/file/#FileHeaderId FileR GET POST DELETE
 /s3/user/#UserId/list.json FileListR GET
@@ -185,7 +187,7 @@ getBy404 ukey = do
 -- of settings which can be configured by overriding methods here.
 instance Yesod Kestrel where
     approot _ = Settings.approot
-    
+
     onRequest = do
       req' <- getRequest
       let req = reqWaiRequest req'

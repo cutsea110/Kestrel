@@ -1,0 +1,4 @@
+#main-content
+  %h1 Search Result for '$key$'
+
+  #result

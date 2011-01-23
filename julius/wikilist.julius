@@ -1,0 +1,26 @@
+$(document).ready(function(){
+
+  var qmap = getParametersMap();
+
+  $.get("@SitemapR@", function(xml){
+    $(xml).find('url loc').each(function(loc){
+      var uri = $(this).text(),
+          url = uri + "?mode=q&q=" + qmap["q"];
+      $.get(url, function(res){
+        var div = $("<div/>").append($(res));
+        $("#result").append(div);
+      });
+    });
+  });
+
+});
+
+function getParametersMap() {
+  var map = {},
+      params = location.search.substr(1).split('&');
+  for(var n in params) {
+    var kv = params[n].split('=');
+    map[kv[0]] = kv[1];
+  }
+  return map;
+}
