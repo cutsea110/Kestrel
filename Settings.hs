@@ -15,6 +15,7 @@ module Settings
     , withConnectionPool
     , runConnectionPool
     , approot
+    , rootRelativePath
     , staticroot
     , staticdir
     , s3dir
@@ -48,6 +49,14 @@ approot :: String
 approot = "http://localhost:3000"
 #else
 approot = "http://localhost:3000"
+#endif
+
+-- | The base URL for your site's root relative top path with consider apache.
+rootRelativePath :: String
+#ifdef PRODUCTION
+rootRelativePath = "http://localhost:3000"
+#else
+rootRelativePath = "http://localhost:3000"
 #endif
 
 -- | The location of static files on your system. This is a file system
