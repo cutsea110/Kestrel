@@ -1,5 +1,18 @@
 .login-options
-    %h3 Login using
+    %form!method=post!action=@AuthR.loginR@
+      %table.nostyle
+        %tr
+          %th Account ID:
+          %td
+            %input.watermark!type=account!name=account!placeholder=account
+        %tr
+          %th Password:
+          %td
+            %input.watermark!type=password!name=password!placeholder=password
+        %tr
+          %td!colspan=2
+            %input!type=submit!value="Login via account"
+    %h3 &mdash; OR &mdash;
     %form.button.google!method=get!action=@AuthR.forwardUrl@
         %input!type=hidden!name=openid_identifier!value="https://www.google.com/accounts/o8/id"
         %input!type=image!src=@StaticR.img_google_gif@!value="Login via Google"

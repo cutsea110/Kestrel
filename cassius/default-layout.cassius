@@ -29,6 +29,19 @@ div#message
     overflow: scroll
     height: 360px
 
+table.nostyle
+   border: none
+   background-color: white
+table.nostyle tr
+   border: none
+   background-color: white
+table.nostyle th
+   border: none
+   background-color: white
+table.nostyle td
+   border: none
+   background-color: white
+
 .kui-t1
    margin: auto
    text-align: left

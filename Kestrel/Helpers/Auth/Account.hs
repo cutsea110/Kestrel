@@ -5,6 +5,7 @@ module Kestrel.Helpers.Auth.Account
     , YesodAuthAccount (..)
     , AccountCreds (..)
     , saltPass
+    , loginR
     , setpassR
     ) where
 
@@ -18,8 +19,8 @@ import Data.Digest.Pure.MD5
 import qualified Data.Text.Lazy as T
 import Data.Text.Lazy.Encoding (encodeUtf8)
 
-login, setpassR :: AuthRoute
-login = PluginR "account" ["login"]
+loginR, setpassR :: AuthRoute
+loginR = PluginR "account" ["login"]
 setpassR = PluginR "account" ["set-password"]
 
 type Account = String
@@ -56,7 +57,7 @@ authAccount =
 #else
         [$hamlet|
 #endif
-%form!method=post!action=@tm.login@
+%form!method=post!action=@tm.loginR@
     %table
         %tr
             %th Account ID
@@ -112,7 +113,7 @@ getPasswordR = do
         Just _ -> return ()
         Nothing -> do
             setMessage $ string "You must be logged in to set a password"
-            redirect RedirectTemporary $ toMaster login
+            redirect RedirectTemporary $ toMaster loginR
     defaultLayout $ do
         setTitle $ string "Set password"
         addHamlet
@@ -150,7 +151,7 @@ postPasswordR = do
     aid <- case maid of
             Nothing -> do
                 setMessage $ string "You must be logged in to set a password"
-                redirect RedirectTemporary $ toMaster login
+                redirect RedirectTemporary $ toMaster loginR
             Just aid -> return aid
     salted <- liftIO $ saltPass new
     setPassword aid salted
