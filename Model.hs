@@ -76,6 +76,6 @@ passwordField' = requiredFieldHelper passwordFieldProfile'
       }
 
 -- manually insert first User
--- account  : kestrel
--- password : kestrel
--- insert into "User" (ident,password) values ('kestrel','ZXQGB6393dfa5c4023381310fb84c864debf7');
+-- account  : system
+-- password : tim9009
+-- insert into "User" (ident,password) values ('system','CZVQG987831e76431ac79535086cf7d331939');
