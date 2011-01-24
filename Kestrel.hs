@@ -37,7 +37,6 @@ module Kestrel
     , wikiWriterOption
     , WriterOptions(..)
     , showDate
-    , dropPrefix
       --
     , UserCrud
     , userCrud
@@ -560,13 +559,3 @@ inlinesToString = concatMap go
           Link xs _               -> concatMap go xs
           Image xs _              -> concatMap go xs
           Note _                  -> ""
-
--- TODO: remove this if yesod support Root Relative URL.
-dropPrefix :: (Eq a) => [a] -> [a] -> [a]
-dropPrefix xs ys = dp' ys xs ys
-  where
-    dp' :: (Eq a) => [a] -> [a] -> [a] -> [a]
-    dp' _  []     ys'     = ys'
-    dp' os _      []      = os
-    dp' os (x:xs') (y:ys') | x==y = dp' os xs' ys'
-                           | otherwise = os

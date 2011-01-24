@@ -64,7 +64,7 @@ postUploadR = do
       r <- getUrlRender
       (fid@(FileHeaderId f), name, ext, fsize, cdate) <- upload uid fi
       cacheSeconds 10 -- FIXME
-      let rf = dropPrefix Settings.approot $ r $ FileR uid fid
+      let rf = r $ FileR uid fid
       fmap RepXml $ hamletToContent
 #if GHC7
                       [xhamlet|
@@ -119,7 +119,7 @@ deleteFileR uid@(UserId uid') fid@(FileHeaderId fid') = do
     runDB $ delete fid
     let s3dir = Settings.s3dir </> show uid'
         s3fp = s3dir </> show fid'
-        rf = dropPrefix Settings.approot $ r $ FileR uid fid
+        rf = r $ FileR uid fid
     liftIO $ removeFile s3fp
     fmap RepXml $ hamletToContent
 #if GHC7
@@ -148,5 +148,5 @@ getFileListR uid@(UserId uid') = do
               , ("ext" , jsonScalar ext)
               , ("size", jsonScalar $ show size)
               , ("cdate", jsonScalar $ show cdate)
-              , ("uri", jsonScalar $ dropPrefix Settings.approot $ r $ FileR uid fid)
+              , ("uri", jsonScalar $ r $ FileR uid fid)
               ]
