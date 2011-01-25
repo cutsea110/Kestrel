@@ -233,7 +233,6 @@ instance Yesod Kestrel where
             maTUser = Settings.addThisUser
             header = $(Settings.hamletFile "header")
             footer = $(Settings.hamletFile "footer")
-            login = $(Settings.hamletFile "login")
         pc <- widgetToPageContent $ do
           widget
           addScriptEither $ urlJqueryJs y
@@ -246,7 +245,6 @@ instance Yesod Kestrel where
           addScriptEither $ Left $ StaticR plugins_watermark_jquery_watermark_js
           addCassius $(Settings.cassiusFile "default-layout")
           addJulius $(Settings.juliusFile "default-layout")
-          addJulius $(Settings.juliusFile "header")
           addCassius $(Settings.cassiusFile "header")
           atomLink FeedR Settings.topTitle
         hamletToRepHtml $(Settings.hamletFile "default-layout")
@@ -355,6 +353,12 @@ instance YesodAuth Kestrel where
                                  Settings.facebookApplicationSecret 
                                  []
                   , authEmail ]
+    loginHandler = do
+      let login = $(Settings.hamletFile "login")
+      defaultLayout $ do
+        [$hamlet|
+!style="width:500px;margin:0 auto" ^login^
+|]
 
 instance YesodAuthAccount Kestrel where
     type AuthAccountId Kestrel = UserId

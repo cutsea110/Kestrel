@@ -34,12 +34,6 @@ $(document).ready(function(){
       $('#recent-changes').append(fs.append(ul));
   });
 
-  $("#login").hide().attr("title", "Log in to Kestrel").dialog({
-    autoOpen: false,
-    width: 500,
-    modal: true
-  });
-
   $("#file_selector").hide().attr("title", "Select file").dialog({
     autoOpen: false,
     width: 680,

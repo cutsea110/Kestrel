@@ -32,18 +32,4 @@ $(document).ready(function(){
       return false;
     }
   });
-/*
-  $("ul.tabs li a").click(function(){
-    var uri = $(this).attr('href'),
-        uncache = jQuery.browser.msie ? "?uncache="+(new Date).getTime() : "";
-    $.getJSON('@AuthStatusR@'+uncache, function(json){
-      if(json.status==200){
-        location.href = uri;
-      }else{
-        $("#login").dialog("open");
-      }
-    });
-    return false;
-  });
-*/
 });
