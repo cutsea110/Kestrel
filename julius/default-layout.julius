@@ -3,6 +3,12 @@ $(document).ready(function(){
 
   $(".watermark").watermark();
 
+  $(".login-options").attr("title","Login to Kestrel").dialog({
+    autoOpen: true,
+    width: 520,
+    modal: true
+  });
+
   $.ajax({
     type: 'GET',
     url: '@?simpleSidePane@',

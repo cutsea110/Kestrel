@@ -1,5 +1,6 @@
 .login-options
-    %form!method=post!action=@AuthR.loginR@
+  %div
+    %form.auth!method=post!action=@AuthR.loginR@
       %table.nostyle
         %tr
           %th Account ID:
@@ -12,7 +13,9 @@
         %tr
           %td!colspan=2
             %input!type=submit!value="Login via account"
+  %div
     %h3 &mdash; OR &mdash;
+  %div
     %form.button.google!method=get!action=@AuthR.forwardUrl@
         %input!type=hidden!name=openid_identifier!value="https://www.google.com/accounts/o8/id"
         %input!type=image!src=@StaticR.img_google_gif@!value="Login via Google"
@@ -21,7 +24,12 @@
         %input!type=image!src=@StaticR.img_yahoo_gif@!value="Login via Yahoo!"
     %a.button.facebook!href=@AuthR.facebookUrl@
         %img!src=@StaticR.img_facebook_gif@!value="Login via Facebook"
+    %form.button.mixi!method=get!action=@AuthR.forwardUrl@
+        %input!type=hidden!name=openid_identifier!value="https://mixi.jp"
+        %input!type=image!src=@StaticR.img_mixi_gif@!value="Login via mixi"
+  %div
     %h3 &mdash; OR &mdash;
-    %form!method=get!action=@AuthR.forwardUrl@
+  %div
+    %form.auth!method=get!action=@AuthR.forwardUrl@
         %input#openid_identifier!type=text!name=openid_identifier!value="http://"
         %input#openid_submit!type=submit!value="Login via OpenID"

@@ -245,7 +245,6 @@ instance Yesod Kestrel where
           addScriptEither $ Left $ StaticR plugins_watermark_jquery_watermark_js
           addCassius $(Settings.cassiusFile "default-layout")
           addJulius $(Settings.juliusFile "default-layout")
-          addCassius $(Settings.cassiusFile "header")
           atomLink FeedR Settings.topTitle
         hamletToRepHtml $(Settings.hamletFile "default-layout")
         
@@ -356,9 +355,8 @@ instance YesodAuth Kestrel where
     loginHandler = do
       let login = $(Settings.hamletFile "login")
       defaultLayout $ do
-        [$hamlet|
-!style="width:500px;margin:0 auto" ^login^
-|]
+        addCassius $(Settings.cassiusFile "login")
+        [$hamlet|^login^|]
 
 instance YesodAuthAccount Kestrel where
     type AuthAccountId Kestrel = UserId
