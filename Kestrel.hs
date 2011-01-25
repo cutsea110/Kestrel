@@ -123,6 +123,7 @@ mkYesodData "Kestrel" [$parseRoutes|
 /static StaticR Static getStatic
 /auth   AuthR   Auth   getAuth
 /auth-status AuthStatusR GET
+/auth-go AuthToGoR GET
 
 /favicon.ico FaviconR GET
 /robots.txt RobotsR GET
@@ -219,9 +220,11 @@ instance Yesod Kestrel where
     
     defaultLayout widget = do
         y <- getYesod
-        render <- getUrlRender
         mu <- maybeAuth
         mmsg <- getMessage
+        render <- getUrlRender
+        r2m <- getRouteToMaster
+        Just cr <- getCurrentRoute
         (spTitle, msp) <- runDB $ do
           msp' <- getBy $ UniqueWiki Settings.sidePaneTitle
           case msp' of
@@ -231,6 +234,7 @@ instance Yesod Kestrel where
               return (Settings.sidePaneTitle, Just sp')
         let mgaUA = Settings.googleAnalyticsUA
             maTUser = Settings.addThisUser
+            a2go = (AuthToGoR, [("go", render $ r2m cr)])
             header = $(Settings.hamletFile "header")
             footer = $(Settings.hamletFile "footer")
         pc <- widgetToPageContent $ do

@@ -75,3 +75,12 @@ getAuthStatusR = do
   case mu of
     Nothing -> jsonToRepJson $ jsonMap [("status", jsonScalar "401")]
     Just u  -> jsonToRepJson $ jsonMap [("status", jsonScalar "200")]
+
+getAuthToGoR :: Handler ()
+getAuthToGoR = do
+  go <- lookupGetParam "go"
+  case go of
+    Nothing -> invalidArgs ["'go' query parameter is required."]
+    Just r -> do
+      (uid, _) <- requireAuth
+      redirectString RedirectTemporary r
