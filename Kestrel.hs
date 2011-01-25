@@ -122,6 +122,7 @@ type Widget = GWidget Kestrel Kestrel
 mkYesodData "Kestrel" [$parseRoutes|
 /static StaticR Static getStatic
 /auth   AuthR   Auth   getAuth
+/auth-status AuthStatusR GET
 
 /favicon.ico FaviconR GET
 /robots.txt RobotsR GET

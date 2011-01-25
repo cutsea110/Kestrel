@@ -68,3 +68,10 @@ getRecentChangesR = do
               , ("uri", jsonScalar $ dropPrefix Settings.rootRelativePath $ r $ WikiR $ fromPath (wikiPath w))
               , ("uday", jsonScalar $ show (wikiUpdated w))
               ]
+
+getAuthStatusR :: Handler RepJson
+getAuthStatusR = do
+  mu <- maybeAuth
+  case mu of
+    Nothing -> jsonToRepJson $ jsonMap [("status", jsonScalar "401")]
+    Just u  -> jsonToRepJson $ jsonMap [("status", jsonScalar "200")]
