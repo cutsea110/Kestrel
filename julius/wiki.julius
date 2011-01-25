@@ -32,7 +32,7 @@ $(document).ready(function(){
       return false;
     }
   });
-
+/*
   $("ul.tabs li a").click(function(){
     var uri = $(this).attr('href'),
         uncache = jQuery.browser.msie ? "?uncache="+(new Date).getTime() : "";
@@ -45,5 +45,5 @@ $(document).ready(function(){
     });
     return false;
   });
-
+*/
 });
