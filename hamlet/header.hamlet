@@ -1,11 +1,15 @@
 #userbox
   $maybe mu u
     Now Logged in as $userIdent.snd.u$. $
-    %a!href=@AuthR.LogoutR@ [Logout]
-    \ 
-    %a!href=@AuthR.setpassR@ [Change Password]
+    %form.inline!method=get!action=@AuthR.LogoutR@
+      %button.link!type=submit Logout
+    %form.inline!method=get!action=@AuthR.setpassR@
+      %button.link!type=submit Change Password
   $nothing
-    %a#login-button!href=@?a2go@ [Login]
+    %form!method=get!action=@AuthToGoR@
+      %input!type=hidden!name=go!value=@r2m.cr@
+      %button.link!type=submit Login
 #file-list-view
   $maybe mu u
-    %a#file-select-button!href=@FileListR.fst.u@ [View files]
+    %form!method=get!action=@FileListR.fst.u@
+      %button#file-select-button.link!type=submit View files

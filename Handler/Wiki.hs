@@ -541,7 +541,7 @@ postHistoryR v wp = do
     Just "preview" -> previewHistory
     Just "commit"  -> putWikiR wp
     Just "modify"  -> putHistoryR v wp
-    _              -> invalidArgs ["The possible values of '_method' are preview,commit,modify", "hogehoge."]
+    _              -> invalidArgs ["The possible values of '_method' are preview,commit,modify"]
   where
     
     previewHistory :: Handler RepHtml
@@ -575,7 +575,7 @@ putHistoryR v wp = do
     (hid, h) <- getBy404 $ UniqueWikiHistory pid v
     if uid == wikiHistoryEditor h
       then update hid [ WikiHistoryComment com ]
-      else lift $ invalidArgs ["You couldn't modify the history editted by the others."]
+      else lift $ permissionDenied "You couldn't modify the history editted by the others."
   hamletToRepHtml
 #if GHC7
     [hamlet|

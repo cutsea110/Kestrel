@@ -29,6 +29,12 @@ div#message
     overflow: scroll
     height: 360px
 
+button.link
+    color: #4040f8
+    background-color: #e0e0e0
+    border: none
+    cursor: pointer
+
 table.nostyle
    border: none
    background-color: white
