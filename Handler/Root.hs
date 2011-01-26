@@ -80,7 +80,7 @@ getAuthToGoR :: Handler ()
 getAuthToGoR = do
   go <- lookupGetParam "go"
   case go of
-    Nothing -> invalidArgs ["'go' query parameter is required."]
+    Nothing -> uncurry (redirectParams RedirectTemporary) topView
     Just r -> do
       (uid, _) <- requireAuth
       redirectString RedirectTemporary r

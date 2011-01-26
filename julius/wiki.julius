@@ -26,7 +26,7 @@ $(document).ready(function(){
           api.saveComplete();
         },
         error: function(res,status){
-          api.saveError(res.statusText+'['+res.status+']: '+$(res.responseText).find('li').text());
+          api.saveError(res.statusText+'['+res.status+']: '+$(res.responseText).find('p').text());
         }
       });
       return false;

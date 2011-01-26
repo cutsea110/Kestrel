@@ -224,7 +224,7 @@ instance Yesod Kestrel where
         mmsg <- getMessage
         render <- getUrlRender
         r2m <- getRouteToMaster
-        Just cr <- getCurrentRoute
+        cr <- getCurrentRoute
         (spTitle, msp) <- runDB $ do
           msp' <- getBy $ UniqueWiki Settings.sidePaneTitle
           case msp' of
@@ -234,7 +234,6 @@ instance Yesod Kestrel where
               return (Settings.sidePaneTitle, Just sp')
         let mgaUA = Settings.googleAnalyticsUA
             maTUser = Settings.addThisUser
-            a2go = (AuthToGoR, [("go", render $ r2m cr)])
             header = $(Settings.hamletFile "header")
             footer = $(Settings.hamletFile "footer")
         pc <- widgetToPageContent $ do

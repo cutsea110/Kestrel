@@ -7,7 +7,8 @@
       %button.link!type=submit Change Password
   $nothing
     %form!method=get!action=@AuthToGoR@
-      %input!type=hidden!name=go!value=@r2m.cr@
+      $maybe cr cr
+        %input!type=hidden!name=go!value=@r2m.cr@
       %button.link!type=submit Login
 #file-list-view
   $maybe mu u
