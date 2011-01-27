@@ -357,10 +357,9 @@ instance YesodAuth Kestrel where
                                  []
                   , authEmail ]
     loginHandler = do
-      let login = $(Settings.hamletFile "login")
       defaultLayout $ do
         addCassius $(Settings.cassiusFile "login")
-        [$hamlet|^login^|]
+        addHamlet $(Settings.hamletFile "login")
 
 instance YesodAuthAccount Kestrel where
     type AuthAccountId Kestrel = UserId
