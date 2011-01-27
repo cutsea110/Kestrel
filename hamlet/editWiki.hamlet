@@ -12,6 +12,8 @@
       %a!href=@?topView@ Top
 
 #main-content
+  %h3.metatitle Edit `$path$'.
+
   %form!method=post!action=@WikiR.wp@
     %input!type=hidden!name=version!value=$show.ver$
     %textarea.content!id=content!name=content $raw$

@@ -34,6 +34,7 @@ button.link
     background-color: #e0e0e0
     border: none
     cursor: pointer
+    margin: 0 1px 1px 0
 
 table.nostyle
    border: none

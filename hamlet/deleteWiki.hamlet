@@ -12,6 +12,8 @@
       %a!href=@?topView@ Top
 
 #main-content
+  %h3.metatitle Delete `$path$'.
+
   .warnings
     Warning: deleting the page cannot be undone. Are you sure?
 

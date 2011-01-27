@@ -8,6 +8,8 @@
       %a!href=@?topView@ Top
 
 #main-content
+  %h3.metatitle Edit `$path$'.
+
   %form!method=post!action=@NewR@
     %input!type=hidden!name=path!value=$path'$
     %textarea.content!id=content!name=content

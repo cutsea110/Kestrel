@@ -22,6 +22,7 @@ module Settings
     , s3root
     , topTitle
     , sidePaneTitle
+    , newDays
     , facebookApplicationId
     , facebookApplicationSecret
     , googleAnalyticsUA
@@ -89,6 +90,9 @@ topTitle :: String
 topTitle = "Kestrel"
 sidePaneTitle :: String
 sidePaneTitle = "Site Navigation"
+
+newDays :: Integer
+newDays = 3
 
 facebookApplicationId :: String
 facebookApplicationId = "123456789012345"

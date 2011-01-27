@@ -12,6 +12,8 @@
       %a!href=@?topView@ Top
 
 #main-content
+  %h3.metatitle `$path$' ChangeLog.
+
   %table.history
     %thead
       %tr

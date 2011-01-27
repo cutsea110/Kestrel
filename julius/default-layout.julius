@@ -35,7 +35,12 @@ $(document).ready(function(){
                 ttl = item.title;
             var li = $('<li/>');
             var anc = $('<a/>').attr({href:url}).text(ttl);
-            ul.append(li.append(anc));
+            li.append(anc);
+            if (item.new=='True') {
+              var img = $('<img/>').attr({src: '@StaticR.img_new_png@'});
+              li.append(img);
+            }
+            ul.append(li);
       });
       $('#recent-changes').append(fs.append(ul));
   });

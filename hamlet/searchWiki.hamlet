@@ -1,4 +1,4 @@
 #main-content
-  %h1 Search Result for '$key$'
+  %h3.metatitle Search Result for '$key$'
 
   #result

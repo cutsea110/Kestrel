@@ -4,6 +4,7 @@ module Handler.Root where
 import Kestrel
 import Yesod.Helpers.AtomFeed
 import Yesod.Helpers.Sitemap
+import Data.Time
 
 import qualified Settings
 
@@ -61,12 +62,14 @@ getRecentChangesR = do
   render <- getUrlRender
   entries <- runDB $ selectList [] [WikiUpdatedDesc] 10 0
   cacheSeconds 10 -- FIXME
-  jsonToRepJson $ jsonMap [("entries", jsonList $ map (go render) entries)]
+  now <- liftIO getCurrentTime
+  jsonToRepJson $ jsonMap [("entries", jsonList $ map (go now render) entries)]
   where
-    go r (wid@(WikiId wid'), w) = 
+    go now r (wid@(WikiId wid'), w) = 
       jsonMap [ ("title", jsonScalar (wikiPath w))
               , ("uri", jsonScalar $ dropPrefix Settings.rootRelativePath $ r $ WikiR $ fromPath (wikiPath w))
               , ("uday", jsonScalar $ show (wikiUpdated w))
+              , ("new", jsonScalar $ show $ ((utctDay now) `diffDays` (utctDay $ wikiUpdated w)) <= Settings.newDays)
               ]
 
 getAuthStatusR :: Handler RepJson

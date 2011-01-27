@@ -12,7 +12,7 @@
       %a!href=@?topView@ Top
 
 #main-content
-  %h2 $title$
+  %h3.metatitle $title$
 
   .plus  + added line
   .minus - deleted line
