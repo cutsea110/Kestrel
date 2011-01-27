@@ -36,7 +36,8 @@ $(document).ready(function(){
             var li = $('<li/>');
             var anc = $('<a/>').attr({href:url}).text(ttl);
             li.append(anc);
-            if (item.new=='True') {
+            // item.new is illegal symbol for IE.
+            if (item['new']=='True') {
               var img = $('<img/>').attr({src: '@StaticR.img_new_png@'});
               li.append(img);
             }
