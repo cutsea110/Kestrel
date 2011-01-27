@@ -2,6 +2,19 @@ $(document).ready(function(){
   $("#message").fadeOut(3000, function(){$(this).remove();});
 
   $(".watermark").watermark();
+  $(".google")
+  .focus(function(){
+    $(this).removeClass("google");
+  })
+  .focusout(function(){
+    if (this.value=='')
+      $(this).addClass("google");
+  })
+  .each(function(){
+    if (this.value!=''){
+      $(this).removeClass("google");
+    }
+  });
 
   $(".login-options").attr("title","Login to Kestrel").dialog({
     autoOpen: true,

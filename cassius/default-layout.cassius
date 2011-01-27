@@ -200,3 +200,12 @@ ul#selectable_images li a img
 
 #trashbox
    margin-right: 20px
+
+.google
+   background-image: url(http://www.google.com/cse/intl/en/images/google_custom_search_watermark.gif)
+   background-attachment: initial
+   background-origin: initial
+   background-clip: initial
+   background-color: #ffffff
+   background-position: 0% 50%
+   background-repeat: no-repeat

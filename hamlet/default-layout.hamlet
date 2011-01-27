@@ -24,6 +24,13 @@
                 %form!method=get!action=@WikiListR@
                   %input.watermark!type=text!name=q!placeholder=Search...
                   %button!type=submit!name=_method!value=search Go
+                %form!method=get!action="http://www.google.com/search"
+                  %input!type=hidden!name=hq!value="inurl:$googleInurl$"
+                  %input!type=hidden!name=ie!value=UTF-8
+                  %input!type=hidden!name=oe!value=UTF-8
+                  %input!type=hidden!name=filter!value=0
+                  %input.google!type=text!name=q
+                  %button!type=submit!name=btnG Go
         $maybe mu u
           #file_selector
            Select from

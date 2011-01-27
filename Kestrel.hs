@@ -234,6 +234,7 @@ instance Yesod Kestrel where
               return (Settings.sidePaneTitle, Just sp')
         let mgaUA = Settings.googleAnalyticsUA
             maTUser = Settings.addThisUser
+            googleInurl = dropSchema Settings.approot
             header = $(Settings.hamletFile "header")
             footer = $(Settings.hamletFile "footer")
         pc <- widgetToPageContent $ do
@@ -576,3 +577,8 @@ dropPrefix xs ys = dp' ys xs ys
     dp' os _      []      = os
     dp' os (x:xs') (y:ys') | x==y = dp' os xs' ys'
                            | otherwise = os
+
+dropSchema :: String -> String
+dropSchema ('h':'t':'t':'p':':':'/':'/':s) = s ++ "/"
+dropSchema ('h':'t':'t':'p':'s':':':'/':'/':s) = s ++ "/"
+-- dropSchema s = s -- FIXME
