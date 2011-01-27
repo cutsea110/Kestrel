@@ -9,15 +9,13 @@ import Data.Time
 import qualified Settings
 
 getRootR :: Handler RepHtml
-getRootR = uncurry (redirectParams RedirectTemporary) topView
-{--
 getRootR = do
-    let wikiTop = topPage
-    defaultLayout $ do
-        h2id <- newIdent
-        setTitle "kestrel homepage"
-        addWidget $(widgetFile "homepage")
---}
+  runDB $ do
+    let path = pathOf topPage
+    top <- getBy $ UniqueWiki path
+    case top of
+      Nothing -> lift $ uncurry (redirectParams RedirectTemporary) topNew
+      Just _ -> lift $ uncurry (redirectParams RedirectTemporary) topView
 
 -- Some default handlers that ship with the Yesod site template. You will
 -- very rarely need to modify this.
