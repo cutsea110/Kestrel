@@ -19,7 +19,7 @@ h2, h3, h4, h5, h6, div
 #pandoc-TOC-toggle
     font-size: 90%
     margin: 0 1em 0 1em
-    color: #e8e8e8
+    color: #b8b8b8
     text-decoration: none
 
 #pandoc-TOC-toggle:hover
