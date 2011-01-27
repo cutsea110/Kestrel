@@ -20,6 +20,7 @@ module Kestrel
       -- 
     , WikiPage(..)
     , topPage
+    , topNew
     , topView
     , sidePane
     , sidePaneNew
@@ -156,6 +157,8 @@ topPage :: WikiPage
 topPage = WikiPage [Settings.topTitle]
 topView :: (KestrelRoute, [(String, String)])
 topView = (WikiR topPage, [("mode","v")])
+topNew :: (KestrelRoute, [(String, String)])
+topNew = (NewR, [("path", Settings.topTitle)])
 
 sidePane :: WikiPage
 sidePane = WikiPage [Settings.sidePaneTitle]

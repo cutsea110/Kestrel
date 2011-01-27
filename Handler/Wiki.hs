@@ -129,7 +129,7 @@ $if (not (isNull blocks))
       let editMe = (WikiR wp, [("mode", "e")])
           deleteMe = (WikiR wp, [("mode", "d")])
       defaultLayout $ do
-        setTitle $ string $ if isTop then topTitle else path
+        setTitle $ string path
         addCassius $(cassiusFile "wiki")
         addJulius $(juliusFile "wiki")
         addStylesheet $ StaticR css_hk_kate_css
@@ -143,7 +143,7 @@ $if (not (isNull blocks))
           deleteMe = (WikiR wp, [("mode", "d")])
           markdown = $(hamletFile "markdown")
       defaultLayout $ do
-        setTitle $ string $ if isTop then topTitle else path
+        setTitle $ string path
         addCassius $(cassiusFile "wiki")
         addJulius $(juliusFile "wiki")
         addStylesheet $ StaticR css_hk_kate_css
@@ -156,7 +156,7 @@ $if (not (isNull blocks))
       let editMe = (WikiR wp, [("mode", "e")])
           deleteMe = (WikiR wp, [("mode", "d")])
       defaultLayout $ do
-        setTitle $ string $ if isTop then topTitle else path
+        setTitle $ string path
         addCassius $(cassiusFile "wiki")
         addJulius $(juliusFile "wiki")
         addStylesheet $ StaticR css_hk_kate_css
@@ -187,7 +187,7 @@ postWikiR wp = do
           deleteMe = (WikiR wp, [("mode", "d")])
           markdown = $(hamletFile "markdown")
       defaultLayout $ do
-        setTitle $ string $ if isTop then topTitle else path
+        setTitle $ string path
         addCassius $(cassiusFile "wiki")
         addJulius $(juliusFile "wiki")
         addStylesheet $ StaticR css_hk_kate_css
@@ -257,7 +257,7 @@ getNewR = do
               viewMe = (NewR, [("path", path'), ("mode", "v")])
               editMe = (NewR, [("path", path'), ("mode", "e")])
           defaultLayout $ do
-            setTitle $ string $ if isTop then topTitle else path
+            setTitle $ string path
             addCassius $(cassiusFile "wiki")
             addJulius $(juliusFile "wiki")
             addStylesheet $ StaticR css_hk_kate_css
@@ -276,7 +276,7 @@ getNewR = do
               editMe = (NewR, [("path", path'), ("mode", "e")])
               markdown = $(hamletFile "markdown")
           defaultLayout $ do
-            setTitle $ string $ if isTop then topTitle else path
+            setTitle $ string path
             addCassius $(cassiusFile "wiki")
             addJulius $(juliusFile "wiki")
             addStylesheet $ StaticR css_hk_kate_css
@@ -305,7 +305,7 @@ postNewR = do
           markdown = $(hamletFile "markdown")
       content <- runDB $ markdownToWikiHtml wikiWriterOption raw
       defaultLayout $ do
-        setTitle $ string $ if isTop then topTitle else path
+        setTitle $ string path
         addCassius $(cassiusFile "wiki")
         addJulius $(juliusFile "wiki")
         addStylesheet $ StaticR css_hk_kate_css
@@ -404,7 +404,7 @@ getHistoriesR wp = do
                   then Just (HistoriesR wp, [("ver", show $ v'-pagingSize)])
                   else Nothing
       defaultLayout $ do
-        setTitle $ string $ if isTop then topTitle else path
+        setTitle $ string path
         addCassius $(cassiusFile "wiki")
         addJulius $(juliusFile "wiki")
         addWidget $(widgetFile "listHistories")
@@ -466,7 +466,7 @@ getHistoryR v wp = do
           editVer = (HistoryR v wp, [("mode", "e")])
           currDiff = (HistoryR v wp, [("mode", "c")])
       defaultLayout $ do
-        setTitle $ string $ if isTop then topTitle else path
+        setTitle $ string path
         addCassius $(cassiusFile "wiki")
         addJulius $(juliusFile "wiki")
         addStylesheet $ StaticR css_hk_kate_css
@@ -482,7 +482,7 @@ getHistoryR v wp = do
           notCurrent =  v /= ver
           markdown = $(hamletFile "markdown")
       defaultLayout $ do
-        setTitle $ string $ if isTop then topTitle else path
+        setTitle $ string path
         addCassius $(cassiusFile "wiki")
         addJulius $(juliusFile "wiki")
         addStylesheet $ StaticR css_hk_kate_css
@@ -498,7 +498,7 @@ getHistoryR v wp = do
           notCurrent =  v /= ver
           editVer = (HistoryR v wp, [("mode", "e")])
       defaultLayout $ do
-        setTitle $ string $ if isTop then topTitle else path
+        setTitle $ string path
         addCassius $(cassiusFile "wiki")
         addJulius $(juliusFile "wiki")
         addStylesheet $ StaticR css_hk_kate_css
@@ -521,7 +521,7 @@ getHistoryR v wp = do
           content = mkDiff v1 v0
           isTop = wp == topPage
       defaultLayout $ do
-        setTitle $ string $ if isTop then topTitle else path
+        setTitle $ string path
         addCassius $(cassiusFile "wiki")
         addJulius $(juliusFile "wiki")
         addWidget $(widgetFile "diffHistories")
@@ -559,7 +559,7 @@ postHistoryR v wp = do
           notCurrent = v /= ver
           markdown = $(hamletFile "markdown")
       defaultLayout $ do
-        setTitle $ string $ if isTop then topTitle else path
+        setTitle $ string path
         addCassius $(cassiusFile "wiki")
         addJulius $(juliusFile "wiki")
         addStylesheet $ StaticR css_hk_kate_css
