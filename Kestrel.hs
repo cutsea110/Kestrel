@@ -274,12 +274,14 @@ instance Yesod Kestrel where
     -- users receiving stale content.
     addStaticContent ext' _ content = do
         let fn = base64md5 content ++ '.' : ext'
-        let content' =
+        let content' = content
+            {-- WAIT FOR hjsmin BUG FIX
                 if ext' == "js"
                     then case minifym content of
                             Left _ -> content
                             Right y -> y
                     else content
+             --}
         let statictmp = Settings.staticdir ++ "/tmp/"
         liftIO $ createDirectoryIfMissing True statictmp
         let fn' = statictmp ++ fn
