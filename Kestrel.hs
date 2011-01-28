@@ -193,7 +193,7 @@ getBy404 ukey = do
 -- of settings which can be configured by overriding methods here.
 instance Yesod Kestrel where
     approot _ = Settings.approot
-
+{-
     onRequest = do
       req' <- getRequest
       let req = reqWaiRequest req'
@@ -219,7 +219,7 @@ instance Yesod Kestrel where
         putStrLn $ "POST: " ++ show pp ++ show files
         -- Session
         putStrLn $ "Session: " ++ show ses
-
+-}
     
     defaultLayout widget = do
         y <- getYesod

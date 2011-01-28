@@ -573,9 +573,7 @@ putHistoryR v wp = do
   runDB $ do
     (pid, _) <- getBy404 $ UniqueWiki path
     (hid, h) <- getBy404 $ UniqueWikiHistory pid v
-    if uid == wikiHistoryEditor h
-      then update hid [ WikiHistoryComment com ]
-      else lift $ permissionDenied "You couldn't modify the history editted by the others."
+    update hid [ WikiHistoryComment com ]
   hamletToRepHtml
 #if GHC7
     [hamlet|
