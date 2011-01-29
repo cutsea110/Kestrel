@@ -24,9 +24,8 @@
         %input!type=image!src=@StaticR.img_yahoo_gif@!value="Login via Yahoo!"
     %a.button.facebook!href=@AuthR.facebookUrl@
         %img!src=@StaticR.img_facebook_gif@!value="Login via Facebook"
-    %form.button.mixi!method=get!action=@AuthR.forwardUrl@
-        %input!type=hidden!name=openid_identifier!value="https://mixi.jp"
-        %input!type=image!src=@StaticR.img_mixi_gif@!value="Login via mixi"
+    %a.button.twitter!href=@AuthR.twitterUrl@
+        %img!src=@StaticR.img_twitter_png@!value="Login via Twitter"
   %div
     %h3 &mdash; OR &mdash;
   %div

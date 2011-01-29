@@ -23,6 +23,8 @@ executable         simple-server
     build-depends: base         >= 4       && < 5
                  , yesod        >= 0.6     && < 0.7
                  , yesod-auth   >= 0.2     && < 0.3
+                 , mtl          >= 2.0.1.0
+                 , yesod-auth-oauth >= 0.2
                  , mime-mail    >= 0.0     && < 0.1
                  , wai-extra
                  , directory
@@ -40,6 +42,7 @@ executable         simple-server
                  , split
                  , utility-ht
                  , Diff
+                 , yesod-auth-oauth
     ghc-options:   -Wall
     extensions:    TemplateHaskell, QuasiQuotes, TypeFamilies
 

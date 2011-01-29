@@ -53,6 +53,7 @@ import Kestrel.Helpers.Auth.Account
 import Yesod.Helpers.Auth.OpenId
 import Yesod.Helpers.Auth.Facebook
 import Yesod.Helpers.Auth.Email
+import Yesod.Helpers.Auth.OAuth
 import Yesod.Helpers.Crud
 import Yesod.Form.Jquery
 import System.Directory
@@ -274,14 +275,12 @@ instance Yesod Kestrel where
     -- users receiving stale content.
     addStaticContent ext' _ content = do
         let fn = base64md5 content ++ '.' : ext'
-        let content' = content
-            {-- WAIT FOR hjsmin BUG FIX
+        let content' =
                 if ext' == "js"
                     then case minifym content of
                             Left _ -> content
                             Right y -> y
                     else content
-             --}
         let statictmp = Settings.staticdir ++ "/tmp/"
         liftIO $ createDirectoryIfMissing True statictmp
         let fn' = statictmp ++ fn
@@ -360,7 +359,10 @@ instance YesodAuth Kestrel where
                   , authFacebook Settings.facebookApplicationId 
                                  Settings.facebookApplicationSecret 
                                  []
+                  , authTwitter Settings.twitterConsumerKey
+                                Settings.twitterConsumerSecret
                   , authEmail ]
+
     loginHandler = do
       defaultLayout $ do
         addCassius $(Settings.cassiusFile "login")

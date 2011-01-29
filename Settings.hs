@@ -25,6 +25,8 @@ module Settings
     , newDays
     , facebookApplicationId
     , facebookApplicationSecret
+    , twitterConsumerKey
+    , twitterConsumerSecret
     , googleAnalyticsUA
     , addThisUser
     ) where
@@ -87,9 +89,11 @@ s3root :: String
 s3root = approot ++ "/s3"
 
 topTitle :: String
-topTitle = "Kestrel"
+-- topTitle = "Kestrel"
+topTitle = "聖徳大学総合文化"
 sidePaneTitle :: String
-sidePaneTitle = "Site Navigation"
+-- sidePaneTitle = "Site Navigation"
+sidePaneTitle = "サイト ナビ"
 
 newDays :: Integer
 newDays = 3
@@ -98,6 +102,11 @@ facebookApplicationId :: String
 facebookApplicationId = "123456789012345"
 facebookApplicationSecret :: String
 facebookApplicationSecret =  "0102030405060708090a0b0c0d0e0f10"
+
+twitterConsumerKey :: String
+twitterConsumerKey = "abcdefghijklmnopqrstu"
+twitterConsumerSecret :: String
+twitterConsumerSecret = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnop"
 
 googleAnalyticsUA :: Maybe String
 googleAnalyticsUA = Just "UA-1234567-8"
