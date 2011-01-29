@@ -98,15 +98,13 @@ sidePaneTitle = "サイト ナビ"
 newDays :: Integer
 newDays = 3
 
-facebookApplicationId :: String
-facebookApplicationId = "123456789012345"
-facebookApplicationSecret :: String
-facebookApplicationSecret =  "0102030405060708090a0b0c0d0e0f10"
+facebookApplicationId,facebookApplicationSecret :: String
+(facebookApplicationId,facebookApplicationSecret) =
+  ("123456789012345","0102030405060708090a0b0c0d0e0f10")
 
-twitterConsumerKey :: String
-twitterConsumerKey = "abcdefghijklmnopqrstu"
-twitterConsumerSecret :: String
-twitterConsumerSecret = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnop"
+twitterConsumerKey,twitterConsumerSecret :: String
+(twitterConsumerKey,twitterConsumerSecret) =
+  ("abcdefghijklmnopqrstu","ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnop")
 
 googleAnalyticsUA :: Maybe String
 googleAnalyticsUA = Just "UA-1234567-8"
