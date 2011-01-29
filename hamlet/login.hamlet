@@ -19,13 +19,13 @@
     %form.button.google!method=get!action=@AuthR.forwardUrl@
         %input!type=hidden!name=openid_identifier!value="https://www.google.com/accounts/o8/id"
         %input!type=image!src=@StaticR.img_google_gif@!value="Login via Google"
+    %a.button.twitter!href=@AuthR.twitterUrl@
+        %img!src=@StaticR.img_twitter_png@!value="Login via Twitter"
+    %a.button.facebook!href=@AuthR.facebookUrl@
+        %img!src=@StaticR.img_facebook_gif@!value="Login via Facebook"
     %form.button.yahoo!method=get!action=@AuthR.forwardUrl@
         %input!type=hidden!name=openid_identifier!value="http://me.yahoo.com"
         %input!type=image!src=@StaticR.img_yahoo_gif@!value="Login via Yahoo!"
-    %a.button.facebook!href=@AuthR.facebookUrl@
-        %img!src=@StaticR.img_facebook_gif@!value="Login via Facebook"
-    %a.button.twitter!href=@AuthR.twitterUrl@
-        %img!src=@StaticR.img_twitter_png@!value="Login via Twitter"
   %div
     %h3 &mdash; OR &mdash;
   %div
