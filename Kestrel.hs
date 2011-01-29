@@ -239,6 +239,7 @@ instance Yesod Kestrel where
         let mgaUA = Settings.googleAnalyticsUA
             maTUser = Settings.addThisUser
             googleInurl = dropSchema Settings.approot
+            ga = $(Settings.hamletFile "ga")
             header = $(Settings.hamletFile "header")
             footer = $(Settings.hamletFile "footer")
         pc <- widgetToPageContent $ do
