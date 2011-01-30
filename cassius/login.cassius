@@ -10,7 +10,7 @@
   width: 120px
 #google_login_icon:hover
   background-position: -120px -80px
-#google_login_icon:press
+#google_login_icon.press
   background-position: -240px -80px;
 
 #twitter_login_icon
@@ -19,7 +19,7 @@
   width: 120px
 #twitter_login_icon:hover
   background-position: -120px -360px
-#twitter_login_icon:press
+#twitter_login_icon.press
   background-position: -240px -360px
 
 #facebook_login_icon
@@ -28,7 +28,7 @@
   width: 120px
 #facebook_login_icon:hover
   background-position: -120px -40px
-#facebook_login_icon:press
+#facebook_login_icon.press
   background-position: -240px -40px
 
 #yahoo_login_icon
@@ -37,5 +37,5 @@
   width: 120px
 #yahoo_login_icon:hover
   background-position: -120px -440px
-#yahoo_login_icon:press
+#yahoo_login_icon.press
   background-position: -240px -440px
