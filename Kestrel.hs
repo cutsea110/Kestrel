@@ -48,7 +48,7 @@ import Yesod
 import Yesod.Helpers.Static
 import Yesod.Helpers.AtomFeed
 import Yesod.Helpers.Auth
-import Kestrel.Helpers.Auth.Account
+import Kestrel.Helpers.Auth.HashDB
 import Yesod.Helpers.Auth.OpenId
 import Yesod.Helpers.Auth.Facebook
 import Yesod.Helpers.Auth.Email
@@ -352,7 +352,7 @@ instance YesodAuth Kestrel where
     showAuthId _ = showIntegral
     readAuthId _ = readIntegral
 
-    authPlugins = [ authAccount
+    authPlugins = [ authHashDB
                   , authOpenId
                   , authFacebook Settings.facebookApplicationId 
                                  Settings.facebookApplicationSecret 
@@ -366,23 +366,23 @@ instance YesodAuth Kestrel where
         addCassius $(Settings.cassiusFile "login")
         addHamlet $(Settings.hamletFile "login")
 
-instance YesodAuthAccount Kestrel where
-    type AuthAccountId Kestrel = UserId
+instance YesodAuthHashDB Kestrel where
+    type AuthHashDBId Kestrel = UserId
 
-    showAuthAccountId _ = showIntegral
-    readAuthAccountId _ = readIntegral
+    showAuthHashDBId _ = showIntegral
+    readAuthHashDBId _ = readIntegral
 
     getPassword uid = runDB $ return . fmap userPassword =<< get uid
-    setPassword uid salted = runDB $ update uid [UserPassword salted]
-    getAccountCreds account = runDB $ do
+    setPassword uid encripted = runDB $ update uid [UserPassword encripted]
+    getHashDBCreds account = runDB $ do
         ma <- getBy $ UniqueUser account
         case ma of
             Nothing -> return Nothing
-            Just (uid, _) -> return $ Just AccountCreds
-                { accountCredsId = uid
-                , accountCredsAuthId = Just uid
+            Just (uid, _) -> return $ Just HashDBCreds
+                { hashdbCredsId = uid
+                , hashdbCredsAuthId = Just uid
                 }
-    getAccount = runDB . fmap (fmap userIdent) . get
+    getHashDB = runDB . fmap (fmap userIdent) . get
 
 
 instance YesodAuthEmail Kestrel where

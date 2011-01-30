@@ -5,10 +5,10 @@
 -- How to make SHA1 password by
 -- echo -n 'My Password' | sha1sum
 --
-module Kestrel.Helpers.Auth.Account
-    ( authAccount
-    , YesodAuthAccount (..)
-    , AccountCreds (..)
+module Kestrel.Helpers.Auth.HashDB
+    ( authHashDB
+    , YesodAuthHashDB (..)
+    , HashDBCreds (..)
     , encrypt
     , loginR
     , setpassR
@@ -27,34 +27,28 @@ loginR, setpassR :: AuthRoute
 loginR = PluginR "account" ["login"]
 setpassR = PluginR "account" ["set-password"]
 
-type Account = String
-type SaltedPass = String
+type HashDB = String
+type EncriptedPass = String
 
 -- | Data stored in a database for each user account.
-data AccountCreds m = AccountCreds
-    { accountCredsId :: AuthAccountId m
-    , accountCredsAuthId :: Maybe (AuthId m)
+data HashDBCreds m = HashDBCreds
+    { hashdbCredsId :: AuthHashDBId m
+    , hashdbCredsAuthId :: Maybe (AuthId m)
     }
 
-class YesodAuth m => YesodAuthAccount m where
-    type AuthAccountId m
+class YesodAuth m => YesodAuthHashDB m where
+    type AuthHashDBId m
 
-    showAuthAccountId :: m -> AuthAccountId m -> String
-    readAuthAccountId :: m -> String -> Maybe (AuthAccountId m)
+    showAuthHashDBId :: m -> AuthHashDBId m -> String
+    readAuthHashDBId :: m -> String -> Maybe (AuthHashDBId m)
 
-    getPassword :: AuthId m -> GHandler Auth m (Maybe SaltedPass)
-    setPassword :: AuthId m -> SaltedPass -> GHandler Auth m ()
-    getAccountCreds :: Account -> GHandler Auth m (Maybe (AccountCreds m))
-    getAccount :: AuthAccountId m -> GHandler Auth m (Maybe Account)
+    getPassword :: AuthId m -> GHandler Auth m (Maybe EncriptedPass)
+    setPassword :: AuthId m -> EncriptedPass -> GHandler Auth m ()
+    getHashDBCreds :: HashDB -> GHandler Auth m (Maybe (HashDBCreds m))
+    getHashDB :: AuthHashDBId m -> GHandler Auth m (Maybe HashDB)
 
-    -- | Generate a random alphanumeric string.
-    randomKey :: m -> IO String
-    randomKey _ = do
-        stdgen <- newStdGen
-        return $ fst $ randomString 10 stdgen
-
-authAccount :: YesodAuthAccount m => AuthPlugin m
-authAccount =
+authHashDB :: YesodAuthHashDB m => AuthPlugin m
+authHashDB =
     AuthPlugin "account" dispatch $ \tm ->
 #if GHC7
         [hamlet|
@@ -81,14 +75,14 @@ authAccount =
     dispatch "POST" ["set-password"] = postPasswordR >>= sendResponse
     dispatch _ _ = notFound
 
-postLoginR :: YesodAuthAccount master => GHandler Auth master ()
+postLoginR :: YesodAuthHashDB master => GHandler Auth master ()
 postLoginR = do
     (account, pass) <- runFormPost' $ (,)
         <$> stringInput "account"
         <*> stringInput "password"
-    macreds <- getAccountCreds account
+    macreds <- getHashDBCreds account
     maid <-
-        case (macreds >>= accountCredsAuthId) of
+        case (macreds >>= hashdbCredsAuthId) of
             (Just aid) -> do
                 mrealpass <- getPassword aid
                 case mrealpass of
@@ -109,7 +103,7 @@ postLoginR = do
             toMaster <- getRouteToMaster
             redirect RedirectTemporary $ toMaster LoginR
 
-getPasswordR :: YesodAuthAccount master => GHandler Auth master RepHtml
+getPasswordR :: YesodAuthHashDB master => GHandler Auth master RepHtml
 getPasswordR = do
     toMaster <- getRouteToMaster
     maid <- maybeAuthId
@@ -142,7 +136,7 @@ getPasswordR = do
                 %input!type=submit!value=Submit
 |]
 
-postPasswordR :: YesodAuthAccount master => GHandler Auth master ()
+postPasswordR :: YesodAuthHashDB master => GHandler Auth master ()
 postPasswordR = do
     (new, confirm) <- runFormPost' $ (,)
         <$> stringInput "new"
