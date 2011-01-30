@@ -35,7 +35,7 @@ executable         simple-server
                  , template-haskell
                  , hamlet
                  , web-routes
-                 , hjsmin       >= 0.0.4   && < 0.1
+                 , hjsmin       >= 0.0.12  && < 0.1
                  , web-encodings == 0.3.0.4
                  , highlighting-kate
                  , pandoc
