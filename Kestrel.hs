@@ -319,9 +319,9 @@ userCrud = const Crud
                   case userPassword a of
                     "" -> do
                       Just a' <- get k
-                      replace k $ User (userIdent a) (userPassword a')
+                      replace k $ a {userPassword=userPassword a'}
                     rp -> do
-                      replace k $ User (userIdent a) (encrypt rp)
+                      replace k $ a {userPassword=encrypt rp}
            , crudInsert = \a -> do
                 _ <- requireAuth
                 runDB $ do
