@@ -1,5 +1,5 @@
 .login-options
-  %div
+  !align=center
     %form.auth!method=post!action=@AuthR.loginR@
       %table.nostyle
         %tr
@@ -10,25 +10,23 @@
           %th Password:
           %td
             %input.watermark!type=password!name=password!placeholder=password
-        %tr
-          %td!colspan=2
-            %input!type=submit!value="Login via account"
-  %div
+      %input!type=submit!value="Login via account"
+  .center
     %h3 &mdash; OR &mdash;
-  %div
-    %form.button.google!method=get!action=@AuthR.forwardUrl@
+  .center
+    %form.inline!method=get!action=@AuthR.forwardUrl@
         %input!type=hidden!name=openid_identifier!value="https://www.google.com/accounts/o8/id"
-        %input!type=image!src=@StaticR.img_google_gif@!value="Login via Google"
-    %a.button.twitter!href=@AuthR.twitterUrl@
-        %img!src=@StaticR.img_twitter_png@!value="Login via Twitter"
-    %a.button.facebook!href=@AuthR.facebookUrl@
-        %img!src=@StaticR.img_facebook_gif@!value="Login via Facebook"
-    %form.button.yahoo!method=get!action=@AuthR.forwardUrl@
+        %button#google_login_icon.login_button!type=submit
+    %form.inline!method=get!action=@AuthR.twitterUrl@
+        %button#twitter_login_icon.login_button!type=submit
+    %form.inline!method=get!action=@AuthR.facebookUrl@
+        %button#facebook_login_icon.login_button!type=submit
+    %form.inline!method=get!action=@AuthR.forwardUrl@
         %input!type=hidden!name=openid_identifier!value="http://me.yahoo.com"
-        %input!type=image!src=@StaticR.img_yahoo_gif@!value="Login via Yahoo!"
-  %div
+        %button#yahoo_login_icon.login_button!type=submit
+  .center
     %h3 &mdash; OR &mdash;
-  %div
+  .center
     %form.auth!method=get!action=@AuthR.forwardUrl@
         %input#openid_identifier!type=text!name=openid_identifier!value="http://"
         %input#openid_submit!type=submit!value="Login via OpenID"

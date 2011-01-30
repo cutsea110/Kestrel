@@ -1,22 +1,41 @@
-.login-options
-  -moz-border-radius: 3px
-  -webkit-border-radius: 3px
-  padding: 10px
-  background: white
-  text-align: center
-  width: 334px
-  margin: 0 auto
-
-.login-options .button
-  float: left
+.login_button
+  margin: 0 1px 0 1px
+  border: none
+  background-color: white
+  background-image: url(@StaticR.img_janrain_png@)
+  
+#google_login_icon
+  background-position: 0px -80px
   height: 40px
-  line-height: 35px
-  margin-left: 20px
+  width: 120px
+#google_login_icon:hover
+  background-position: -120px -80px
+#google_login_icon:press
+  background-position: -240px -80px;
 
-.login-options h3
-  color: #333
-  clear: both
-  text-align: center
-  margin-bottom: 10px
-  float: left
-  width: 100%
+#twitter_login_icon
+  background-position: 0px -360px
+  height: 40px
+  width: 120px
+#twitter_login_icon:hover
+  background-position: -120px -360px
+#twitter_login_icon:press
+  background-position: -240px -360px
+
+#facebook_login_icon
+  background-position: 0px -40px
+  height: 40px
+  width: 120px
+#facebook_login_icon:hover
+  background-position: -120px -40px
+#facebook_login_icon:press
+  background-position: -240px -40px
+
+#yahoo_login_icon
+  background-position: 0px -440px
+  height: 40px
+  width: 120px
+#yahoo_login_icon:hover
+  background-position: -120px -440px
+#yahoo_login_icon:press
+  background-position: -240px -440px
