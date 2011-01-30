@@ -1,10 +1,15 @@
 {-# LANGUAGE QuasiQuotes, TypeFamilies #-}
 {-# LANGUAGE CPP #-}
+-- | replace Yesod.Helpers.Auth.HashDB
+-- initialize password and insert user account manually.
+-- How to make SHA1 password by
+-- echo -n 'My Password' | sha1sum
+--
 module Kestrel.Helpers.Auth.Account
     ( authAccount
     , YesodAuthAccount (..)
     , AccountCreds (..)
-    , saltPass
+    , encrypt
     , loginR
     , setpassR
     ) where
@@ -15,9 +20,8 @@ import Yesod.Helpers.Auth
 import System.Random
 import Control.Monad (when)
 import Control.Applicative ((<$>), (<*>))
-import Data.Digest.Pure.MD5
-import qualified Data.Text.Lazy as T
-import Data.Text.Lazy.Encoding (encodeUtf8)
+import Data.ByteString.Lazy.Char8  (pack)
+import Data.Digest.Pure.SHA        (sha1, showDigest)
 
 loginR, setpassR :: AuthRoute
 loginR = PluginR "account" ["login"]
@@ -90,7 +94,7 @@ postLoginR = do
                 case mrealpass of
                     Nothing -> return Nothing
                     Just realpass -> return $
-                        if isValidPass pass realpass
+                        if encrypt pass == realpass
                             then Just aid
                             else Nothing
             _ -> return Nothing
@@ -153,31 +157,11 @@ postPasswordR = do
                 setMessage $ string "You must be logged in to set a password"
                 redirect RedirectTemporary $ toMaster loginR
             Just aid -> return aid
-    salted <- liftIO $ saltPass new
-    setPassword aid salted
+    let sha1pass = encrypt new
+    setPassword aid sha1pass
     setMessage $ string "Password updated"
     y <- getYesod
     redirect RedirectTemporary $ loginDest y
 
-saltLength :: Int
-saltLength = 5
-
--- | Salt a password with a randomly generated salt.
-saltPass :: String -> IO String
-saltPass pass = do
-    stdgen <- newStdGen
-    let salt = take saltLength $ randomRs ('A', 'Z') stdgen
-    return $ saltPass' salt pass
-
-saltPass' :: String -> String -> String
-saltPass' salt pass =
-    salt ++ show (md5 $ fromString $ salt ++ pass)
-  where
-    fromString = encodeUtf8 . T.pack
-
-isValidPass :: String -- ^ cleartext password
-            -> SaltedPass -- ^ salted password
-            -> Bool
-isValidPass clear salted =
-    let salt = take saltLength salted
-     in salted == saltPass' salt clear
+encrypt :: String -> String
+encrypt = showDigest . sha1 . pack

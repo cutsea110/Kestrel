@@ -48,7 +48,6 @@ import Yesod
 import Yesod.Helpers.Static
 import Yesod.Helpers.AtomFeed
 import Yesod.Helpers.Auth
-import qualified Kestrel.Helpers.Auth.Account as A (saltPass)
 import Kestrel.Helpers.Auth.Account
 import Yesod.Helpers.Auth.OpenId
 import Yesod.Helpers.Auth.Facebook
@@ -322,13 +321,11 @@ userCrud = const Crud
                       Just a' <- get k
                       replace k $ User (userIdent a) (userPassword a')
                     rp -> do
-                      salted <- liftIO $ A.saltPass rp
-                      replace k $ User (userIdent a) salted
+                      replace k $ User (userIdent a) (encrypt rp)
            , crudInsert = \a -> do
                 _ <- requireAuth
                 runDB $ do
-                  salted <- liftIO $ A.saltPass $ userPassword a
-                  insert $ User (userIdent a) salted
+                  insert $ User (userIdent a) (encrypt $ userPassword a)
            , crudGet = \k -> do
                 _ <- requireAuth
                 runDB $ get k
