@@ -11,6 +11,10 @@ div#message
     padding: 5px 8px
     margin: 0 0 3px 0
 
+.errors
+    color: red
+    font-style: bold
+
 .warnings
     color: red
     font-style: bold
