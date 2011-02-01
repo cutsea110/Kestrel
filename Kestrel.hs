@@ -493,11 +493,11 @@ transformDoc render pages = processWith codeHighlighting . processWith (wikiLink
 -- wikiLink :: (KestrelRoute -> String) -> Map.Map String Wiki -> Inline -> Inline
 -- Wiki Link Sign of WikiName is written as [WikiName]().
 wikiLink render pages (Link ls ("", "")) = 
-  case Map.lookup path pages of
+  case Map.lookup p' pages of
     Just _  -> 
-      Link [Str path] (render (WikiR $ fromPath path) [("mode", "v")], path)
+      Link [Str p'] (render (WikiR $ fromPath p') [("mode", "v")], p')
     Nothing -> 
-      Emph [Str path, Link [Str "?"] (render NewR [("path", path'), ("mode", "v")], path)]
+      Emph [Str p', Link [Str "?"] (render NewR [("path", path'), ("mode", "v")], p')]
   where
     p' = inlinesToString ls
     path = decodeUrl p'
