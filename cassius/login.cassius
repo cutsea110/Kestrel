@@ -20,3 +20,9 @@
   margin-bottom: 10px
   float: left
   width: 100%
+
+#openid_identifier
+  font-size: 80%
+  background-image: url(http://www.myopenid.com/static/openid-icon-small.gif)
+  background-repeat: no-repeat
+  padding-left: 18px
