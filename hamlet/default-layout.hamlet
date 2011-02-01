@@ -3,6 +3,7 @@
     %head
         %title $pageTitle.pc$
         ^pageHead.pc^
+        ^ga^
     %body
         #doc.kui-t1
           #kui-main

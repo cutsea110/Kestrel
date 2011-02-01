@@ -48,11 +48,11 @@ import Yesod
 import Yesod.Helpers.Static
 import Yesod.Helpers.AtomFeed
 import Yesod.Helpers.Auth
-import qualified Kestrel.Helpers.Auth.Account as A (saltPass)
-import Kestrel.Helpers.Auth.Account
+import Kestrel.Helpers.Auth.HashDB
 import Yesod.Helpers.Auth.OpenId
 import Yesod.Helpers.Auth.Facebook
 import Yesod.Helpers.Auth.Email
+import Yesod.Helpers.Auth.OAuth
 import Yesod.Helpers.Crud
 import Yesod.Form.Jquery
 import System.Directory
@@ -238,6 +238,7 @@ instance Yesod Kestrel where
         let mgaUA = Settings.googleAnalyticsUA
             maTUser = Settings.addThisUser
             googleInurl = dropSchema Settings.approot
+            ga = $(Settings.hamletFile "ga")
             header = $(Settings.hamletFile "header")
             footer = $(Settings.hamletFile "footer")
         pc <- widgetToPageContent $ do
@@ -274,14 +275,12 @@ instance Yesod Kestrel where
     -- users receiving stale content.
     addStaticContent ext' _ content = do
         let fn = base64md5 content ++ '.' : ext'
-        let content' = content
-            {-- WAIT FOR hjsmin BUG FIX
+        let content' =
                 if ext' == "js"
                     then case minifym content of
                             Left _ -> content
                             Right y -> y
                     else content
-             --}
         let statictmp = Settings.staticdir ++ "/tmp/"
         liftIO $ createDirectoryIfMissing True statictmp
         let fn' = statictmp ++ fn
@@ -320,15 +319,13 @@ userCrud = const Crud
                   case userPassword a of
                     "" -> do
                       Just a' <- get k
-                      replace k $ User (userIdent a) (userPassword a')
+                      replace k $ a {userPassword=userPassword a'}
                     rp -> do
-                      salted <- liftIO $ A.saltPass rp
-                      replace k $ User (userIdent a) salted
+                      replace k $ a {userPassword=encrypt rp}
            , crudInsert = \a -> do
                 _ <- requireAuth
                 runDB $ do
-                  salted <- liftIO $ A.saltPass $ userPassword a
-                  insert $ User (userIdent a) salted
+                  insert $ User (userIdent a) (encrypt $ userPassword a)
            , crudGet = \k -> do
                 _ <- requireAuth
                 runDB $ get k
@@ -355,34 +352,37 @@ instance YesodAuth Kestrel where
     showAuthId _ = showIntegral
     readAuthId _ = readIntegral
 
-    authPlugins = [ authAccount
+    authPlugins = [ authHashDB
                   , authOpenId
                   , authFacebook Settings.facebookApplicationId 
                                  Settings.facebookApplicationSecret 
                                  []
+                  , authTwitter Settings.twitterConsumerKey
+                                Settings.twitterConsumerSecret
                   , authEmail ]
+
     loginHandler = do
       defaultLayout $ do
         addCassius $(Settings.cassiusFile "login")
         addHamlet $(Settings.hamletFile "login")
 
-instance YesodAuthAccount Kestrel where
-    type AuthAccountId Kestrel = UserId
+instance YesodAuthHashDB Kestrel where
+    type AuthHashDBId Kestrel = UserId
 
-    showAuthAccountId _ = showIntegral
-    readAuthAccountId _ = readIntegral
+    showAuthHashDBId _ = showIntegral
+    readAuthHashDBId _ = readIntegral
 
     getPassword uid = runDB $ return . fmap userPassword =<< get uid
-    setPassword uid salted = runDB $ update uid [UserPassword salted]
-    getAccountCreds account = runDB $ do
+    setPassword uid encripted = runDB $ update uid [UserPassword encripted]
+    getHashDBCreds account = runDB $ do
         ma <- getBy $ UniqueUser account
         case ma of
             Nothing -> return Nothing
-            Just (uid, _) -> return $ Just AccountCreds
-                { accountCredsId = uid
-                , accountCredsAuthId = Just uid
+            Just (uid, _) -> return $ Just HashDBCreds
+                { hashdbCredsId = uid
+                , hashdbCredsAuthId = Just uid
                 }
-    getAccount = runDB . fmap (fmap userIdent) . get
+    getHashDB = runDB . fmap (fmap userIdent) . get
 
 
 instance YesodAuthEmail Kestrel where

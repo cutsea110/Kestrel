@@ -12,6 +12,8 @@
       %a!href=@?topView@ Top
 
 #main-content
+  %h3.metatitle This version of `$path$' back.
+
   %form!method=post!action=@(HistoryR.v).wp@
     %input!type=hidden!name=version!value=$show.ver$
     %input!type=hidden!name=content!value=$raw$

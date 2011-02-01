@@ -4,20 +4,25 @@ body
     padding: 0
 
 div#message
-    font-size: 150%
-    color: red
-    margin: 3px
-    padding: 10px
-    border: solid 2px red
-    backgroud-color: #ffc0a0
+    color: #817134
+    backgroud-color: #fdf1d0
+    border: 1px solid #fad163
+    line-height: 1.50
+    padding: 5px 8px
+    margin: 0 0 3px 0
 
 .errors
     color: red
-    font-style: italic
+    font-style: bold
 
 .warnings
     color: red
     font-style: bold
+    backgroud-color: #fdf1d0
+    border: 1px solid #fad163
+    line-height: 1.50
+    padding: 5px 8px
+    margin: 0 0 3px 0
 
 .example
     border: dotted 1px gray

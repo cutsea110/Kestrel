@@ -21,6 +21,10 @@ $(document).ready(function(){
     width: 520,
     modal: true
   });
+  $(".login_button").click(function(){
+    $(this).addClass("press");
+    return true;
+  });
 
   $.ajax({
     type: 'GET',
