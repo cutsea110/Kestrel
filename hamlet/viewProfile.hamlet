@@ -1,5 +1,6 @@
 %h3 Set Your Profile
 %form!method=post!action=@ProfileR.uid@
+  %input!type=hidden!name=_method!value=modify
   %table.nostyle
     %tr
       %th User Ident:

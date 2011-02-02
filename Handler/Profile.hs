@@ -18,6 +18,16 @@ getProfileR uid = do
 
 postProfileR :: UserId -> Handler ()
 postProfileR uid = do
+  _method <- lookupPostParam "_method"
+  case _method of
+    Just "modify" -> putProfileR uid
+    _             ->invalidArgs ["The possible values of '_method' is modify"]
+
+putProfileR :: UserId -> Handler ()
+putProfileR uid = do
+  (uid', _) <- requireAuth
+  when (uid' /= uid) $ do
+    permissionDenied "You couldn't access another user profile."
   nn <- runFormPost' $ stringInput "nickname"
   runDB $ update uid [UserNickname $ Just nn]
   setMessage "Your profile updated."

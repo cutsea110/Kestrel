@@ -126,7 +126,7 @@ mkYesodData "Kestrel" [$parseRoutes|
 /auth-status AuthStatusR GET
 /auth-go AuthToGoR GET
 
-/profile/#UserId ProfileR GET POST
+/profile/#UserId ProfileR GET POST PUT
 
 /favicon.ico FaviconR GET
 /robots.txt RobotsR GET
