@@ -28,7 +28,7 @@
 
   #metainfo!align=right
     $maybe me e
-      Edited by: $userIdent.e$
+      Edited by: $userDisplayName.e$
     $nothing
       Edited by: editor deleted
     %br

@@ -126,6 +126,8 @@ mkYesodData "Kestrel" [$parseRoutes|
 /auth-status AuthStatusR GET
 /auth-go AuthToGoR GET
 
+/profile/#UserId ProfileR GET POST PUT
+
 /favicon.ico FaviconR GET
 /robots.txt RobotsR GET
 /sitemap.xml SitemapR GET
@@ -299,14 +301,16 @@ instance YesodJquery Kestrel where
   urlJqueryUiCss _ = Left $ StaticR css_jquery_ui_1_8_9_custom_css
     
 instance Item User where
-  itemTitle = userIdent
+  itemTitle = userDisplayName
 
 type UserCrud = Crud Kestrel User
 
 instance ToForm User Kestrel where
   toForm mu = fieldsToTable $ User
               <$> stringField "ident" (fmap userIdent mu)
-              <*> passwordField' "password" (fmap userPassword mu)
+              <*> maybePasswordField "password" Nothing
+              <*> maybeStringField "nickname" (fmap userNickname mu)
+              <*> boolField "active" (fmap userActive mu)
 
 userCrud :: Kestrel -> Crud Kestrel User
 userCrud = const Crud
@@ -317,15 +321,15 @@ userCrud = const Crud
                 _ <- requireAuth
                 runDB $ do
                   case userPassword a of
-                    "" -> do
+                    Nothing -> do
                       Just a' <- get k
-                      replace k $ a {userPassword=userPassword a'}
-                    rp -> do
-                      replace k $ a {userPassword=encrypt rp}
+                      replace k $ a {userPassword=userPassword a', userActive=userActive a}
+                    Just rp -> do
+                      replace k $ a {userPassword=Just $ encrypt rp, userActive=userActive a}
            , crudInsert = \a -> do
                 _ <- requireAuth
                 runDB $ do
-                  insert $ User (userIdent a) (encrypt $ userPassword a)
+                  insert $ User (userIdent a) (fmap encrypt $ userPassword a) (userNickname a) True
            , crudGet = \k -> do
                 _ <- requireAuth
                 runDB $ get k
@@ -345,9 +349,17 @@ instance YesodAuth Kestrel where
     getAuthId creds = runDB $ do
         x <- getBy $ UniqueUser $ credsIdent creds
         case x of
-            Just (uid, _) -> return $ Just uid
+            Just (uid, u) -> 
+              if userActive u 
+              then do
+                lift $ setMessage "You are now logged in."
+                return $ Just uid 
+              else do
+                lift $ setMessage "Invalid login."
+                return Nothing
             Nothing -> do
-              fmap Just $ insert $ User (credsIdent creds) ""
+              lift $ setMessage "You are now logged in."
+              fmap Just $ insert $ User (credsIdent creds) Nothing Nothing True
 
     showAuthId _ = showIntegral
     readAuthId _ = readIntegral
@@ -372,8 +384,12 @@ instance YesodAuthHashDB Kestrel where
     showAuthHashDBId _ = showIntegral
     readAuthHashDBId _ = readIntegral
 
-    getPassword uid = runDB $ return . fmap userPassword =<< get uid
-    setPassword uid encripted = runDB $ update uid [UserPassword encripted]
+    getPassword uid = runDB $ do
+      ma <- get uid
+      case ma of
+        Nothing -> return Nothing
+        Just u -> return $ userPassword u
+    setPassword uid encripted = runDB $ update uid [UserPassword $ Just encripted]
     getHashDBCreds account = runDB $ do
         ma <- getBy $ UniqueUser account
         case ma of
@@ -437,11 +453,15 @@ instance YesodAuthEmail Kestrel where
                 case emailUser e of
                     Just uid -> return $ Just uid
                     Nothing -> do
-                        uid <- insert $ User email ""
+                        uid <- insert $ User email Nothing Nothing True
                         update eid [EmailUser $ Just uid, EmailVerkey Nothing]
                         return $ Just uid
-    getPassword uid = runDB $ return . fmap userPassword =<< get uid
-    setPassword uid salted = runDB $ update uid [UserPassword salted]
+    getPassword uid = runDB $ do
+        me <- get uid
+        case me of
+            Nothing -> return Nothing
+            Just u -> return $ userPassword u
+    setPassword uid salted = runDB $ update uid [UserPassword $ Just salted]
     getEmailCreds email = runDB $ do
         me <- getBy $ UniqueEmail email
         case me of

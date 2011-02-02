@@ -29,7 +29,7 @@
       %tr!class=$altClass.snd3.h$
         %td.number!rowspan=2 $show.wikiHistoryVersion.snd3.h$
         %td!rowspan=2 $showDate.wikiHistoryUpdated.snd3.h$
-        %td $userIdent.fst3.h$
+        %td $userDisplayName.fst3.h$
         %td +$show.fst.thd3.h$,$show.snd.thd3.h$ line(s)
         %td
            [

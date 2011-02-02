@@ -1,6 +1,8 @@
 #userbox
   $maybe mu u
-    Now Logged in as $userIdent.snd.u$. $
+    Now Logged in as $
+    %a!title="Change your profile"!href=@ProfileR.fst.u@ $userDisplayName.snd.u$
+    \.
     %form.inline!method=get!action=@AuthR.LogoutR@
       %button.link!type=submit Logout
     %form.inline!method=get!action=@AuthR.setpassR@
