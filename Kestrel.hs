@@ -307,6 +307,7 @@ instance ToForm User Kestrel where
   toForm mu = fieldsToTable $ User
               <$> stringField "ident" (fmap userIdent mu)
               <*> maybePasswordField "password" Nothing
+              <*> maybeStringField "nickname" (fmap userNickname mu)
               <*> boolField "active" (fmap userActive mu)
 
 userCrud :: Kestrel -> Crud Kestrel User
@@ -326,7 +327,7 @@ userCrud = const Crud
            , crudInsert = \a -> do
                 _ <- requireAuth
                 runDB $ do
-                  insert $ User (userIdent a) (fmap encrypt $ userPassword a) True
+                  insert $ User (userIdent a) (fmap encrypt $ userPassword a) (userNickname a) True
            , crudGet = \k -> do
                 _ <- requireAuth
                 runDB $ get k
@@ -356,7 +357,7 @@ instance YesodAuth Kestrel where
                 return Nothing
             Nothing -> do
               lift $ setMessage "You are now logged in."
-              fmap Just $ insert $ User (credsIdent creds) Nothing True
+              fmap Just $ insert $ User (credsIdent creds) Nothing Nothing True
 
     showAuthId _ = showIntegral
     readAuthId _ = readIntegral
@@ -450,7 +451,7 @@ instance YesodAuthEmail Kestrel where
                 case emailUser e of
                     Just uid -> return $ Just uid
                     Nothing -> do
-                        uid <- insert $ User email Nothing True
+                        uid <- insert $ User email Nothing Nothing True
                         update eid [EmailUser $ Just uid, EmailVerkey Nothing]
                         return $ Just uid
     getPassword uid = runDB $ do

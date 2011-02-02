@@ -1,6 +1,6 @@
 #userbox
   $maybe mu u
-    Now Logged in as $userIdent.snd.u$. $
+    Now Logged in as $userDisplayName.snd.u$. $
     %form.inline!method=get!action=@AuthR.LogoutR@
       %button.link!type=submit Logout
     %form.inline!method=get!action=@AuthR.setpassR@

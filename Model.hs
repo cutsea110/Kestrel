@@ -7,7 +7,6 @@ import Yesod.Form.Core
 import Database.Persist.TH (share2)
 import Database.Persist.GenericSql (mkMigrate)
 import Data.Time
-import Data.ByteString (ByteString)
 import Data.Int
 
 type Version = Int
@@ -19,14 +18,10 @@ share2 mkPersist (mkMigrate "migrateAll") [$persist|
 User
     ident String Asc
     password String Maybe Update
+    nickname String Maybe Update
     active Bool Eq default=true
     UniqueUser ident
-
-Profile
-    user UserId Eq
-    nickname String
-    UniqueProfile user
-
+    
 Email
     email String
     user UserId Maybe Update
@@ -63,6 +58,11 @@ FileHeader
     created UTCTime Desc
 |]
 
+userDisplayName :: User -> String
+userDisplayName (User _ _ (Just x) _) = x
+userDisplayName (User x _ _ _) = x
+
+
 passwordField' :: (IsForm f, FormType f ~ String)
               => FormFieldSettings -> Maybe String -> f
 passwordField' = requiredFieldHelper passwordFieldProfile'
@@ -80,8 +80,3 @@ passwordField' = requiredFieldHelper passwordFieldProfile'
 %input#$theId$!name=$name$!type=password!:isReq:required!value=$val$
 |]
       }
-
--- manually insert first User
--- account  : system
--- password : tim9009
--- insert into "User" (ident,password) values ('system','CZVQG987831e76431ac79535086cf7d331939');
