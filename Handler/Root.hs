@@ -65,7 +65,7 @@ getRecentChangesR = do
   where
     go now r (wid@(WikiId wid'), w) = 
       jsonMap [ ("title", jsonScalar (wikiPath w))
-              , ("uri", jsonScalar $ dropPrefix Settings.rootRelativePath $ r $ WikiR $ fromPath (wikiPath w))
+              , ("uri", jsonScalar $ r $ WikiR $ fromPath (wikiPath w))
               , ("uday", jsonScalar $ show (wikiUpdated w))
               , ("new", jsonScalar $ show $ ((utctDay now) `diffDays` (utctDay $ wikiUpdated w)) <= Settings.newDays)
               ]

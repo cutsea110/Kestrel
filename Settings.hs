@@ -15,7 +15,6 @@ module Settings
     , withConnectionPool
     , runConnectionPool
     , approot
-    , rootRelativePath
     , staticroot
     , staticdir
     , s3dir
@@ -28,6 +27,7 @@ module Settings
     , twitterConsumerKey
     , twitterConsumerSecret
     , googleAnalyticsUA
+    , googleSearchInurl
     , addThisUser
     ) where
 
@@ -49,17 +49,9 @@ approot :: String
 -- you would probably want it to be:
 -- > approot = "http://www.yesod.com"
 -- Please note that there is no trailing slash.
-approot = "http://localhost:3000"
+approot = ""
 #else
-approot = "http://localhost:3000"
-#endif
-
--- | The base URL for your site's root relative top path with consider apache.
-rootRelativePath :: String
-#ifdef PRODUCTION
-rootRelativePath = "http://localhost:3000"
-#else
-rootRelativePath = "http://localhost:3000"
+approot = ""
 #endif
 
 -- | The location of static files on your system. This is a file system
@@ -108,6 +100,9 @@ twitterConsumerKey,twitterConsumerSecret :: String
 
 googleAnalyticsUA :: Maybe String
 googleAnalyticsUA = Just "UA-1234567-8"
+
+googleSearchInurl :: String
+googleSearchInurl = "localhost:3000" ++ approot
 
 addThisUser :: Maybe String
 addThisUser = Just "cutsea110"
