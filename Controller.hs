@@ -12,6 +12,7 @@ import Database.Persist.GenericSql
 
 -- Import all relevant handler modules here.
 import Handler.Root
+import Handler.Profile
 import Handler.Wiki
 import Handler.S3
 

@@ -1,0 +1,16 @@
+%h3 Set Your Profile
+%form!method=post!action=@ProfileR.uid@
+  %table.nostyle
+    %tr
+      %th User Ident:
+      %td $userIdent.u$
+    %tr
+      %th Nickname:
+      %td
+        $maybe (userNickname u) n
+          %input!type=text!name=nickname!value=$n$
+        $nothing
+          %input.watermark!type=text!name=nickname!placeholder=nickname...
+    %tr
+      %td!colspan=2
+        %button!type=submit Submit
