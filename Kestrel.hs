@@ -301,7 +301,7 @@ instance YesodJquery Kestrel where
   urlJqueryUiCss _ = Left $ StaticR css_jquery_ui_1_8_9_custom_css
     
 instance Item User where
-  itemTitle = userIdent
+  itemTitle = userDisplayName
 
 type UserCrud = Crud Kestrel User
 
