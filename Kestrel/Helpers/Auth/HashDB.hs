@@ -15,9 +15,7 @@ module Kestrel.Helpers.Auth.HashDB
     ) where
 
 import Yesod
-import Network.Mail.Mime (randomString)
 import Yesod.Helpers.Auth
-import System.Random
 import Control.Monad (when)
 import Control.Applicative ((<$>), (<*>))
 import Data.ByteString.Lazy.Char8  (pack)
@@ -96,10 +94,8 @@ postLoginR = do
         Just _aid -> do
             setCreds False $ Creds "account" account [] -- FIXME aid?
             y <- getYesod
-            setMessage $ string "You are now Logged in"
             redirectUltDest RedirectTemporary $ loginDest y
         Nothing -> do
-            setMessage $ string "Invalid account/password combination"
             toMaster <- getRouteToMaster
             redirect RedirectTemporary $ toMaster LoginR
 

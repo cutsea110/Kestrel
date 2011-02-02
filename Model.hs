@@ -18,8 +18,14 @@ type Version = Int
 share2 mkPersist (mkMigrate "migrateAll") [$persist|
 User
     ident String Asc
-    password String Update toFormField=passwordField'
+    password String Maybe Update
+    active Bool Eq default=true
     UniqueUser ident
+
+Profile
+    user UserId Eq
+    nickname String
+    UniqueProfile user
 
 Email
     email String
