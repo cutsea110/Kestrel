@@ -91,6 +91,7 @@ import qualified Settings
 data Kestrel = Kestrel
     { getStatic :: Static -- ^ Settings for static file serving.
     , connPool :: Settings.ConnectionPool -- ^ Database connection pool.
+    , isHTTPS :: Bool
     }
 
 -- | A useful synonym; most of the handler functions in your application
@@ -194,7 +195,7 @@ getBy404 ukey = do
 -- Please see the documentation for the Yesod typeclass. There are a number
 -- of settings which can be configured by overriding methods here.
 instance Yesod Kestrel where
-    approot _ = Settings.approot
+    approot app = (if isHTTPS app then "https" else "http") ++ Settings.approot
 {-
     onRequest = do
       req' <- getRequest
@@ -239,7 +240,7 @@ instance Yesod Kestrel where
               return (Settings.sidePaneTitle, Just sp')
         let mgaUA = Settings.googleAnalyticsUA
             maTUser = Settings.addThisUser
-            googleInurl = dropSchema Settings.approot
+            googleInurl = dropScheme $ approot y
             ga = $(Settings.hamletFile "ga")
             header = $(Settings.hamletFile "header")
             footer = $(Settings.hamletFile "footer")
@@ -261,11 +262,12 @@ instance Yesod Kestrel where
     -- This is done to provide an optimization for serving static files from
     -- a separate domain. Please see the staticroot setting in Settings.hs
     urlRenderOverride a (StaticR s) =
-        Just $ uncurry (joinPath a Settings.staticroot) $ format s
+        Just $ uncurry (joinPath a $ sc++Settings.staticroot) $ format s
       where
         format = formatPathSegments ss
         ss :: Site StaticRoute (String -> Maybe (GHandler Static Kestrel ChooseRep))
         ss = getSubSite
+        sc = if isHTTPS a then "https" else "http"
     urlRenderOverride _ _ = Nothing
 
     -- The page to be redirected to when authentication is required.
@@ -602,7 +604,7 @@ dropPrefix xs ys = dp' ys xs ys
     dp' os (x:xs') (y:ys') | x==y = dp' os xs' ys'
                            | otherwise = os
 
-dropSchema :: String -> String
-dropSchema ('h':'t':'t':'p':':':'/':'/':s) = s ++ "/"
-dropSchema ('h':'t':'t':'p':'s':':':'/':'/':s) = s ++ "/"
--- dropSchema s = s -- FIXME
+dropScheme :: String -> String
+dropScheme ('h':'t':'t':'p':':':'/':'/':s) = s ++ "/"
+dropScheme ('h':'t':'t':'p':'s':':':'/':'/':s) = s ++ "/"
+-- dropScheme s = s -- FIXME

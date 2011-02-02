@@ -9,6 +9,7 @@ import Settings
 import Yesod.Helpers.Static
 import Yesod.Helpers.Auth
 import Database.Persist.GenericSql
+import Network.Wai
 
 -- Import all relevant handler modules here.
 import Handler.Root
@@ -28,7 +29,8 @@ mkYesodDispatch "Kestrel" resourcesKestrel
 withKestrel :: (Application -> IO a) -> IO a
 withKestrel f = withConnectionPool $ \p -> do
     runConnectionPool (runMigration migrateAll) p
-    let h = Kestrel s p
-    toWaiApp h >>= f
+    http <- toWaiApp $ Kestrel s p False
+    https <- toWaiApp $ Kestrel s p True
+    f $ \req -> (if isSecure req then https else http) req
   where
     s = fileLookupDir Settings.staticdir typeByExt
