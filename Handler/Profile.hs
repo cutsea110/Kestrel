@@ -14,6 +14,7 @@ getProfileR uid = do
   u <- runDB $ get404 uid
   defaultLayout $ do
     setTitle $ string "Profile"
+    addJulius $(juliusFile "profile")
     addHamlet $(hamletFile "viewProfile")
 
 postProfileR :: UserId -> Handler ()

@@ -1,0 +1,22 @@
+$(document).ready(function(){
+  $(".inplaceedit").exInPlaceEditor({
+    onsave: function(api) {
+      var text = api.getEditor(),
+          data = '_method=modify&'+text.attr('name')+'='+api.getValue();
+      api.saving();
+      $.ajax({
+        type: 'post',
+        dataType: 'html',
+        url: text.attr('uri'),
+        data: data,
+        success: function(res){
+          api.saveComplete();
+        },
+        error: function(res,status){
+          api.saveError(res.statusText+'['+res.status+']: '+$(res.responseText).find('p').text());
+        }
+      });
+      return false;
+    }
+  });
+});

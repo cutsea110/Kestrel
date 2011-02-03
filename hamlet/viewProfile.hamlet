@@ -9,9 +9,6 @@
       %th Nickname:
       %td
         $maybe (userNickname u) n
-          %input!type=text!name=nickname!value=$n$
+          %input.inplaceedit!type=text!name=nickname!uri=@ProfileR.uid@!value=$n$
         $nothing
-          %input.watermark!type=text!name=nickname!placeholder=nickname...
-    %tr
-      %td!colspan=2
-        %button!type=submit Submit
+          %input.inplaceedit!type=text!name=nickname!uri=@ProfileR.uid@
