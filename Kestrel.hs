@@ -329,7 +329,7 @@ userCrud = const Crud
            , crudInsert = \a -> do
                 _ <- requireAuth
                 runDB $ do
-                  insert $ User (userIdent a) (fmap encrypt $ userPassword a) (userNickname a) True
+                  insert $ a {userPassword=(fmap encrypt $ userPassword a)}
            , crudGet = \k -> do
                 _ <- requireAuth
                 runDB $ get k
