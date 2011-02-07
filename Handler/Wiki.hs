@@ -21,7 +21,7 @@ getWikiListR :: Handler RepHtml
 getWikiListR = do
   method <- lookupGetParam "_method"
   case method of
-    Nothing -> invalidArgs [""]
+    Nothing -> invalidArgs ["The possible values of '_method' is search."]
     Just "search" -> searchWiki
   where
     -- pages
