@@ -4,12 +4,12 @@ module Handler.Profile where
 import Kestrel
 import Settings (topTitle, hamletFile, cassiusFile, juliusFile, widgetFile)
 
-import Control.Monad (when)
+import Control.Monad (unless)
 
 getProfileR :: UserId -> Handler RepHtml
 getProfileR uid = do
   (uid', _) <- requireAuth
-  when (uid' /= uid) $ do
+  unless (uid' == uid) $ do
     permissionDenied "You couldn't access another user profile."
   u <- runDB $ get404 uid
   defaultLayout $ do
@@ -27,7 +27,7 @@ postProfileR uid = do
 putProfileR :: UserId -> Handler ()
 putProfileR uid = do
   (uid', _) <- requireAuth
-  when (uid' /= uid) $ do
+  unless (uid' == uid) $ do
     permissionDenied "You couldn't access another user profile."
   nn <- runFormPost' $ stringInput "nickname"
   runDB $ update uid [UserNickname $ Just nn]

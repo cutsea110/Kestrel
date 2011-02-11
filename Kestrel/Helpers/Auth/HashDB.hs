@@ -16,7 +16,7 @@ module Kestrel.Helpers.Auth.HashDB
 
 import Yesod
 import Yesod.Helpers.Auth
-import Control.Monad (when)
+import Control.Monad (unless)
 import Control.Applicative ((<$>), (<*>))
 import Data.ByteString.Lazy.Char8  (pack)
 import Data.Digest.Pure.SHA        (sha1, showDigest)
@@ -138,7 +138,7 @@ postPasswordR = do
         <$> stringInput "new"
         <*> stringInput "confirm"
     toMaster <- getRouteToMaster
-    when (new /= confirm) $ do
+    unless (new == confirm) $ do
         setMessage $ string "Passwords did not match, please try again"
         redirect RedirectTemporary $ toMaster setpassR
     maid <- maybeAuthId
