@@ -30,15 +30,17 @@ getUploadR = do
     addCassius $(cassiusFile "s3/s3")
     addWidget $(widgetFile "s3/upload")
 
-upload :: UserId -> FileInfo -> Handler (FileHeaderId, String, String, Int64, UTCTime)
+-- | upload
+--   :: (PersistBackend m, Control.Monad.IO.Class.MonadIO m) =>
+--      Key User -> FileInfo -> m (Key FileHeader, String, String, Int64, UTCTime)
 upload uid@(UserId uid') fi = do
   now <- liftIO getCurrentTime
   let (name, ext) = splitExtension $ fileName fi
       efname = encodeUrl $ fileName fi
       fsize = L.length $ fileContent fi
   fid@(FileHeaderId fid') <- 
-    runDB $ insert FileHeader {
-        fileHeaderFullname=fileName fi
+    insert FileHeader 
+      { fileHeaderFullname=fileName fi
       , fileHeaderEfname=efname
       , fileHeaderContentType=fileContentType fi
       , fileHeaderFileSize=fsize
@@ -62,7 +64,7 @@ postUploadR = do
     Nothing -> invalidArgs ["upload file is required."]
     Just fi -> do
       r <- getUrlRender
-      (fid@(FileHeaderId f), name, ext, fsize, cdate) <- upload uid fi
+      (fid@(FileHeaderId f), name, ext, fsize, cdate) <- runDB $ upload uid fi
       cacheSeconds 10 -- FIXME
       let rf = dropPrefix Settings.rootRelativePath $ r $ FileR uid fid
       fmap RepXml $ hamletToContent
@@ -85,8 +87,9 @@ putUploadR = do
   mfi <- lookupFile "upfile"
   case mfi of
     Nothing -> invalidArgs ["upload file is required."]
-    Just fi -> upload uid fi >>= 
-               \(fid, _, _, _, _) -> sendResponseCreated $ FileR uid fid
+    Just fi -> do
+      (fid, _, _, _, _) <- runDB $ upload uid fi
+      sendResponseCreated $ FileR uid fid
 
 
 getFileR :: UserId -> FileHeaderId -> Handler RepHtml
