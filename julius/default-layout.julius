@@ -71,18 +71,30 @@ $(document).ready(function(){
 
   var pos;
 
-  $("#go_upload").click(function(){
-    $("#fields").upload($("#upload_form").attr('action'),
-                   function(res) {
-                     var file = $(res).find('file'),
-                         uri = file.find('uri').text(),
-                         name = file.find('name').text(),
-                         ext = file.find('ext').text(),
-                         size = file.find('size').text(),
-                         g = makeImageLink(uri, name, ext, size, pos);
-                     g.prependTo("#selectable_images");
-                   }, 'xml');
+  $("#go_upload")
+  .attr('disabled','disabled')
+  .click(function(){
+    $("#fields")
+    .upload($("#upload_form").attr('action'),
+         function(res) {
+           var file = $(res).find('file'),
+               uri = file.find('uri').text(),
+               name = file.find('name').text(),
+               ext = file.find('ext').text(),
+               size = file.find('size').text(),
+               g = makeImageLink(uri, name, ext, size, pos);
+               g.prependTo("#selectable_images");
+               $('#upload_file').val('');
+               $('#upload_file').change();
+         }, 'xml');
     return false;
+  });
+  $('#upload_file').change(function(){
+    if($(this).val() != null && $(this).val() != "") {
+      $('#go_upload').removeAttr('disabled');
+    }else{
+      $('#go_upload').attr('disabled','disabled');
+    }
   });
 
   $("#file-select-button").click(function(){
