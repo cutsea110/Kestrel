@@ -136,6 +136,7 @@ deleteFileR uid@(UserId uid') fid@(FileHeaderId fid') = do
 
 getFileListR :: UserId -> Handler RepJson
 getFileListR uid@(UserId uid') = do
+  _ <- requireAuth
   render <- getUrlRender
   files <- runDB $ selectList [FileHeaderCreatorEq uid] [FileHeaderCreatedDesc] 0 0
   cacheSeconds 10 -- FIXME
