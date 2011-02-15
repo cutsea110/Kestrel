@@ -32,29 +32,31 @@ getUploadR = do
 
 -- | upload
 --   :: (PersistBackend m, Control.Monad.IO.Class.MonadIO m) =>
---      Key User -> FileInfo -> m (Key FileHeader, String, String, Int64, UTCTime)
+--      Key User -> FileInfo -> m (Maybe (Key FileHeader, String, String, Int64, UTCTime))
 upload uid@(UserId uid') fi = do
-  now <- liftIO getCurrentTime
-  let (name, ext) = splitExtension $ fileName fi
-      efname = encodeUrl $ fileName fi
-      fsize = L.length $ fileContent fi
-  fid@(FileHeaderId fid') <- 
-    insert FileHeader 
-      { fileHeaderFullname=fileName fi
-      , fileHeaderEfname=efname
-      , fileHeaderContentType=fileContentType fi
-      , fileHeaderFileSize=fsize
-      , fileHeaderName=name
-      , fileHeaderExtension=ext
-      , fileHeaderCreator=uid
-      , fileHeaderCreated=now
-      }
-  let s3dir = Settings.s3dir </> show uid'
-      s3fp = s3dir </> show fid'
-  liftIO $ do
-    createDirectoryIfMissing True s3dir
-    L.writeFile s3fp (fileContent fi)
-  return (fid, fileName fi, ext, fsize, now)
+  if fileName fi /= "" && L.length (fileContent fi) > 0
+    then do
+    now <- liftIO getCurrentTime
+    let (name, ext) = splitExtension $ fileName fi
+        efname = encodeUrl $ fileName fi
+        fsize = L.length $ fileContent fi
+    fid@(FileHeaderId fid') <- 
+      insert FileHeader { fileHeaderFullname=fileName fi
+                        , fileHeaderEfname=efname
+                        , fileHeaderContentType=fileContentType fi
+                        , fileHeaderFileSize=fsize
+                        , fileHeaderName=name
+                        , fileHeaderExtension=ext
+                        , fileHeaderCreator=uid
+                        , fileHeaderCreated=now
+                        }
+    let s3dir = Settings.s3dir </> show uid'
+        s3fp = s3dir </> show fid'
+    liftIO $ do
+      createDirectoryIfMissing True s3dir
+      L.writeFile s3fp (fileContent fi)
+    return $ Just (fid, fileName fi, ext, fsize, now)
+    else return Nothing
 
 postUploadR :: Handler RepXml
 postUploadR = do
@@ -64,10 +66,13 @@ postUploadR = do
     Nothing -> invalidArgs ["upload file is required."]
     Just fi -> do
       r <- getUrlRender
-      (fid@(FileHeaderId f), name, ext, fsize, cdate) <- runDB $ upload uid fi
-      cacheSeconds 10 -- FIXME
-      let rf = dropPrefix Settings.rootRelativePath $ r $ FileR uid fid
-      fmap RepXml $ hamletToContent
+      mf <- runDB $ upload uid fi
+      case mf of
+        Nothing -> invalidArgs ["upload file is required."]
+        Just (fid@(FileHeaderId f), name, ext, fsize, cdate) -> do
+          cacheSeconds 10 -- FIXME
+          let rf = dropPrefix Settings.rootRelativePath $ r $ FileR uid fid
+          fmap RepXml $ hamletToContent
 #if GHC7
                       [xhamlet|
 #else
@@ -88,8 +93,10 @@ putUploadR = do
   case mfi of
     Nothing -> invalidArgs ["upload file is required."]
     Just fi -> do
-      (fid, _, _, _, _) <- runDB $ upload uid fi
-      sendResponseCreated $ FileR uid fid
+      mf <- runDB $ upload uid fi
+      case mf of
+        Nothing -> invalidArgs ["upload file is required."]
+        Just (fid, _, _, _, _) -> sendResponseCreated $ FileR uid fid
 
 
 getFileR :: UserId -> FileHeaderId -> Handler RepHtml
