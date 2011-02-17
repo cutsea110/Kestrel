@@ -49,17 +49,19 @@ approot :: String
 -- you would probably want it to be:
 -- > approot = "http://www.yesod.com"
 -- Please note that there is no trailing slash.
-approot = "http://192.168.4.147:3000"
+-- approot = "http://192.168.4.147:3000"
+approot = "http://kestrel.timedia.co.jp"
 #else
-approot = "http://192.168.4.147:3000"
+-- approot = "http://192.168.4.147:3000"
+approot = "http://kestrel.timedia.co.jp"
 #endif
 
 -- | The base URL for your site's root relative top path with consider apache.
 rootRelativePath :: String
 #ifdef PRODUCTION
-rootRelativePath = "http://192.168.4.147:3000"
+rootRelativePath = "http://kestrel.timedia.co.jp"
 #else
-rootRelativePath = "http://192.168.4.147:3000"
+rootRelativePath = "http://kestrel.timedia.co.jp"
 #endif
 
 -- | The location of static files on your system. This is a file system
