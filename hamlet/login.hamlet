@@ -11,22 +11,3 @@
           %td
             %input.watermark!type=password!name=password!placeholder=password
       %input!type=submit!value="Login via account"
-  .center
-    %h3 &mdash; OR &mdash;
-  .center
-    %form.inline!method=get!action=@AuthR.forwardUrl@
-        %input!type=hidden!name=openid_identifier!value="https://www.google.com/accounts/o8/id"
-        %button#google_login_icon.login_button!type=submit
-    %form.inline!method=get!action=@AuthR.twitterUrl@
-        %button#twitter_login_icon.login_button!type=submit
-    %form.inline!method=get!action=@AuthR.facebookUrl@
-        %button#facebook_login_icon.login_button!type=submit
-    %form.inline!method=get!action=@AuthR.forwardUrl@
-        %input!type=hidden!name=openid_identifier!value="http://me.yahoo.com"
-        %button#yahoo_login_icon.login_button!type=submit
-  .center
-    %h3 &mdash; OR &mdash;
-  .center
-    %form.auth!method=get!action=@AuthR.forwardUrl@
-        %input#openid_identifier!type=text!name=openid_identifier!value="http://"
-        %input#openid_submit!type=submit!value="Login via OpenID"
