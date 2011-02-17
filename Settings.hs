@@ -49,17 +49,17 @@ approot :: String
 -- you would probably want it to be:
 -- > approot = "http://www.yesod.com"
 -- Please note that there is no trailing slash.
-approot = "http://localhost:3000"
+approot = "http://192.168.4.147:3000"
 #else
-approot = "http://localhost:3000"
+approot = "http://192.168.4.147:3000"
 #endif
 
 -- | The base URL for your site's root relative top path with consider apache.
 rootRelativePath :: String
 #ifdef PRODUCTION
-rootRelativePath = "http://localhost:3000"
+rootRelativePath = "http://192.168.4.147:3000"
 #else
-rootRelativePath = "http://localhost:3000"
+rootRelativePath = "http://192.168.4.147:3000"
 #endif
 
 -- | The location of static files on your system. This is a file system
@@ -116,9 +116,9 @@ addThisUser = Just "cutsea110"
 -- specific.
 connStr :: String
 #ifdef PRODUCTION
-connStr = "user=cut-sea password=yesoddevel host=localhost port=5432 dbname=kestrel"
+connStr = "user=devel password=yesoddevel host=localhost port=5432 dbname=kestrel"
 #else
-connStr = "user=cut-sea password=yesoddevel host=localhost port=5432 dbname=kestrel_debug"
+connStr = "user=devel password=yesoddevel host=localhost port=5432 dbname=kestrel_debug"
 #endif
 
 -- | Your application will keep a connection pool and take connections from
