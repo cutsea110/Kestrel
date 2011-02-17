@@ -214,3 +214,7 @@ ul#selectable_images li a img
    background-color: #ffffff
    background-position: 0% 50%
    background-repeat: no-repeat
+
+
+#seitoku-header-logo
+  height: 60px

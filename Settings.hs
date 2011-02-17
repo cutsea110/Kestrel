@@ -90,7 +90,7 @@ s3root = approot ++ "/s3"
 
 topTitle :: String
 -- topTitle = "Kestrel"
-topTitle = "聖徳大学総合文化"
+topTitle = "聖徳大学短期大学部総合文化学科"
 sidePaneTitle :: String
 -- sidePaneTitle = "Site Navigation"
 sidePaneTitle = "サイト ナビ"
