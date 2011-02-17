@@ -9,7 +9,7 @@ main = do
         , "You can view your app at http://localhost:3000/"
         , ""
         ]
-    _ <- forkIO $ run 3000 "Controller" "withKestrel" ["hamlet"]
+    _ <- forkIO $ run 3002 "Controller" "withKestrel" ["hamlet"]
     go
   where
     go = do
