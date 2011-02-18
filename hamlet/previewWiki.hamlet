@@ -14,14 +14,14 @@
 #main-content
   %h3.metatitle Preview `$path$'.
 
-  %form!method=post!action=@WikiR.wp@
+  %form.validate!method=post!action=@WikiR.wp@
     %input!type=hidden!name=version!value=$show.ver$
     %button!type=submit!name=_method!value=preview more preview
     %button!type=submit!name=_method!value=commit commit
 
     .preview $content$
     %br
-    %textarea.content!id=content!name=content $raw$
+    %textarea.required.content!id=content!name=content $raw$
     .description ChangeLog (brief summary of your edit for later reference):
     %textarea.comment!name=comment
       $maybe com c

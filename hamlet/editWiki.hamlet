@@ -14,9 +14,9 @@
 #main-content
   %h3.metatitle Edit `$path$'.
 
-  %form!method=post!action=@WikiR.wp@
+  %form.validate!method=post!action=@WikiR.wp@
     %input!type=hidden!name=version!value=$show.ver$
-    %textarea.content!id=content!name=content $raw$
+    %textarea.required.content!id=content!name=content $raw$
     .description ChangeLog (brief summary of your edit for later reference):
     %textarea.comment!name=comment
     %br
