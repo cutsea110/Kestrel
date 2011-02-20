@@ -16,13 +16,13 @@ Flag production
     Description:   Build the production executable.
     Default:       False
 
-executable         simple-server
+executable         kestrel-test
     if flag(production)
         Buildable: False
-    main-is:       simple-server.hs
+    main-is:       kestrel.hs
     build-depends: base         >= 4       && < 5
-                 , yesod        >= 0.6     && < 0.7
-                 , yesod-auth   >= 0.2     && < 0.3
+                 , yesod        >= 0.7     && < 0.8
+                 , yesod-auth
                  , mtl          >= 2.0.1.0
                  , yesod-auth-oauth >= 0.2
                  , mime-mail    >= 0.0     && < 0.1
@@ -43,24 +43,21 @@ executable         simple-server
                  , utility-ht
                  , Diff
                  , yesod-auth-oauth
-    ghc-options:   -Wall
-    extensions:    TemplateHaskell, QuasiQuotes, TypeFamilies
+                 , transformers
+                 , warp
+    ghc-options:   -Wall -threaded
 
-executable         devel-server
-    if flag(production)
-        Buildable: False
-    else
-        build-depends: wai-handler-devel >= 0.1.0 && < 0.2
-    main-is:       devel-server.hs
-    ghc-options:   -Wall -O2
-
-executable         fastcgi
+executable         kestrel-production
     if flag(production)
         Buildable: True
-        build-depends: wai-handler-fastcgi >= 0.2.2 && < 0.3
     else
         Buildable: False
     cpp-options:   -DPRODUCTION
-    main-is:       fastcgi.hs
-    ghc-options:   -Wall
-    extensions:    TemplateHaskell, QuasiQuotes, TypeFamilies
+    main-is:       production.hs
+    ghc-options:   -Wall -threaded
+
+executable         kestrel-devel
+    if flag(production)
+        Buildable: False
+    main-is:       devel-server.hs
+    ghc-options:   -Wall -O2 -threaded

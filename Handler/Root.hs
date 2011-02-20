@@ -1,10 +1,11 @@
-{-# LANGUAGE TemplateHaskell, OverloadedStrings #-}
+{-# LANGUAGE TemplateHaskell, QuasiQuotes, OverloadedStrings #-}
 module Handler.Root where
 
 import Kestrel
 import Yesod.Helpers.AtomFeed
 import Yesod.Helpers.Sitemap
 import Data.Time
+import Data.ByteString.Char8 (pack)
 
 import qualified Settings
 
@@ -37,19 +38,21 @@ getFeedR = runDB $ do
   tops <- selectList [] [WikiUpdatedDesc] 10 0
   entries <- markdownsToWikiHtmls noToc $ map (wikiContent . snd) tops
   let uday = (wikiUpdated . snd . head) tops
-  lift $ atomFeed AtomFeed
-    { atomTitle = Settings.topTitle
-    , atomLinkSelf = FeedR
-    , atomLinkHome = RootR
-    , atomUpdated = uday
-    , atomEntries = map go $ zip tops entries
+  lift $ atomFeed Feed
+    { feedTitle = Settings.topTitle
+    , feedDescription = ""
+    , feedLanguage = ""
+    , feedLinkSelf = FeedR
+    , feedLinkHome = RootR
+    , feedUpdated = uday
+    , feedEntries = map go $ zip tops entries
     }
   where
-    go ((_, w), e) = AtomFeedEntry
-      { atomEntryLink = WikiR $ fromWiki w
-      , atomEntryUpdated = wikiUpdated w
-      , atomEntryTitle = wikiPath w
-      , atomEntryContent = e
+    go ((_, w), e) = FeedEntry
+      { feedEntryLink = WikiR $ fromWiki w
+      , feedEntryUpdated = wikiUpdated w
+      , feedEntryTitle = wikiPath w
+      , feedEntryContent = e
       }
     noToc = wikiWriterOption
       { writerTableOfContents = False
@@ -84,4 +87,4 @@ getAuthToGoR = do
     Nothing -> uncurry (redirectParams RedirectTemporary) topView
     Just r -> do
       (uid, _) <- requireAuth
-      redirectString RedirectTemporary r
+      redirectString RedirectTemporary $ pack r

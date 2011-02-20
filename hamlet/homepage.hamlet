@@ -1,5 +1,5 @@
-%h1 Hello
-%h2#$h2id$ You do not have Javascript enabled.
-
-%p
-  %a!href=@WikiR.wikiTop@ go to wiki top
+<h1>Hello
+<h2 id="#{h2id}">You do not have Javascript enabled.
+\
+<p>
+  <a href="@{WikiR wikiTop}">go to wiki top

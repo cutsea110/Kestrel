@@ -1,35 +1,35 @@
-%ul.tabs
-  %li
-    %a!href=@WikiR.wp@ View
-  %li
-    %a!href=@?editMe@ Edit
-  %li
-    %a!href=@?deleteMe@ Delete
-  %li.selected
-    %a!href=@HistoriesR.wp@ History
-  $if (not isTop)
-    %li
-      %a!href=@?topView@ Top
-
-#main-content
-  %h3.metatitle This version of `$path$' back.
-
-  %form!method=post!action=@(HistoryR.v).wp@
-    %input!type=hidden!name=version!value=$show.ver$
-    %input!type=hidden!name=content!value=$raw$
-    %input!type=hidden!name=comment!value="revert this page to the old version $show.v$"
-    .warnings
-      Warning: revert the page to this old version?
-    %button!type=submit!name=_method!value=commit revert to this version
-    %br
-
-  .preview
-    $content$
-
-  #metainfo!align=right
-    $maybe me e
-      Edited by: $userDisplayName.e$
+<ul .tabs>
+  <li>
+    <a href="@{WikiR wp}">View
+  <li>
+    <a href="@?{editMe}">Edit
+  <li>
+    <a href="@?{deleteMe}">Delete
+  <li .selected>
+    <a href="@{HistoriesR wp}">History
+  $if not isTop
+    <li>
+      <a href="@?{topView}">Top
+\
+<div id="main-content">
+  <h3 .metatitle>This version of `#{path}' back.
+  \
+  <form method="post" action="@{HistoryR v wp}">
+    <input type="hidden" name="version" value="#{show ver}">
+    <input type="hidden" name="content" value="#{raw}">
+    <input type="hidden" name="comment" value="revert this page to the old version #{show v}">
+    <div .warnings>
+      \Warning: revert the page to this old version?
+    <button type="submit" name="_method" value="commit">revert to this version
+    <br>
+  \
+  <div .preview>
+    \#{content}
+  \
+  <div id="metainfo" align="right">
+    $maybe e <- me
+      \Edited by: #{userDisplayName e}
     $nothing
-      Edited by: editor deleted
-    %br
-    Last updated: $showDate.upd$
+      \Edited by: editor deleted
+    <br>
+    \Last updated: #{showDate upd}

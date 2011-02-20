@@ -42,23 +42,23 @@ $(document).ready(function(){
 
   $.ajax({
     type: 'GET',
-    url: '@?simpleSidePane@',
+    url: '@?{simpleSidePane}',
     dataType: 'html',
     success: function(data) {
-      var fs = $('<fieldset><legend>%spTitle%</legend></fieldset>'),
+      var fs = $('<fieldset><legend>#{spTitle}</legend></fieldset>'),
           sp = $(data);
       $('#sidenavi').append(fs.append(sp));
     },
     error: function(msg, status) {
-      if ('%show.mu%'!='Nothing') {
-        var anc = $('<a/>').attr({href:'@?sidePaneNew@'}).text('Edit %spTitle%');
+      if ('#{show mu}'!='Nothing') {
+        var anc = $('<a/>').attr({href:'@?{sidePaneNew}'}).text('Edit #{spTitle}');
         $('#sidenavi').append(anc);
       }
     }
   });
 
 
-  $.getJSON('@RecentChangesR@', function(json){
+  $.getJSON('@{RecentChangesR}', function(json){
       var fs = $('<fieldset><legend>Recent Changes</legend></fieldset>'),
           ul = $('<ul/>');
       $.each(json.entries, function(i, item){
@@ -69,7 +69,7 @@ $(document).ready(function(){
             li.append(anc);
             // item.new is illegal symbol for IE.
             if (item['new']=='True') {
-              var img = $('<img/>').attr({src: '@StaticR.img_new_png@'});
+              var img = $('<img/>').attr({src: '@{StaticR img_new_png}'});
               li.append(img);
             }
             ul.append(li);
@@ -166,7 +166,7 @@ function thumbnailUri(ext) {
   if (extLow=='.gif'||extLow=='.jpg'||extLow=='.jpeg'||extLow=='.png') {
     return '';
   }else{
-    return "@StaticR.img_file_icon_png@";
+    return "@{StaticR img_file_icon_png}";
   }
 }
 
@@ -221,7 +221,7 @@ function makeImageLink(uri,name,ext,size,pos){
 function addFigure(str) {
   function f(n) {
     var div = Math.floor(n/1000),
-        mod = n%%1000;
+        mod = n%1000;
     if (div==0) {
       return mod;
     }else{

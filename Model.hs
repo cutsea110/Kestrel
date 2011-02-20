@@ -1,4 +1,4 @@
-{-# LANGUAGE QuasiQuotes, TypeFamilies, GeneralizedNewtypeDeriving #-}
+{-# LANGUAGE QuasiQuotes, TypeFamilies, GeneralizedNewtypeDeriving, TemplateHaskell #-}
 {-# LANGUAGE CPP #-}
 module Model where
 
@@ -71,12 +71,7 @@ passwordField' = requiredFieldHelper passwordFieldProfile'
     passwordFieldProfile' = FieldProfile
       { fpParse = Right
       , fpRender = const ""
-      , fpWidget = \theId name val isReq -> addHamlet
-#if GHC7
-[hamlet|
-#else
-[$hamlet|
-#endif
-%input#$theId$!name=$name$!type=password!:isReq:required!value=$val$
+      , fpWidget = \theId name val isReq -> 
+      addHamlet [$hamlet|<input id="#{theId}" name="#{name}" type="password" :isReq:required="" value="#{val}">
 |]
       }

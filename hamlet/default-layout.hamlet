@@ -1,46 +1,47 @@
-!!!
-%html
-    %head
-        %title $pageTitle.pc$
-        ^pageHead.pc^
-        ^ga^
-    %body
-        #doc.kui-t1
-          #kui-main
-            #maincol.kui-b
-              ^header^
-              $maybe mmsg msg
-                #message $msg$
-              ^pageBody.pc^
-              ^footer^
-          #sidebar.kui-b
-            #kestrel-logo
-              %a!title="Go to top page"!alt="site logo"!href=@?topView@
-                %img!src=@StaticR.img_kestrel_logo_png@
-            #sidenavi.sidebox
-            #recent-changes.sidebox
-            #tools.sidebox
-              %fieldset
-                %legend Tools
-                %form!method=get!action=@WikiListR@
-                  %input.watermark!type=text!name=q!placeholder="Search..."
-                  %button!type=submit!name=_method!value=search Go
-                %form!method=get!action="http://www.google.com/search"
-                  %input!type=hidden!name=hq!value="inurl:$googleInurl$"
-                  %input!type=hidden!name=ie!value=UTF-8
-                  %input!type=hidden!name=oe!value=UTF-8
-                  %input!type=hidden!name=filter!value=0
-                  %input.google!type=text!name=q
-                  %button!type=submit!name=btnG Go
-        $maybe mu u
-          #file_selector
-           Select from
-           #photo-gallery.scroll
-             %ul#selectable_images.inline
-           %hr
-           %form!id=upload_form!method=post!enctype=multipart/form-data!action=@UploadR@
-             #fields.inline
-               %input!id=upload_file!type=file!name=upfile
-             %input!id=go_upload!type=button!name=upload!value="Upload File"
-           #trash-area.right
-             %img.transparent!id=trashbox!src=@StaticR.img_trash_empty64_png@
+\<!DOCTYPE html>
+
+<html>
+    <head>
+        <title>#{pageTitle pc}
+        \^{pageHead pc}
+        \^{ga}
+    <body>
+        <div id="doc" .kui-t1>
+          <div id="kui-main">
+            <div id="maincol" .kui-b>
+              \^{header}
+              $maybe msg <- mmsg
+                <div id="message">#{msg}
+              \^{pageBody pc}
+              \^{footer}
+          <div id="sidebar" .kui-b>
+            <div id="kestrel-logo">
+              <a title="Go to top page" alt="site logo" href="@?{topView}">
+                <img src="@{StaticR img_kestrel_logo_png}">
+            <div id="sidenavi" .sidebox>
+            <div id="recent-changes" .sidebox>
+            <div id="tools" .sidebox>
+              <fieldset>
+                <legend>Tools
+                <form method="get" action="@{WikiListR}">
+                  <input type="text" name="q" placeholder="Search..." .watermark>
+                  <button type="submit" name="_method" value="search">Go
+                <form method="get" action="http://www.google.com/search">
+                  <input type="hidden" name="hq" value="inurl:#{googleInurl}">
+                  <input type="hidden" name="ie" value="UTF-8">
+                  <input type="hidden" name="oe" value="UTF-8">
+                  <input type="hidden" name="filter" value="0">
+                  <input type="text" name="q" .google>
+                  <button type="submit" name="btnG">Go
+        $maybe u <- mu
+          <div id="file_selector">
+           \Select from
+           <div id="photo-gallery" .scroll>
+             <ul id="selectable_images" .inline>
+           <hr>
+           <form id="upload_form" method="post" enctype="multipart/form-data" action="@{UploadR}">
+             <div id="fields" .inline>
+               <input id="upload_file" type="file" name="upfile">
+             <input id="go_upload" type="button" name="upload" value="Upload File">
+           <div id="trash-area" .right>
+             <img id="trashbox" src="@{StaticR img_trash_empty64_png}" .transparent>

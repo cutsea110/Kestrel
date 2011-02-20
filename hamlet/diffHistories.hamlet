@@ -1,24 +1,24 @@
-%ul.tabs
-  %li
-    %a!href=@WikiR.wp@ View
-  %li
-    %a!href=@?editMe@ Edit
-  %li
-    %a!href=@?deleteMe@ Delete
-  %li.selected
-    %a!href=@HistoriesR.wp@ History
-  $if (not isTop)
-    %li
-      %a!href=@?topView@ Top
-
-#main-content
-  %h3.metatitle $title$
-
-  .plus  + added line
-  .minus - deleted line
-
-  !align=right
-    %a!href=@HistoriesR.wp@ Return to the edit history
-
-  .diff
-    $content$
+<ul .tabs>
+  <li>
+    <a href="@{WikiR wp}">View
+  <li>
+    <a href="@?{editMe}">Edit
+  <li>
+    <a href="@?{deleteMe}">Delete
+  <li .selected>
+    <a href="@{HistoriesR wp}">History
+  $if not isTop
+    <li>
+      <a href="@?{topView}">Top
+\
+<div id="main-content">
+  <h3 .metatitle>#{title}
+  \
+  <div .plus>+ added line
+  <div .minus>- deleted line
+  \
+  <div align="right">
+    <a href="@{HistoriesR wp}">Return to the edit history
+  \
+  <div .diff>
+    \#{content}

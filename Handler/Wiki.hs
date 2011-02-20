@@ -103,25 +103,24 @@ getWikiR wp = do
           let path =pathOf wp
           (_, p) <- runDB $ getBy404 $ UniqueWiki path
           let blocks = searchWord key $ wikiContent p
-              isNull = (==[])
+              isNull = \h -> case h of
+                [] -> True
+                _  -> False
           hamletToRepHtml
-#if GHC7
-             [hamlet|
-#else
-             [$hamlet|
-#endif
-$if (not (isNull blocks))
-  %fieldset.blocks
-    %legend 
-      %a!href=@WikiR.wp@ $path$
-    $forall blocks block
-      %div.block $block$
+             [$hamlet|\
+$if not (isNull blocks)
+  <fieldset .blocks>
+    <legend>
+      <a href="@{WikiR wp}">#{path}
+    $forall block <- blocks
+      <div .block>#{block}
 |]
         
     simpleViewWiki :: Handler RepHtml
     simpleViewWiki = do
       (_, _, content, _, _, _, _) <- getwiki
-      hamletToRepHtml [$hamlet|$content$|]
+      hamletToRepHtml [$hamlet|\#{content}
+|]
     
     viewWiki :: Handler RepHtml
     viewWiki = do
@@ -575,13 +574,9 @@ putHistoryR v wp = do
     (hid, h) <- getBy404 $ UniqueWikiHistory pid v
     update hid [ WikiHistoryComment com ]
   hamletToRepHtml
-#if GHC7
-    [hamlet|
-#else
-    [$hamlet|
-#endif
-$maybe com c
-  %span $c$
+    [$hamlet|\
+$maybe c <- com
+  <span>#{c}
 $nothing
-  %span *** no log comment ***
+  <span>*** no log comment ***
 |]

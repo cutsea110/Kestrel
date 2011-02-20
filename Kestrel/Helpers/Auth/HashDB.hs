@@ -48,24 +48,20 @@ class YesodAuth m => YesodAuthHashDB m where
 authHashDB :: YesodAuthHashDB m => AuthPlugin m
 authHashDB =
     AuthPlugin "account" dispatch $ \tm ->
-#if GHC7
-        [hamlet|
-#else
-        [$hamlet|
-#endif
-%form!method=post!action=@tm.loginR@
-    %table
-        %tr
-            %th Account ID
-            %td
-                %input!type=account!name=account
-        %tr
-            %th Password
-            %td
-                %input!type=password!name=password
-        %tr
-            %td!colspan=2
-                %input!type=submit!value="Login via account"
+        [$hamlet|\
+<form method="post" action="@{tm loginR}">
+    <table>
+        <tr>
+            <th>Account ID
+            <td>
+                <input type="account" name="account">
+        <tr>
+            <th>Password
+            <td>
+                <input type="password" name="password">
+        <tr>
+            <td colspan="2">
+                <input type="submit" value="Login via account">
 |]
   where
     dispatch "POST" ["login"] = postLoginR >>= sendResponse
@@ -111,25 +107,21 @@ getPasswordR = do
     defaultLayout $ do
         setTitle $ string "Set password"
         addHamlet
-#if GHC7
-            [hamlet|
-#else
-            [$hamlet|
-#endif
-%h3 Set a new password
-%form!method=post!action=@toMaster.setpassR@
-    %table
-        %tr
-            %th New password
-            %td
-                %input!type=password!name=new
-        %tr
-            %th Confirm
-            %td
-                %input!type=password!name=confirm
-        %tr
-            %td!colspan=2
-                %input!type=submit!value=Submit
+            [$hamlet|\
+<h3>Set a new password
+<form method="post" action="@{toMaster setpassR}">
+    <table>
+        <tr>
+            <th>New password
+            <td>
+                <input type="password" name="new">
+        <tr>
+            <th>Confirm
+            <td>
+                <input type="password" name="confirm">
+        <tr>
+            <td colspan="2">
+                <input type="submit" value="Submit">
 |]
 
 postPasswordR :: YesodAuthHashDB master => GHandler Auth master ()

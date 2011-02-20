@@ -1,32 +1,30 @@
-.login-options
-  !align=center
-    %form.auth.validate!method=post!action=@AuthR.loginR@
-      %table.nostyle
-        %tr
-          %th Account ID:
-          %td
-            %input.watermark.required!type=account!name=account!placeholder=account
-        %tr
-          %th Password:
-          %td
-            %input.watermark.required!type=password!name=password!placeholder=password
-      %input!type=submit!value="Login via account"
-  .center
-    %h3 &mdash; OR &mdash;
-  .center
-    %form.inline!method=get!action=@AuthR.forwardUrl@
-        %input!type=hidden!name=openid_identifier!value="https://www.google.com/accounts/o8/id"
-        %button#google_login_icon.login_button!type=submit
-    %form.inline!method=get!action=@AuthR.twitterUrl@
-        %button#twitter_login_icon.login_button!type=submit
-    %form.inline!method=get!action=@AuthR.facebookUrl@
-        %button#facebook_login_icon.login_button!type=submit
-    %form.inline!method=get!action=@AuthR.forwardUrl@
-        %input!type=hidden!name=openid_identifier!value="http://me.yahoo.com"
-        %button#yahoo_login_icon.login_button!type=submit
-  .center
-    %h3 &mdash; OR &mdash;
-  .center
-    %form.auth!method=get!action=@AuthR.forwardUrl@
-        %input#openid_identifier!type=text!name=openid_identifier!value="http://"
-        %input#openid_submit!type=submit!value="Login via OpenID"
+<div .login-options>
+  <div align="center">
+    <form method="post" action="@{AuthR loginR}" .auth .validate>
+      <table .nostyle>
+        <tr>
+          <th>Account ID:
+          <td>
+            <input type="account" name="account" placeholder="account" .watermark .required>
+        <tr>
+          <th>Password:
+          <td>
+            <input type="password" name="password" placeholder="password" .watermark .required>
+      <input type="submit" value="Login via account">
+  <div .center>
+    <h3>&mdash; OR &mdash;
+  <div .center>
+    <form method="get" action="@{AuthR forwardUrl}" .inline>
+        <input type="hidden" name="openid_identifier" value="https://www.google.com/accounts/o8/id">
+        <button id="google_login_icon" type="submit" .login_button>
+    <form method="get" action="@{AuthR facebookUrl}" .inline>
+        <button id="facebook_login_icon" type="submit" .login_button>
+    <form method="get" action="@{AuthR forwardUrl}" .inline>
+        <input type="hidden" name="openid_identifier" value="http://me.yahoo.com">
+        <button id="yahoo_login_icon" type="submit" .login_button>
+  <div .center>
+    <h3>&mdash; OR &mdash;
+  <div .center>
+    <form method="get" action="@{AuthR forwardUrl}" .auth>
+        <input id="openid_identifier" type="text" name="openid_identifier" value="http://">
+        <input id="openid_submit" type="submit" value="Login via OpenID">
