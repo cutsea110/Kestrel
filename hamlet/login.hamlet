@@ -1,13 +1,13 @@
 .login-options
   !align=center
-    %form.auth!method=post!action=@AuthR.loginR@
+    %form.auth.validate!method=post!action=@AuthR.loginR@
       %table.nostyle
         %tr
           %th Account ID:
           %td
-            %input.watermark!type=account!name=account!placeholder=account
+            %input.watermark.required!type=account!name=account!placeholder=account
         %tr
           %th Password:
           %td
-            %input.watermark!type=password!name=password!placeholder=password
+            %input.watermark.required!type=password!name=password!placeholder=password
       %input!type=submit!value="Login via account"

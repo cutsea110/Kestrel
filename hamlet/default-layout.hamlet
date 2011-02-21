@@ -22,7 +22,7 @@
               %fieldset
                 %legend サイト内検索
                 %form!method=get!action=@WikiListR@
-                  %input.watermark!type=text!name=q!placeholder=Search...
+                  %input.watermark!type=text!name=q!placeholder="Search..."
                   %button!type=submit!name=_method!value=search Go
                 %form!method=get!action="http://www.google.com/search"
                   %input!type=hidden!name=hq!value="inurl:$googleInurl$"

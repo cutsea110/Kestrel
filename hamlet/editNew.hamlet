@@ -10,9 +10,9 @@
 #main-content
   %h3.metatitle Edit `$path$'.
 
-  %form!method=post!action=@NewR@
+  %form.validate!method=post!action=@NewR@
     %input!type=hidden!name=path!value=$path'$
-    %textarea.content!id=content!name=content
+    %textarea.required.content!id=content!name=content
     .description ChangeLog (brief summary of your edit for later reference):
     %textarea.comment!name=comment
     %br

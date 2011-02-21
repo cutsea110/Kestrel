@@ -10,6 +10,20 @@ $(document).ready(function(){
 
   $("#message").fadeOut(3000, function(){$(this).remove();});
 
+  $("form.validate").submit(function(){
+    var valid = true;
+    $('span.invalid').remove();
+    $('input.required, textarea.required').each(function(){
+      $(this).removeClass('invalid');
+      if ( $.trim($(this).val()) == "") {
+        $(this).addClass('invalid');
+        $(this).after("<span class='invalid'>必須入力項目です.</span>");
+        valid = false;
+      }
+    });
+    return valid;
+  });
+
   $(".watermark").watermark();
   $(".google")
   .focus(function(){

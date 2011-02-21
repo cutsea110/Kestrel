@@ -11,7 +11,7 @@ div#message
     padding: 5px 8px
     margin: 0 0 3px 0
 
-.errors
+.errors, .alert
     color: red
     font-style: bold
 
@@ -23,6 +23,12 @@ div#message
     line-height: 1.50
     padding: 5px 8px
     margin: 0 0 3px 0
+
+span.invalid
+   color: red
+   font-style: bold
+input.invalid, textarea.invalid
+   border: 1px solid red
 
 .example
     border: dotted 1px gray
