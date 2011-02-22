@@ -45,9 +45,15 @@ $(document).ready(function(){
     url: '@?{simpleSidePane}',
     dataType: 'html',
     success: function(data) {
-      var fs = $('<fieldset><legend>#{spTitle}</legend></fieldset>'),
+      var fs = $('<fieldset></fieldset>'),
+          ld = $('<legend/>'),
           sp = $(data);
-      $('#sidenavi').append(fs.append(sp));
+      if ('#{show mu}'=='Nothing') {
+        $('#sidenavi').append(fs.append(ld.text('#{spTitle}')).append(sp));
+      }else{
+        var a = $('<a/>').attr({href: '@{sidePaneView}'}).text('#{spTitle}');
+        $('#sidenavi').append(fs.append(ld.append(a)).append(sp));
+      }
     },
     error: function(msg, status) {
       if ('#{show mu}'!='Nothing') {

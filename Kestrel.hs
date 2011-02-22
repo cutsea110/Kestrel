@@ -162,6 +162,8 @@ topNew = (NewR, [("path", encodeUrl Settings.topTitle)])
 
 sidePane :: WikiPage
 sidePane = WikiPage [Settings.sidePaneTitle]
+sidePaneView :: KestrelRoute
+sidePaneView = WikiR sidePane
 sidePaneNew :: (KestrelRoute, [(String, String)])
 sidePaneNew = (NewR, [("path", encodeUrl Settings.sidePaneTitle), ("mode", "e")])
 
@@ -187,33 +189,6 @@ ancestory = map WikiPage . filter (/=[]) . inits . unWikiPage
 -- of settings which can be configured by overriding methods here.
 instance Yesod Kestrel where
     approot _ = Settings.approot
-{-
-    onRequest = do
-      req' <- getRequest
-      let req = reqWaiRequest req'
-      (pp, files) <- liftIO $ reqRequestBody req'
-      ses <- getSession
-      -- Network.Wai.Request
-      liftIO $ do
-        putStrLn "----"
-        putStrLn $ "Method: " ++ (show . requestMethod) req
-        putStrLn $ "httpVer.: " ++ (show . httpVersion) req
-        putStrLn $ "Path: " ++ (show . pathInfo) req
-        putStrLn $ "query string: " ++ (show . queryString) req
-        putStrLn $ "Server Name: " ++ (show . serverName) req
-        putStrLn $ "Server Port: " ++ (show . serverPort) req
-        putStrLn $ "Request Headers: " ++ (show . requestHeaders) req
-        putStrLn $ "Secure: " ++ if isSecure req then "YES" else "NO"
-        putStrLn $ "Client Host Infomation: " ++ (show . remoteHost) req
-        -- Yesod.Request
-        putStrLn $ "Cookies: " ++ (show . reqCookies) req'
-        putStrLn $ "Lang: " ++ (show . reqLangs) req'
-        putStrLn $ "Nonce: " ++ reqNonce req'
-        putStrLn $ "GET: " ++ (show . reqGetParams) req'
-        putStrLn $ "POST: " ++ show pp ++ show files
-        -- Session
-        putStrLn $ "Session: " ++ show ses
--}
     
     defaultLayout widget = do
         y <- getYesod
