@@ -35,6 +35,7 @@ module Kestrel
     , markdownToWikiHtml
     , markdownsToWikiHtmls
     , wikiWriterOption
+    , sidePaneWriterOption
     , WriterOptions(..)
     , showDate
     , dropPrefix
@@ -197,13 +198,6 @@ instance Yesod Kestrel where
         render <- getUrlRender
         r2m <- getRouteToMaster
         cr <- getCurrentRoute
-        (spTitle, msp) <- runDB $ do
-          msp' <- getBy $ UniqueWiki Settings.sidePaneTitle
-          case msp' of
-            Nothing -> return (Settings.sidePaneTitle, Nothing)
-            Just (_, sp'') -> do
-              sp' <- markdownToWikiHtml wikiWriterOption $ wikiContent sp''
-              return (Settings.sidePaneTitle, Just sp')
         let mgaUA = Settings.googleAnalyticsUA
             maTUser = Settings.addThisUser
             googleInurl = dropSchema Settings.approot
@@ -467,6 +461,15 @@ wikiWriterOption =
         , writerTableOfContents = True
         , writerNumberSections = False
         , writerIdentifierPrefix = "pandoc-"
+        }
+sidePaneWriterOption :: WriterOptions
+sidePaneWriterOption = 
+  defaultWriterOptions{
+          writerStandalone = True
+        , writerTemplate = "$body$"
+        , writerTableOfContents = False
+        , writerNumberSections = False
+        , writerIdentifierPrefix = "sidepane-"
         }
 
 -- writeHtmlStr :: WriterOptions (KestrelRoute -> String) -> Map.Map String Wiki -> Pandoc -> String
