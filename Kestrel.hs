@@ -141,6 +141,7 @@ mkYesodData "Kestrel" [$parseRoutes|
 /new NewR GET POST
 /histories/*WikiPage HistoriesR GET
 /history/#Version/*WikiPage HistoryR GET POST PUT
+/either/*WikiPage EitherWikiNewR GET
 
 /wikilist WikiListR GET
 

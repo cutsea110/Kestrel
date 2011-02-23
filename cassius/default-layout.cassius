@@ -125,6 +125,12 @@ ul, ol
     -webkit-padding-start: 15px
 ul
     list-style-type: square
+.breadcrumbs li
+    display: inline
+.breadcrumbs li:after
+    content: " » "
+.breadcrumbs li:last-child:after
+    content: ''
 img
     border-style: none
 #footer

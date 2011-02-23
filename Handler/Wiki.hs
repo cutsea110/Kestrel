@@ -17,6 +17,16 @@ import Data.List.Split (splitOn)
 import Settings (topTitle, hamletFile, cassiusFile, juliusFile, widgetFile)
 import StaticFiles
 
+getEitherWikiNewR :: WikiPage -> Handler RepHtml
+getEitherWikiNewR wp = do
+  let path = pathOf wp
+  mwiki <- runDB $ getBy $ UniqueWiki path
+  case mwiki of
+    Nothing -> 
+      redirectParams RedirectTemporary NewR [("path", encodeUrl path), ("mode", "v")]
+    Just _ ->
+      redirect RedirectTemporary $ WikiR wp
+
 getWikiListR :: Handler RepHtml
 getWikiListR = do
   method <- lookupGetParam "_method"
