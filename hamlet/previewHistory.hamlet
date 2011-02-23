@@ -1,35 +1,35 @@
-%ul.tabs
-  %li
-    %a!href=@WikiR.wp@ View
-  %li
-    %a!href=@?editMe@ Edit
-  %li
-    %a!href=@?deleteMe@ Delete
-  %li.selected
-    %a!href=@HistoriesR.wp@ History
-  $if (not isTop)
-    %li
-      %a!href=@?topView@ Top
-
-#main-content
-  %h3.metatitle Preview `$path$'.
-
-  %form.validate!method=post!action=@(HistoryR.v).wp@
-    %input!type=hidden!name=version!value=$show.ver$
-    %input!type=hidden!name=original_version!value=$show.v$
-    %button!type=submit!name=_method!value=preview More Preview
-    %button!type=submit!name=_method!value=commit Commit
-
-    .preview $content$
-    %br
-    %textarea.required.content!id=content!name=content $raw$
-    .description ChangeLog (brief summary of your edit for later reference):
-    %textarea.comment!name=comment
-      $maybe com c
-         $c$
-    %br
-    %button!type=submit!name=_method!value=preview More Preview
-    %button!type=submit!name=_method!value=commit Commit
-
-  #help
-    ^markdown^
+<ul .tabs>
+  <li>
+    <a href="@{WikiR wp}">View
+  <li>
+    <a href="@?{editMe}">Edit
+  <li>
+    <a href="@?{deleteMe}">Delete
+  <li .selected>
+    <a href="@{HistoriesR wp}">History
+  $if not isTop
+    <li>
+      <a href="@?{topView}">Top
+\
+<div id="main-content">
+  <h3 .metatitle>Preview `#{path}'.
+  \
+  <form method="post" action="@{HistoryR v wp}" .validate>
+    <input type="hidden" name="version" value="#{show ver}">
+    <input type="hidden" name="original_version" value="#{show v}">
+    <button type="submit" name="_method" value="preview">More Preview
+    <button type="submit" name="_method" value="commit">Commit
+    \
+    <div .preview>#{content}
+    <br>
+    <textarea id="content" name="content" .required .content>#{raw}
+    <div .description>ChangeLog (brief summary of your edit for later reference):
+    <textarea name="comment" .comment>
+      $maybe c <- com
+         \#{c}
+    <br>
+    <button type="submit" name="_method" value="preview">More Preview
+    <button type="submit" name="_method" value="commit">Commit
+  \
+  <div id="help">
+    \^{markdown}

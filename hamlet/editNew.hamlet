@@ -1,23 +1,23 @@
-%ul.tabs
-  %li
-    %a!href=@?viewMe@ View
-  %li.selected
-    %a!href=@?editMe@ Edit
-  $if (not isTop)
-    %li
-      %a!href=@?topView@ Top
-
-#main-content
-  %h3.metatitle Edit `$path$'.
-
-  %form.validate!method=post!action=@NewR@
-    %input!type=hidden!name=path!value=$path'$
-    %textarea.required.content!id=content!name=content
-    .description ChangeLog (brief summary of your edit for later reference):
-    %textarea.comment!name=comment
-    %br
-    %button!type=submit!name=_method!value=preview preview
-    %button!type=submit!name=_method!value=commit new create
-
-  #help
-    ^markdown^
+<ul .tabs>
+  <li>
+    <a href="@?{viewMe}">View
+  <li .selected>
+    <a href="@?{editMe}">Edit
+  $if not isTop
+    <li>
+      <a href="@?{topView}">Top
+\
+<div id="main-content">
+  <h3 .metatitle>Edit `#{path}'.
+  \
+  <form method="post" action="@{NewR}" .validate>
+    <input type="hidden" name="path" value="#{path'}">
+    <textarea id="content" name="content" .required .content>
+    <div .description>ChangeLog (brief summary of your edit for later reference):
+    <textarea name="comment" .comment>
+    <br>
+    <button type="submit" name="_method" value="preview">preview
+    <button type="submit" name="_method" value="commit">new create
+  \
+  <div id="help">
+    \^{markdown}

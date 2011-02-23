@@ -14,6 +14,7 @@ import Kestrel
 import Data.Time
 import Data.Int
 import qualified Data.ByteString.Lazy as L
+import Data.ByteString.Char8 (pack)
 import Network.Wai
 import Data.List (intercalate)
 import System.Directory
@@ -73,17 +74,13 @@ postUploadR = do
           cacheSeconds 10 -- FIXME
           let rf = dropPrefix Settings.rootRelativePath $ r $ FileR uid fid
           fmap RepXml $ hamletToContent
-#if GHC7
-                      [xhamlet|
-#else
-                      [$xhamlet|
-#endif
-%file
-  %name $name$
-  %ext $ext$
-  %size $show.fsize$
-  %cdate $show.cdate$
-  %uri $rf$
+                      [$xhamlet|\
+<file>
+  <name>#{name}
+  <ext>#{ext}
+  <size>#{show fsize}
+  <cdate>#{show cdate}
+  <uri>#{rf}
 |]
 
 putUploadR :: Handler RepHtml
@@ -105,10 +102,9 @@ getFileR uid@(UserId uid') fid@(FileHeaderId fid') = do
   let UserId id = fileHeaderCreator h
       s3dir = Settings.s3dir </> show uid'
       s3fp = s3dir </> show fid'
-  b <- liftIO $ L.readFile s3fp
-  setHeader "Content-Type" $ fileHeaderContentType h
-  setHeader "Content-Disposition" $ "attachment; filename=" ++ fileHeaderEfname h
-  return $ RepHtml $ ResponseLBS b
+  setHeader "Content-Type" $ pack $ fileHeaderContentType h
+  setHeader "Content-Disposition" $ pack $ "attachment; filename=" ++ fileHeaderEfname h
+  return $ RepHtml $ ContentFile s3fp
 
 postFileR :: UserId -> FileHeaderId -> Handler RepXml
 postFileR uid@(UserId uid') fid@(FileHeaderId fid') = do
@@ -132,13 +128,9 @@ deleteFileR uid@(UserId uid') fid@(FileHeaderId fid') = do
         rf = dropPrefix Settings.rootRelativePath $ r $ FileR uid fid
     liftIO $ removeFile s3fp
     fmap RepXml $ hamletToContent
-#if GHC7
-                  [xhamlet|
-#else
-                  [$xhamlet|
-#endif
-%deleted
-  %uri $rf$
+                  [$xhamlet|\
+<deleted>
+  <uri>#{rf}
 |]
 
 getFileListR :: UserId -> Handler RepJson

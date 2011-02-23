@@ -2,7 +2,7 @@ $(document).ready(function(){
 
   var qmap = getParametersMap();
 
-  $.get("@SitemapR@", function(xml){
+  $.get("@{SitemapR}", function(xml){
     $(xml).find('url loc').each(function(loc){
       var uri = $(this).text(),
           url = uri + "?mode=q&q=" + qmap["q"];

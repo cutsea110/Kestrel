@@ -1,6 +1,6 @@
 $(document).ready(function(){
 
-  if ('%show.mu%'=='Nothing') {
+  if ('#{show mu}'=='Nothing') {
     $('#userbox').hide();
     $('ul.tabs').hide();
     $('#seitoku-header').dblclick(function(){
@@ -51,16 +51,22 @@ $(document).ready(function(){
 
   $.ajax({
     type: 'GET',
-    url: '@?simpleSidePane@',
+    url: '@?{simpleSidePane}',
     dataType: 'html',
     success: function(data) {
-      var fs = $('<fieldset><legend>%spTitle%</legend></fieldset>'),
+      var fs = $('<fieldset></fieldset>'),
+          ld = $('<legend/>'),
           sp = $(data);
-      $('#sidenavi').append(fs.append(sp));
+      if ('#{show mu}'=='Nothing') {
+        $('#sidenavi').append(fs.append(ld.text('#{spTitle}')).append(sp));
+      }else{
+        var a = $('<a/>').attr({href: '@{sidePaneView}'}).text('#{spTitle}');
+        $('#sidenavi').append(fs.append(ld.append(a)).append(sp));
+      }
     },
     error: function(msg, status) {
-      if ('%show.mu%'!='Nothing') {
-        var anc = $('<a/>').attr({href:'@?sidePaneNew@'}).text('Edit %spTitle%');
+      if ('#{show mu}'!='Nothing') {
+        var anc = $('<a/>').attr({href:'@?{sidePaneNew}'}).text('Edit #{spTitle}');
         $('#sidenavi').append(anc);
       }
     }
@@ -78,7 +84,7 @@ $(document).ready(function(){
             li.append(anc);
             // item.new is illegal symbol for IE.
             if (item['new']=='True') {
-              var img = $('<img/>').attr({src: '@StaticR.img_new_png@'});
+              var img = $('<img/>').attr({src: '@{StaticR img_new_png}'});
               li.append(img);
             }
             ul.append(li);
@@ -175,7 +181,7 @@ function thumbnailUri(ext) {
   if (extLow=='.gif'||extLow=='.jpg'||extLow=='.jpeg'||extLow=='.png') {
     return '';
   }else{
-    return "@StaticR.img_file_icon_png@";
+    return "@{StaticR img_file_icon_png}";
   }
 }
 
@@ -230,7 +236,7 @@ function makeImageLink(uri,name,ext,size,pos){
 function addFigure(str) {
   function f(n) {
     var div = Math.floor(n/1000),
-        mod = n%%1000;
+        mod = n%1000;
     if (div==0) {
       return mod;
     }else{

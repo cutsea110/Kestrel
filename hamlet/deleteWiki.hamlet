@@ -1,21 +1,21 @@
-%ul.tabs
-  %li
-    %a!href=@WikiR.wp@ View
-  %li
-    %a!href=@?editMe@ Edit
-  %li.selected
-    %a!href=@?deleteMe@ Delete
-  %li
-    %a!href=@HistoriesR.wp@ History
-  $if (not isTop)
-    %li
-      %a!href=@?topView@ Top
-
-#main-content
-  %h3.metatitle Delete `$path$'.
-
-  .warnings
-    Warning: deleting the page cannot be undone. Are you sure?
-
-  %form!method=post!action=@WikiR.wp@
-    %button!type=submit!name=_method!value=delete i'm sure, delete it!
+<ul .tabs>
+  <li>
+    <a href="@{WikiR wp}">View
+  <li>
+    <a href="@?{editMe}">Edit
+  <li .selected>
+    <a href="@?{deleteMe}">Delete
+  <li>
+    <a href="@{HistoriesR wp}">History
+  $if not isTop
+    <li>
+      <a href="@?{topView}">Top
+\
+<div id="main-content">
+  <h3 .metatitle>Delete `#{path}'.
+  \
+  <div .warnings>
+    \Warning: deleting the page cannot be undone. Are you sure?
+  \
+  <form method="post" action="@{WikiR wp}">
+    <button type="submit" name="_method" value="delete">i'm sure, delete it!

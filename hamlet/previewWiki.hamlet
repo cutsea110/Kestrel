@@ -1,34 +1,34 @@
-%ul.tabs
-  %li
-    %a!href=@WikiR.wp@ View
-  %li.selected
-    %a!href=@?editMe@ Edit
-  %li
-    %a!href=@?deleteMe@ Delete
-  %li
-    %a!href=@HistoriesR.wp@ History
-  $if (not isTop)
-    %li
-      %a!href=@?topView@ Top
-
-#main-content
-  %h3.metatitle Preview `$path$'.
-
-  %form.validate!method=post!action=@WikiR.wp@
-    %input!type=hidden!name=version!value=$show.ver$
-    %button!type=submit!name=_method!value=preview more preview
-    %button!type=submit!name=_method!value=commit commit
-
-    .preview $content$
-    %br
-    %textarea.required.content!id=content!name=content $raw$
-    .description ChangeLog (brief summary of your edit for later reference):
-    %textarea.comment!name=comment
-      $maybe com c
-         $c$
-    %br
-    %button!type=submit!name=_method!value=preview more preview
-    %button!type=submit!name=_method!value=commit commit
-
-  #help
-    ^markdown^
+<ul .tabs>
+  <li>
+    <a href="@{WikiR wp}">View
+  <li .selected>
+    <a href="@?{editMe}">Edit
+  <li>
+    <a href="@?{deleteMe}">Delete
+  <li>
+    <a href="@{HistoriesR wp}">History
+  $if not isTop
+    <li>
+      <a href="@?{topView}">Top
+\
+<div id="main-content">
+  <h3 .metatitle>Preview `#{path}'.
+  \
+  <form method="post" action="@{WikiR wp}" .validate>
+    <input type="hidden" name="version" value="#{show ver}">
+    <button type="submit" name="_method" value="preview">more preview
+    <button type="submit" name="_method" value="commit">commit
+    \
+    <div .preview>#{content}
+    <br>
+    <textarea id="content" name="content" .required .content>#{raw}
+    <div .description>ChangeLog (brief summary of your edit for later reference):
+    <textarea name="comment" .comment>
+      $maybe c <- com
+         \#{c}
+    <br>
+    <button type="submit" name="_method" value="preview">more preview
+    <button type="submit" name="_method" value="commit">commit
+  \
+  <div id="help">
+    \^{markdown}

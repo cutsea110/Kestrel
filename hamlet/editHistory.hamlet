@@ -1,30 +1,30 @@
-%ul.tabs
-  %li
-    %a!href=@WikiR.wp@ View
-  %li
-    %a!href=@?editMe@ Edit
-  %li
-    %a!href=@?deleteMe@ Delete
-  %li.selected
-    %a!href=@HistoriesR.wp@ History
-  $if (not isTop)
-    %li
-      %a!href=@?topView@ Top
-
-#main-content
-  %h3.metatitle Edit `$path$'.
-
-  %form.validate!method=post!action=@(HistoryR.v).wp@
-    %input!type=hidden!name=version!value=$show.ver$
-    %input!type=hidden!name=original_version!value=$show.v$
-    %textarea.required.content!id=content!name=content $raw$
-    .description ChangeLog (brief summary of your edit for later reference):
-    %textarea.comment!name=comment 
+<ul .tabs>
+  <li>
+    <a href="@{WikiR wp}">View
+  <li>
+    <a href="@?{editMe}">Edit
+  <li>
+    <a href="@?{deleteMe}">Delete
+  <li .selected>
+    <a href="@{HistoriesR wp}">History
+  $if not isTop
+    <li>
+      <a href="@?{topView}">Top
+\
+<div id="main-content">
+  <h3 .metatitle>Edit `#{path}'.
+  \
+  <form method="post" action="@{HistoryR v wp}" .validate>
+    <input type="hidden" name="version" value="#{show ver}">
+    <input type="hidden" name="original_version" value="#{show v}">
+    <textarea id="content" name="content" .required .content>#{raw}
+    <div .description>ChangeLog (brief summary of your edit for later reference):
+    <textarea name="comment" .comment>
       $if notCurrent
-        written back to the old version $show.v$
-    %br
-    %button!type=submit!name=_method!value=preview preview
-    %button!type=submit!name=_method!value=commit commit
-
-  #help
-    ^markdown^
+        \written back to the old version #{show v}
+    <br>
+    <button type="submit" name="_method" value="preview">preview
+    <button type="submit" name="_method" value="commit">commit
+  \
+  <div id="help">
+    \^{markdown}

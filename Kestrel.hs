@@ -31,7 +31,6 @@ module Kestrel
     , fromWiki
     , ancestory
     , setpassR -- Auth.Account
-    , getBy404
       --
     , markdownToWikiHtml
     , markdownsToWikiHtmls
@@ -52,12 +51,11 @@ import Kestrel.Helpers.Auth.HashDB
 import Yesod.Helpers.Auth.OpenId
 import Yesod.Helpers.Auth.Facebook
 import Yesod.Helpers.Auth.Email
-import Yesod.Helpers.Auth.OAuth
+-- import Yesod.Helpers.Auth.OAuth
 import Yesod.Helpers.Crud
 import Yesod.Form.Jquery
 import System.Directory
 import qualified Data.ByteString.Lazy as L
-import Web.Routes.Site (Site (formatPathSegments))
 import Database.Persist.GenericSql
 import Data.Maybe (isJust)
 import Control.Monad (join, unless, mplus, mzero, MonadPlus)
@@ -164,6 +162,8 @@ topNew = (NewR, [("path", encodeUrl Settings.topTitle)])
 
 sidePane :: WikiPage
 sidePane = WikiPage [Settings.sidePaneTitle]
+sidePaneView :: KestrelRoute
+sidePaneView = WikiR sidePane
 sidePaneNew :: (KestrelRoute, [(String, String)])
 sidePaneNew = (NewR, [("path", encodeUrl Settings.sidePaneTitle), ("mode", "e")])
 
@@ -185,43 +185,10 @@ lastNameOf = last . unWikiPage
 ancestory :: WikiPage -> [WikiPage]
 ancestory = map WikiPage . filter (/=[]) . inits . unWikiPage
 
-getBy404 ukey = do
-  mres <- getBy ukey
-  case mres of
-    Nothing -> lift notFound
-    Just res -> return res
-
 -- Please see the documentation for the Yesod typeclass. There are a number
 -- of settings which can be configured by overriding methods here.
 instance Yesod Kestrel where
     approot _ = Settings.approot
-{-
-    onRequest = do
-      req' <- getRequest
-      let req = reqWaiRequest req'
-      (pp, files) <- liftIO $ reqRequestBody req'
-      ses <- getSession
-      -- Network.Wai.Request
-      liftIO $ do
-        putStrLn "----"
-        putStrLn $ "Method: " ++ (show . requestMethod) req
-        putStrLn $ "httpVer.: " ++ (show . httpVersion) req
-        putStrLn $ "Path: " ++ (show . pathInfo) req
-        putStrLn $ "query string: " ++ (show . queryString) req
-        putStrLn $ "Server Name: " ++ (show . serverName) req
-        putStrLn $ "Server Port: " ++ (show . serverPort) req
-        putStrLn $ "Request Headers: " ++ (show . requestHeaders) req
-        putStrLn $ "Secure: " ++ if isSecure req then "YES" else "NO"
-        putStrLn $ "Client Host Infomation: " ++ (show . remoteHost) req
-        -- Yesod.Request
-        putStrLn $ "Cookies: " ++ (show . reqCookies) req'
-        putStrLn $ "Lang: " ++ (show . reqLangs) req'
-        putStrLn $ "Nonce: " ++ reqNonce req'
-        putStrLn $ "GET: " ++ (show . reqGetParams) req'
-        putStrLn $ "POST: " ++ show pp ++ show files
-        -- Session
-        putStrLn $ "Session: " ++ show ses
--}
     
     defaultLayout widget = do
         y <- getYesod
@@ -261,11 +228,7 @@ instance Yesod Kestrel where
     -- This is done to provide an optimization for serving static files from
     -- a separate domain. Please see the staticroot setting in Settings.hs
     urlRenderOverride a (StaticR s) =
-        Just $ uncurry (joinPath a Settings.staticroot) $ format s
-      where
-        format = formatPathSegments ss
-        ss :: Site StaticRoute (String -> Maybe (GHandler Static Kestrel ChooseRep))
-        ss = getSubSite
+        Just $ uncurry (joinPath a Settings.staticroot) $ renderRoute s
     urlRenderOverride _ _ = Nothing
 
     -- The page to be redirected to when authentication is required.
@@ -293,7 +256,8 @@ instance Yesod Kestrel where
 -- How to run database actions.
 instance YesodPersist Kestrel where
     type YesodDB Kestrel = SqlPersist
-    runDB db = fmap connPool getYesod >>= Settings.runConnectionPool db
+    runDB db = liftIOHandler
+               $ fmap connPool getYesod >>= Settings.runConnectionPool db
     
 instance YesodJquery Kestrel where
   urlJqueryJs _ = Left $ StaticR js_jquery_1_4_4_min_js
@@ -369,8 +333,8 @@ instance YesodAuth Kestrel where
                   , authFacebook Settings.facebookApplicationId 
                                  Settings.facebookApplicationSecret 
                                  []
-                  , authTwitter Settings.twitterConsumerKey
-                                Settings.twitterConsumerSecret
+--                  , authTwitter Settings.twitterConsumerKey
+--                                Settings.twitterConsumerSecret
                   , authEmail ]
 
     loginHandler = do
@@ -430,17 +394,19 @@ instance YesodAuthEmail Kestrel where
                 , ""
                 , "Thank you"
                 ]
+            , partHeaders = []
             }
         htmlPart = Part
             { partType = "text/html; charset=utf-8"
             , partEncoding = None
             , partFilename = Nothing
-            , partContent = renderHtml [$hamlet|
-%p Please confirm your email address by clicking on the link below.
-%p
-    %a!href=$verurl$ $verurl$
-%p Thank you
+            , partContent = renderHtml [$hamlet|\
+<p>Please confirm your email address by clicking on the link below.
+<p>
+    <a href="#{verurl}">#{verurl}
+<p>Thank you
 |]
+            , partHeaders = []
             }
     getVerifyKey = runDB . fmap (join . fmap emailVerkey) . get
     setVerifyKey eid key = runDB $ update eid [EmailVerkey $ Just key]

@@ -1,173 +1,173 @@
-%h3 Syntax examples.
-
-
-%div
-  Contents
-  %ul
-    %li
-      %a!href="#__Paragraphs" Paragraphs
-    %li
-      %a!href="#__LineReturn" Line return
-    %li
-      %a!href="#__EmphasizedText" Emphasized text
-    %li
-      %a!href="#__Code" Code
-    %li
-      %a!href="#__Lists" Lists
-    %li
-      %a!href="#__Headings" Headings
-    %li
-      %a!href="#__Blockquotes" Blockquotes
-    %li
-      %a!href="#__Links" Links
-    %li
-      %a!href="#__WikiLinks" Wiki Links
-    %li
-      %a!href="#__Images" Images
-    %li
-      %a!href="#__HorizontalRules" Horizontal rules
-
-%h4#__Paragraphs Paragraphs
-
-A paragraph is one or more consecutive lines of text separated by one or more blank lines. Normal paragraphs should not be indented with spaces or tabs:
-
-%pre.example
- This is a paragraph. It has two sentences.
- %br
- %br
- This is another paragraph. It also has two sentences.
-
-%h4#__LineReturn Line return
-
-Line breaks inserted in the text are removed from the final result: the web browser is in charge of breaking the lines depending of the available space. To force a line break, insert two spaces at the end of the line.
-
-%h4#__EmphasizedText Emphasized text
-
-%pre.example
- *emphasis* or _emphasis_ (more common)  (e.g., italics)
- %br
- %br
- **strong emphasis** (more common) or __strong emphasis__ (e.g., boldface)
-
-%h4#__Code Code
-To include code (formatted in monospace font), you can either :
-
-use `` for one line of code, like in
-%pre.example
- `some code`
-indent several lines of code by at least four spaces.
-%pre.example
- &nbsp;&nbsp;&nbsp;&nbsp;line 1 of code 
- %br
- &nbsp;&nbsp;&nbsp;&nbsp;line 2 of code 
- %br
- &nbsp;&nbsp;&nbsp;&nbsp;line 3 of code 
-
-which prevents Markdown from removing all whitespaces, breaking indentation and code layout.
-
-%h4#__Lists Lists
-%pre.example
- * An item in a bulleted (unordered) list
- %br
- &nbsp;&nbsp;&nbsp;&nbsp;* A subitem, indented with 4 spaces
- %br
- * Another item in a bulleted list
-
-%pre.example
- 1. An item in an enumerated (ordered) list
- %br
- 2. Another item in an enumerated list
-
-%h4#__Headings Headings
-HTML headings are produced by placing a number of hashes before the header text corresponding to the level of heading desired (HTML offers six levels of headings), like so:
-
-%pre.example
- # First-level heading
-
-%pre.example
- #### Fourth-level heading
-
-The first two heading levels also have an alternate syntax:
-
-%pre.example
- First-level heading
- %br
- ===================
- %br
-
- Second-level heading
- %br
- --------------------
-
-%h4#__Blockquotes Blockquotes
-%pre.example
- > This text will be enclosed in an HTML blockquote element.
- %br
- > Blockquote elements are reflowable. You may arbitrarily
- %br
- > wrap the text to your liking, and it will all be parsed
- %br
- > into a single blockquote element.
-
-The above would translate into the following HTML:
-
-%pre.example
- &lt;blockquote&gt;&lt;p&gt;This text will be enclosed in an HTML blockquote element. Blockquote
- %br
- elements are reflowable. You may arbitrarily wrap the text to your liking, and it will all
- %br
- be parsed into a single blockquote element.&lt;/p&gt;&lt;/blockquote&gt;
-
-%h4#__Links Links
-Links may be included inline:
-
-%pre.example
- [link text here](link.address.here "link title here")
-
-Alternatively, links can be placed in footnotes outside of the paragraph, being referenced with some sort of reference tag. For example, including the following inline:
-
-%pre.example
- [link text here][linkref]
-would produce a link if the following showed up outside of the paragraph (or at the end of the document):
-
-%pre.example
- [linkref]: link.address.here "link title here"
-
-%h4#__WikiLinks Wiki Links
-Wiki Links may be inline, this looks like normal link without following empty parentheses:
-
-%pre.example
- [Wiki Name]()
-
-%h4#__Images Images
-Referring to images is similar to including links. The syntax requires an exclamation point to indicate the link refers to an image.
-%br
-The image address may be included inline, as with links:
-
-%pre.example
+<h3>Syntax examples.
+\
+\
+<div>
+  \Contents
+  <ul>
+    <li>
+      <a href="#__Paragraphs">Paragraphs
+    <li>
+      <a href="#__LineReturn">Line return
+    <li>
+      <a href="#__EmphasizedText">Emphasized text
+    <li>
+      <a href="#__Code">Code
+    <li>
+      <a href="#__Lists">Lists
+    <li>
+      <a href="#__Headings">Headings
+    <li>
+      <a href="#__Blockquotes">Blockquotes
+    <li>
+      <a href="#__Links">Links
+    <li>
+      <a href="#__WikiLinks">Wiki Links
+    <li>
+      <a href="#__Images">Images
+    <li>
+      <a href="#__HorizontalRules">Horizontal rules
+\
+<h4 id="__Paragraphs">Paragraphs
+\
+\A paragraph is one or more consecutive lines of text separated by one or more blank lines. Normal paragraphs should not be indented with spaces or tabs:
+\
+<pre .example>
+ \This is a paragraph. It has two sentences.
+ <br>
+ <br>
+ \This is another paragraph. It also has two sentences.
+\
+<h4 id="__LineReturn">Line return
+\
+\Line breaks inserted in the text are removed from the final result: the web browser is in charge of breaking the lines depending of the available space. To force a line break, insert two spaces at the end of the line.
+\
+<h4 id="__EmphasizedText">Emphasized text
+\
+<pre .example>
+ \*emphasis* or _emphasis_ (more common)  (e.g., italics)
+ <br>
+ <br>
+ \**strong emphasis** (more common) or __strong emphasis__ (e.g., boldface)
+\
+<h4 id="__Code">Code
+\To include code (formatted in monospace font), you can either :
+\
+\use `` for one line of code, like in
+<pre .example>
+ \`some code`
+\indent several lines of code by at least four spaces.
+<pre .example>
+ \&nbsp;&nbsp;&nbsp;&nbsp;line 1 of code 
+ <br>
+ \&nbsp;&nbsp;&nbsp;&nbsp;line 2 of code 
+ <br>
+ \&nbsp;&nbsp;&nbsp;&nbsp;line 3 of code 
+\
+\which prevents Markdown from removing all whitespaces, breaking indentation and code layout.
+\
+<h4 id="__Lists">Lists
+<pre .example>
+ \* An item in a bulleted (unordered) list
+ <br>
+ \&nbsp;&nbsp;&nbsp;&nbsp;* A subitem, indented with 4 spaces
+ <br>
+ \* Another item in a bulleted list
+\
+<pre .example>
+ \1. An item in an enumerated (ordered) list
+ <br>
+ \2. Another item in an enumerated list
+\
+<h4 id="__Headings">Headings
+\HTML headings are produced by placing a number of hashes before the header text corresponding to the level of heading desired (HTML offers six levels of headings), like so:
+\
+<pre .example>
+ <div id="">First-level heading
+\
+<pre .example>
+ <div id="" id="" id="" id="">Fourth-level heading
+\
+\The first two heading levels also have an alternate syntax:
+\
+<pre .example>
+ \First-level heading
+ <br>
+ \===================
+ <br>
+\
+ \Second-level heading
+ <br>
+ \--------------------
+\
+<h4 id="__Blockquotes">Blockquotes
+<pre .example>
+ \> This text will be enclosed in an HTML blockquote element.
+ <br>
+ \> Blockquote elements are reflowable. You may arbitrarily
+ <br>
+ \> wrap the text to your liking, and it will all be parsed
+ <br>
+ \> into a single blockquote element.
+\
+\The above would translate into the following HTML:
+\
+<pre .example>
+ \&lt;blockquote&gt;&lt;p&gt;This text will be enclosed in an HTML blockquote element. Blockquote
+ <br>
+ \elements are reflowable. You may arbitrarily wrap the text to your liking, and it will all
+ <br>
+ \be parsed into a single blockquote element.&lt;/p&gt;&lt;/blockquote&gt;
+\
+<h4 id="__Links">Links
+\Links may be included inline:
+\
+<pre .example>
+ \[link text here](link.address.here "link title here")
+\
+\Alternatively, links can be placed in footnotes outside of the paragraph, being referenced with some sort of reference tag. For example, including the following inline:
+\
+<pre .example>
+ \[link text here][linkref]
+\would produce a link if the following showed up outside of the paragraph (or at the end of the document):
+\
+<pre .example>
+ \[linkref]: link.address.here "link title here"
+\
+<h4 id="__WikiLinks">Wiki Links
+\Wiki Links may be inline, this looks like normal link without following empty parentheses:
+\
+<pre .example>
+ \[Wiki Name]()
+\
+<h4 id="__Images">Images
+\Referring to images is similar to including links. The syntax requires an exclamation point to indicate the link refers to an image.
+<br>
+\The image address may be included inline, as with links:
+\
+<pre .example>
  \![Alt text here](Image URL here "Image title here")
-
-It may also be referred to via a reference:
-
-%pre.example
+\
+\It may also be referred to via a reference:
+\
+<pre .example>
  \![Alt text here][imageref]
-
-Here, imageref refers to information somewhere after the image:
-
-%pre.example
- [imageref]: image.url.here "Image title here"
-
-%h4#__HorizontalRules Horizontal rules
-Horizontal rules are created by placing three or more hyphens, asterisks, or underscores on a line by themselves. You may use spaces between the hyphens or asterisks. Each of the following lines will produce a horizontal rule:
-
-%pre.example
- * * *
- %br
- ***
- %br
- *****
- %br
- - - -
- %br
- ---------------------------------------
-
+\
+\Here, imageref refers to information somewhere after the image:
+\
+<pre .example>
+ \[imageref]: image.url.here "Image title here"
+\
+<h4 id="__HorizontalRules">Horizontal rules
+\Horizontal rules are created by placing three or more hyphens, asterisks, or underscores on a line by themselves. You may use spaces between the hyphens or asterisks. Each of the following lines will produce a horizontal rule:
+\
+<pre .example>
+ \* * *
+ <br>
+ \***
+ <br>
+ \*****
+ <br>
+ \- - -
+ <br>
+ \---------------------------------------
+\

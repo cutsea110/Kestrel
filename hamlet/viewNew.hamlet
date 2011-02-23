@@ -1,13 +1,13 @@
-%ul.tabs
-  %li.selected
-    %a!href=@?viewMe@ View
-  %li
-    %a!href=@?editMe@ Edit
-  $if (not isTop)
-    %li
-      %a!href=@?topView@ Top
-
-#main-content
-  There is no page '$path$'. You may create the page by $
-  %a!href=@?editMe@ Clicking here
+<ul .tabs>
+  <li .selected>
+    <a href="@?{viewMe}">View
+  <li>
+    <a href="@?{editMe}">Edit
+  $if not isTop
+    <li>
+      <a href="@?{topView}">Top
+\
+<div id="main-content">
+  \There is no page '#{path}'. You may create the page by 
+  <a href="@?{editMe}">Clicking here
   \.

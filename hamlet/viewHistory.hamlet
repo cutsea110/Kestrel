@@ -1,32 +1,32 @@
-%ul.tabs
-  %li
-    %a!href=@WikiR.wp@ View
-  %li
-    %a!href=@?editMe@ Edit
-  %li
-    %a!href=@?deleteMe@ Delete
-  %li.selected
-    %a!href=@HistoriesR.wp@ History
-  $if (not isTop)
-    %li
-      %a!href=@?topView@ Top
-
-#main-content
-  !align=right
+<ul .tabs>
+  <li>
+    <a href="@{WikiR wp}">View
+  <li>
+    <a href="@?{editMe}">Edit
+  <li>
+    <a href="@?{deleteMe}">Delete
+  <li .selected>
+    <a href="@{HistoriesR wp}">History
+  $if not isTop
+    <li>
+      <a href="@?{topView}">Top
+\
+<div id="main-content">
+  <div align="right">
     $if notCurrent
-      %a!href=@?currDiff@ View diff from current version
-      %br
-    %a!href=@?editVer@ Edit this version
-    %br
-    %a!href=@HistoriesR.wp@ Return to the edit history
-
-  .history
-    $content$
-
-   #metainfo!align=right
-     $maybe me e
-      Edited by: $userDisplayName.e$
+      <a href="@?{currDiff}">View diff from current version
+      <br>
+    <a href="@?{editVer}">Edit this version
+    <br>
+    <a href="@{HistoriesR wp}">Return to the edit history
+  \
+  <div .history>
+    \#{content}
+   \
+   <div id="metainfo" align="right">
+     $maybe e <- me
+      \Edited by: #{userDisplayName e}
      $nothing
-      Edited by: editor deleted
-     %br
-     Last updated: $showDate.upd$
+      \Edited by: editor deleted
+     <br>
+     \Last updated: #{showDate upd}

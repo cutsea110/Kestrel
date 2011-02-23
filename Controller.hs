@@ -1,4 +1,6 @@
 {-# LANGUAGE TemplateHaskell #-}
+{-# LANGUAGE MultiParamTypeClasses #-}
+{-# LANGUAGE OverloadedStrings #-}
 {-# OPTIONS_GHC -fno-warn-orphans #-}
 module Controller
     ( withKestrel
@@ -9,6 +11,7 @@ import Settings
 import Yesod.Helpers.Static
 import Yesod.Helpers.Auth
 import Database.Persist.GenericSql
+import Data.ByteString (ByteString)
 
 -- Import all relevant handler modules here.
 import Handler.Root
@@ -26,9 +29,9 @@ mkYesodDispatch "Kestrel" resourcesKestrel
 -- place to put your migrate statements to have automatic database
 -- migrations handled by Yesod.
 withKestrel :: (Application -> IO a) -> IO a
-withKestrel f = withConnectionPool $ \p -> do
+withKestrel f = Settings.withConnectionPool $ \p -> do
     runConnectionPool (runMigration migrateAll) p
     let h = Kestrel s p
     toWaiApp h >>= f
   where
-    s = fileLookupDir Settings.staticdir typeByExt
+    s = static Settings.staticdir

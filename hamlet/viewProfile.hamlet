@@ -1,14 +1,14 @@
-%h3 Set Your Profile
-%form!method=post!action=@ProfileR.uid@
-  %input!type=hidden!name=_method!value=modify
-  %table.nostyle
-    %tr
-      %th User Ident:
-      %td $userIdent.u$
-    %tr
-      %th Nickname:
-      %td
-        $maybe (userNickname u) n
-          %input.inplaceedit!type=text!name=nickname!uri=@ProfileR.uid@!value=$n$
+<h3>Set Your Profile
+<form method="post" action="@{ProfileR uid}">
+  <input type="hidden" name="_method" value="modify">
+  <table .nostyle>
+    <tr>
+      <th>User Ident:
+      <td>#{userIdent u}
+    <tr>
+      <th>Nickname:
+      <td>
+        $maybe n <- userNickname u
+          <input type="text" name="nickname" uri="@{ProfileR uid}" value="#{n}" .inplaceedit>
         $nothing
-          %input.inplaceedit!type=text!name=nickname!uri=@ProfileR.uid@
+          <input type="text" name="nickname" uri="@{ProfileR uid}" .inplaceedit>
