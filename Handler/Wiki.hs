@@ -150,7 +150,7 @@ $if not (isNull blocks)
       (path, raw, content, upd, ver, _, isTop) <- getwiki wikiWriterOption
       let editMe = (WikiR wp, [("mode", "e")])
           deleteMe = (WikiR wp, [("mode", "d")])
-          markdown = $(hamletFile "markdown")
+          markdown = $(hamletFile "markdown-ja")
       defaultLayout $ do
         setTitle $ string path
         addCassius $(cassiusFile "wiki")
@@ -194,7 +194,7 @@ postWikiR wp = do
       content <- runDB $ markdownToWikiHtml wikiWriterOption raw
       let editMe = (WikiR wp, [("mode", "e")])
           deleteMe = (WikiR wp, [("mode", "d")])
-          markdown = $(hamletFile "markdown")
+          markdown = $(hamletFile "markdown-ja")
       defaultLayout $ do
         setTitle $ string path
         addCassius $(cassiusFile "wiki")
@@ -283,7 +283,7 @@ getNewR = do
               isTop = path==Settings.topTitle
               viewMe = (NewR, [("path", path'), ("mode", "v")])
               editMe = (NewR, [("path", path'), ("mode", "e")])
-              markdown = $(hamletFile "markdown")
+              markdown = $(hamletFile "markdown-ja")
           defaultLayout $ do
             setTitle $ string path
             addCassius $(cassiusFile "wiki")
@@ -311,7 +311,7 @@ postNewR = do
           isTop = path == Settings.topTitle
           viewMe = (NewR, [("path", path'), ("mode", "v")])
           editMe = (NewR, [("path", path'), ("mode", "e")])
-          markdown = $(hamletFile "markdown")
+          markdown = $(hamletFile "markdown-ja")
       content <- runDB $ markdownToWikiHtml wikiWriterOption raw
       defaultLayout $ do
         setTitle $ string path
@@ -489,7 +489,7 @@ getHistoryR v wp = do
           deleteMe = (WikiR wp, [("mode", "d")])
           ver = wikiVersion curp
           notCurrent =  v /= ver
-          markdown = $(hamletFile "markdown")
+          markdown = $(hamletFile "markdown-ja")
       defaultLayout $ do
         setTitle $ string path
         addCassius $(cassiusFile "wiki")
@@ -566,7 +566,7 @@ postHistoryR v wp = do
       let editMe = (WikiR wp, [("mode", "e")])
           deleteMe = (WikiR wp, [("mode", "d")])
           notCurrent = v /= ver
-          markdown = $(hamletFile "markdown")
+          markdown = $(hamletFile "markdown-ja")
       defaultLayout $ do
         setTitle $ string path
         addCassius $(cassiusFile "wiki")
