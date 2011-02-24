@@ -1,3 +1,8 @@
+<div .right>
+  <ul .breadcrumbs>
+    $forall a <- ancestory (fromPath path)
+      <li>
+        <a href="@{WikiR a}">#{lastNameOf a}
 <ul .tabs>
   <li .selected>
     <a href="@?{viewMe}">View

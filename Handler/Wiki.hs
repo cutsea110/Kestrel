@@ -17,6 +17,16 @@ import Data.List.Split (splitOn)
 import Settings (topTitle, hamletFile, cassiusFile, juliusFile, widgetFile)
 import StaticFiles
 
+getEitherWikiNewR :: WikiPage -> Handler RepHtml
+getEitherWikiNewR wp = do
+  let path = pathOf wp
+  mwiki <- runDB $ getBy $ UniqueWiki path
+  case mwiki of
+    Nothing -> 
+      redirectParams RedirectTemporary NewR [("path", encodeUrl path), ("mode", "v")]
+    Just _ ->
+      redirect RedirectTemporary $ WikiR wp
+
 getWikiListR :: Handler RepHtml
 getWikiListR = do
   method <- lookupGetParam "_method"
@@ -53,15 +63,15 @@ getWikiR wp = do
     Nothing  {- default mode -} -> viewWiki  -- FIXME
   where
     -- Utility
-    getwiki :: Handler (String, String, Html, UTCTime, Version, Maybe User, Bool)
-    getwiki = do
+    getwiki :: WriterOptions -> Handler (String, String, Html, UTCTime, Version, Maybe User, Bool)
+    getwiki opt = do
       let path = pathOf wp
       runDB $ do
         (_, p)  <- getBy404 $ UniqueWiki path
         me <- get $ wikiEditor p
         let (raw, upd, ver) = (wikiContent p, wikiUpdated p, wikiVersion p)
             isTop = wp == topPage
-        content <- markdownToWikiHtml wikiWriterOption raw
+        content <- markdownToWikiHtml opt raw
         return (path, raw, content, upd, ver, me, isTop)
     
     searchWord :: String -> String -> [Html]
@@ -118,13 +128,13 @@ $if not (isNull blocks)
         
     simpleViewWiki :: Handler RepHtml
     simpleViewWiki = do
-      (_, _, content, _, _, _, _) <- getwiki
+      (_, _, content, _, _, _, _) <- getwiki sidePaneWriterOption
       hamletToRepHtml [$hamlet|\#{content}
 |]
     
     viewWiki :: Handler RepHtml
     viewWiki = do
-      (path, raw, content, upd, ver, me, isTop) <- getwiki
+      (path, raw, content, upd, ver, me, isTop) <- getwiki wikiWriterOption
       let editMe = (WikiR wp, [("mode", "e")])
           deleteMe = (WikiR wp, [("mode", "d")])
       defaultLayout $ do
@@ -137,7 +147,7 @@ $if not (isNull blocks)
     editWiki :: Handler RepHtml
     editWiki = do
       (uid, _) <- requireAuth
-      (path, raw, content, upd, ver, _, isTop) <- getwiki
+      (path, raw, content, upd, ver, _, isTop) <- getwiki wikiWriterOption
       let editMe = (WikiR wp, [("mode", "e")])
           deleteMe = (WikiR wp, [("mode", "d")])
           markdown = $(hamletFile "markdown")
@@ -151,7 +161,7 @@ $if not (isNull blocks)
     deleteWiki :: Handler RepHtml
     deleteWiki = do
       (uid, _) <- requireAuth
-      (path, raw, content, upd, ver, me, isTop) <- getwiki
+      (path, raw, content, upd, ver, me, isTop) <- getwiki wikiWriterOption
       let editMe = (WikiR wp, [("mode", "e")])
           deleteMe = (WikiR wp, [("mode", "d")])
       defaultLayout $ do

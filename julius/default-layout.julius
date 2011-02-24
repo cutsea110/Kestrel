@@ -58,15 +58,15 @@ $(document).ready(function(){
           ld = $('<legend/>'),
           sp = $(data);
       if ('#{show mu}'=='Nothing') {
-        $('#sidenavi').append(fs.append(ld.text('#{spTitle}')).append(sp));
+        $('#sidenavi').append(fs.append(ld.text('#{Settings.sidePaneTitle}')).append(sp));
       }else{
-        var a = $('<a/>').attr({href: '@{sidePaneView}'}).text('#{spTitle}');
+        var a = $('<a/>').attr({href: '@{sidePaneView}'}).text('#{Settings.sidePaneTitle}');
         $('#sidenavi').append(fs.append(ld.append(a)).append(sp));
       }
     },
     error: function(msg, status) {
       if ('#{show mu}'!='Nothing') {
-        var anc = $('<a/>').attr({href:'@?{sidePaneNew}'}).text('Edit #{spTitle}');
+        var anc = $('<a/>').attr({href:'@?{sidePaneNew}'}).text('Edit #{Settings.sidePaneTitle}');
         $('#sidenavi').append(anc);
       }
     }

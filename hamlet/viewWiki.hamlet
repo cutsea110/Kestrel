@@ -1,3 +1,8 @@
+<div .right>
+  <ul .breadcrumbs>
+    $forall a <- ancestory wp
+      <li>
+        <a href="@{WikiR a}">#{lastNameOf a}
 <ul .tabs>
   <li .selected>
     <a href="@{WikiR wp}">View
@@ -10,7 +15,6 @@
   $if not isTop
     <li>
       <a href="@?{topView}">Top
-\
 <div id="main-content">
   \#{content}
 \
