@@ -1,0 +1,741 @@
+<h4 id="__Paragraphs-LineBreaks">Paragraphs and Line Breaks - 段落と改行、MovableTypeとの比較
+
+\空白行に囲まれた複数行の文章(一行の場合も含む)がまとめて一つの段落として扱われます。 (ここで言う空白行とは空白に見える行のことです。スペースやタブだけの行も空白行に含まれます。) 通常段落の行頭にスペースやタブがあってはいけません。
+「一行以上に渡って連続した」という言葉が意味するのはMarkdownが改行された文章も一つの段落としてサポートするということです。 これは他のテキストからHTMLへの変換ツールとの明確な違いとなります。 例えばMovableTypeの編集の際にはデフォルトで「Convert Line Breaks」という機能を使用することができますが、これは原文の改行をそのまま <br />タグに置き換えます。
+Markdownで<br />タグを使用したい時は、その行の末尾を二つ以上のスペースを記述してから改行することとなります。
+これは意図的に<br />を使用する場合には多少の努力が必要であることを示しています。 全ての(原文での)改行は<br />であるという単純なルールをMarkdownは用いていないのです。 しかし、それによって、Eメールで使用するような引用や、複数の段落で構成されるリストなどは、 原文で改行するよりは見栄えがよくなります。
+
+<h4 id="__Headers">Headers - 見出し
+
+\MarkdowwnはSetextとatxという、二つの形式をサポートしています。
+Setext形式の見出しは、第一レベルの見出しに’='、次レベルの見出しに’-'をアンダーラインとして用います。例えば、
+<pre .example>
+  This is an H1
+  =============
+  \
+  This is an H2
+  -------------
+\
+\アンダーラインで用いられている’='や’-'の数は見出しの長さと一致する必要はありません。いくつであっても動作します。
+Atx形式は見出しの行頭に1つから6つまでの#(ハッシュ記号)を用いる方法です。#(ハッシュ記号)の数が見出しレベルと一致します。例えば
+<pre .example>
+  # This is an H1
+  \
+  ## This is an H2
+  \
+  ###### This is an H6
+
+\Markdown独自の機能として、atx形式を「閉じる」ことができます。 この表現が好みであれば使うことができますが、単純に見栄えの問題です。 行末の#(ハッシュ記号)の数は行頭と一致する必要もありません。
+<pre .example>
+  # This is an H1 #
+  \
+  ## This is an H2 ##
+  \
+  ### This is an H3 ######
+
+<h4 id="__Blockquotes">Blockquotes – 引用
+
+\Markdownで引用を表現するときにはEメールと同じ方法、>を用います。 もしあなたがEメールで引用をすることになじんでいるのであればMarkdownでの使用は容易です。 あなたは既にルールを知っています。 改行した各行の冒頭に>をつけるだけです。
+<pre .example>
+  \> This is a blockquote with two paragraphs. Lorem ipsum dolor sit amet,
+  <br>
+  \> consectetuer adipiscing elit. Aliquam hendrerit mi posuere lectus.
+  <br>
+  \> Vestibulum enim wisi, viverra nec, fringilla in, laoreet vitae, risus.
+  <br>
+  \>
+  <br>
+  \> Donec sit amet nisl. Aliquam semper ipsum sit amet velit. Suspendisse
+  <br>
+  \> id sem consectetuer libero luctus adipiscing.
+
+\Markdownでは段落の冒頭に>をつけるだけでも良く、編集時の負担を軽減することができます。
+
+<pre .example>
+  \> This is a blockquote with two paragraphs. Lorem ipsum dolor sit amet,
+  <br>
+  \consectetuer adipiscing elit. Aliquam hendrerit mi posuere lectus.
+  <br>
+  \Vestibulum enim wisi, viverra nec, fringilla in, laoreet vitae, risus.
+
+<pre .example>
+  \> Donec sit amet nisl. Aliquam semper ipsum sit amet velit. Suspendisse
+  <br>
+  \id sem consectetuer libero luctus adipiscing.
+  <br>
+  \>記号を重ねると引用を入れ子(引用の中に引用を記述すること)にすることもできます。
+  <br>
+  \> This is the first level of quoting.
+  <br>
+  \>
+  <br>
+  \> > This is nested blockquote.
+  <br>
+  \>
+  <br>
+  \> Back to the first level.
+
+\引用の中はMarkdownのルールで記述してかまいません。見出しももリストも認識します。
+
+<pre .example>
+  \> ## This is a header.
+  <br>
+  \>
+  <br>
+  \> 1.   This is the first list item.
+  <br>
+  \> 2.   This is the second list item.
+  <br>
+  \>
+  <br>
+  \> Here's some example code:
+  <br>
+  \>
+  <br>
+  \>     return shell_exec("echo $input | $markdown_script");
+
+\テキストエディタの中にはEメールで使用する引用スタイルを簡単に作成すること ができるものがあり、それらを活用できます。例えばMac用のエディタBBEditは 引用符付き貼り付けをすることができます。(2310注：BBEdit以外についてはgoogleで検索でもしてください)。
+
+
+<h4 id="__Lists">Lists – リスト
+
+\Markdownは冒頭に番号付きや印付きのリストをサポートしています。
+印付きのリストの場合はアスタリスクやプラス記号、それにハイフン記号を使用します (2310注:記号の直後にスペースかタブが無ければいけない〜後述)。これらは自由に使いわけることが可能です。
+<pre .example>
+  *   Red
+  <br>
+  *   Green
+  <br>
+  *   Blue
+
+\は以下と同じ意味となります。
+
+<pre .example>
+  +   Red
+  <br>
+  +   Green
+  <br>
+  +   Blue
+
+\や
+
+<pre .example>
+  -   Red
+  <br>
+  -   Green
+  <br>
+  -   Blue
+
+\番号付きリストはピリオドつきの番号を用います。
+
+<pre .example>
+  1.  Bird
+  <br>
+  2.  McHale
+  <br>
+  3.  Parish
+
+\HTMLに変換される時には、リストを記述する際に使用した番号が無視されることに注意してください。 上の例文は以下のようなHTMLに変換されるからです。
+
+<pre .example>
+  \&lt;ol&gt;
+  <br>
+  \&lt;li&gt;Bird&lt;/li&gt;
+  <br>
+  \&lt;li&gt;McHale&lt;/li&gt;
+  <br>
+  \&lt;li&gt;Parish&lt;/li&gt;
+  <br>
+  \&lt;/ol&gt;
+
+\したがってもし代わりに以下のように記述してMarkdownで変換しても
+
+<pre .example>
+  1.  Bird
+  <br>
+  1.  McHale
+  <br>
+  1.  Parish
+
+\あるいは以下であっても
+
+<pre .example>
+  \3. Bird
+  <br>
+  \1. McHale
+  <br>
+  \8. Parish
+
+\出力されるHTMLの構文は同じです。つまり、出力されるHTMLと揃えた いのであれば一致するように番号を振れば良いし、そうでなければ揃える必要は無いということです。
+ただ、番号付リストを使用する際には1からはじまるように書いた方が良いでしょう。 Markdownが将来、リストに自由な数字から番号をスタートできるような機能をサポートするかもしれないからです。
+リストの番号もしくは記号は通常左端からはじまりますが、冒頭に3つのスペー スまでは許されています。またリストの番号もしくは記号の後には1つ以上の スペースか、タブが挿入されていなければいけません。
+リストを綺麗に見せるために、リストの内容の二行目以降を揃えることができます。
+
+<pre .example>
+  \*   Lorem ipsum dolor sit amet, consectetuer adipiscing elit.
+  <br>
+  \    Aliquam hendrerit mi posuere lectus. Vestibulum enim wisi,
+  <br>
+  \    viverra nec, fringilla in, laoreet vitae, risus.
+  <br>
+  \*   Donec sit amet nisl. Aliquam semper ipsum sit amet velit.
+  <br>
+  \    Suspendisse id sem consectetuer libero luctus adipiscing.
+
+\しかし、作業の負担になるのであれば必要はありません。
+
+<pre .example>
+  \*   Lorem ipsum dolor sit amet, consectetuer adipiscing elit.
+  <br>
+  \Aliquam hendrerit mi posuere lectus. Vestibulum enim wisi,
+  <br>
+  \viverra nec, fringilla in, laoreet vitae, risus.
+  <br>
+  \*   Donec sit amet nisl. Aliquam semper ipsum sit amet velit.
+  <br>
+  \Suspendisse id sem consectetuer libero luctus adipiscing.
+
+\もし各リストの間に空行があると、Markdownは各々のリストの内容を<p>タグで囲みます。 例えば以下のように記入します。
+
+<pre .example>
+  \*   Bird
+  <br>
+  \*   Magic
+
+\これは以下のように変換されるはずです。
+
+<pre .example>
+  \&lt;ul&gt;
+  <br>
+  \&lt;li&gt;Bird&lt;/li&gt;
+  <br>
+  \&lt;li&gt;Magic&lt;/li&gt;
+  <br>
+  \&lt;/ul&gt;
+
+\しかしこれは
+
+<pre .example>
+  \*   Bird
+  <br>
+  \*   Magic
+
+\このように変換されます。
+
+<pre .example>
+  \&lt;ul&gt;
+  <br>
+  \&lt;li&gt;&lt;p&gt;Bird&lt;/p&gt;&lt;/li&gt;
+  <br>
+  \&lt;li&gt;&lt;p&gt;Magic&lt;/p&gt;&lt;/li&gt;
+  <br>
+  \&lt;/ul&gt;
+
+\各々のリストの中にはさらにいくつかの段落がある場合があります。このよう な段落(の少くとも冒頭)は行頭から4つのスペース分離れているか、もしくはタブ が一つなければなりません。
+
+<pre .example>
+  \1.  This is a list item with two paragraphs. Lorem ipsum dolor
+  <br>
+  \    sit amet, consectetuer adipiscing elit. Aliquam hendrerit
+  <br>
+  \    mi posuere lectus.
+  <br>
+  \
+  <br>
+  \    Vestibulum enim wisi, viverra nec, fringilla in, laoreet
+  <br>
+  \    vitae, risus. Donec sit amet nisl. Aliquam semper ipsum
+  <br>
+  \    sit amet velit.
+  <br>
+  \2.  Suspendisse id sem consectetuer libero luctus adipiscing.
+
+\段落のそれぞれを揃えれば綺麗に見えるでしょう。けれども先述したとおり、作業の負担になるのであれば必要ありません。
+
+<pre .example>
+  \*   This is a list item with two paragraphs.
+  <br>
+  \
+  <br>
+  \    This is the second paragraph in the list item. You're
+  <br>
+  \only required to indent the first line. Lorem ipsum dolor
+  <br>
+  \sit amet, consectetuer adipiscing elit.
+  <br>
+  \
+  <br>
+  \*   Another item in the same list.
+
+\リストの中に引用を配置することもできます。引用で使用する>記号の前も同様に4つのスペースかタブを一つ入れてください。
+
+<pre .example>
+  \*   A list item with a blockquote:
+  <br>
+  \
+  <br>
+  \    > This is a blockquote
+  <br>
+  \    > inside a list item.
+
+\また、リストの中にコードを配置するためには、インデントの量を2倍、すなわち8スペースか2タブ分行頭になければいけません。
+
+<pre .example>
+  \*   A list item with a code block:
+  <br>
+  \
+  <br>
+  \        &lt;code goes here&gt;
+
+\その気はなくても、書いているうちに偶然リストになってしまうこともあるでしょう。
+<pre .example>
+  1986. What a great season.
+
+\行頭で数字の直後にピリオドを用いると(MarkDownの構文と解釈され)このような事態が生じます。 これを避けるためにはピリオドの前にバックスラッシュ(日本のOS、 Windowsでは円記号)をピリオドの前に記述してください。
+
+<pre .example>
+  1986\. What a great season.
+
+<h4 id="__CodeBlocks">Code Blocks – ソースコードを表現
+
+\HTMLやプログラムのソースコードなどをそのままホームページに表示したい場合です。 これらが書かれた範囲は、通常の文章による段落とは異り書かれたとおりに解釈されることになります。 Markdownはこれらの変換に&lt;pre&gt;タグと&lt;code&gt;タグの両方を使用します。
+Markdown上でコードブロックを書くには単純に各行の冒頭に4つ以上のスペースもしくは1つ以上のタブを挿入してください。以下の例を見てください。
+<pre .example>
+  \This is a normal paragraph:
+  <br>
+  \
+  <br>
+  \    This is a code block.
+
+\Markdownで変換するとこうなります。
+
+<pre .example>
+  \&lt;p&gt;This is a normal paragraph:&lt;/p&gt;
+  <br>
+  \
+  <br>
+  \&lt;pre&gt;&lt;code&gt;This is a code block.
+  <br>
+  \&lt;/code&gt;&lt;/pre&gt;
+
+\各行の最初の4スペースもしくは1タブは変換後は除去されます。例えば、以下。
+<pre .example>
+  \Here is an example of AppleScript:
+  <br>
+  \
+  <br>
+  \    tell application "Foo"
+  <br>
+  \        beep
+  <br>
+  \    end tell
+
+\を変換すると、
+
+<pre .example>
+  \&lt;p&gt;Here is an example of AppleScript:&lt;/p&gt;
+  <br>
+  \
+  <br>
+  \&lt;pre&gt;&lt;code&gt;tell application "Foo"
+  <br>
+  \    beep
+  <br>
+  \end tell
+  <br>
+  \&lt;/code&gt;&lt;/pre&gt;
+
+\このようなコードブロックは、スペースやタブでインデントされていない文章(もしくは記事の最後)まで範囲となります。
+コードブロックの中ではアンバサンド記号(&amp;)やアングル記号(&lt;と&gt;)は自動的にHTMLで表現されるような適切に変換されます。 このためMarkdownでHTMLソースそのものをホームページとしたい場合は、貼りつけてインデントすればいいだけとなります。 Markdownはアンバサンド記号(&amp;)やアングル記号(&lt;と&gt;)のencodingによる不具合を自動的に回避します。
+例えば以下、
+
+<pre .example>
+  \<div class="footer">
+  <br>
+  \    &amp;copy; 2004 Foo Corporation
+  <br>
+  \</div>
+
+\これは次のように変換されます。
+
+<pre .example>
+  \&lt;pre&gt;&lt;code&gt;&lt;div class="footer"&gt;
+  <br>
+  \    &amp;copy; 2004 Foo Corporation
+  <br>
+  \&lt;/div&gt;
+  <br>
+  \&lt;/code&gt;&lt;/pre&gt;
+
+
+\通常Markdownの記述ルールはコードブロックの中では有効となりません。 例えば(Markdownでは強調時に使用する)アスタリクス記号(&ast;)はコードブロックの内部ではあくまで*のままです。 つまり、コードブロック内でMarkdownの記述ルールそのものについて容易に書いて使用することができるわけです。
+
+<h4 id="__HorizontalRules">Horizontal Rules – 罫線
+
+\3つ以上のハイフン(’-')やアスタリスク(’&ast;')、アンダースコア(’_')だけで構成されている行は罫線&lt;hr /&gt;となります。 また、これらの記号の間には半角スペースを用いることができます。以下のどの行も罫線に変換されます。
+<pre .example>
+  \* * *
+  <br>
+  \
+  <br>
+  \***
+  <br>
+  \
+  <br>
+  \*****
+  <br>
+  \
+  <br>
+  \- - -
+  <br>
+  \
+  <br>
+  \---------------------------------------
+  <br>
+  \
+  <br>
+  \_ _ _
+
+<h3 id="__SpanElements">Span Elements – 文中の変換
+
+<h4 id="__Links">Links – リンク
+
+\Markdownは直接リンクと参照リンクの二つをサポートしています。 どちらについても、リンクしたい文字列を角カッコ-’['と']‘-で囲みます。
+直接リンクを作成するためには、角カッコで囲んだリンク文字列の直後 に丸括弧-’('と’)'-を設置します。丸括弧の内部では、リンク先のURLをを記 述してください。”で囲むことによってマウスカーソルをリンクにあてると表 示されるリンク先のタイトルを追加することも可能です。例えば、
+<pre .example>
+  \This is [an example](http://example.com/ "Title") inline link.
+  <br>
+  \
+  <br>
+  \[This link](http://example.net/) has no title attribute.
+
+上は以下のように変換されます。
+
+<pre .example>
+  \&lt;p&gt;This is &lt;a href="http://example.com/" title="Title"&gt;
+  <br>
+  \an example&lt;/a&gt; inline link.&lt;/p&gt;
+  <br>
+  \
+  <br>
+  \&lt;p&gt;&lt;a href="http://example.net/"&gt;This link&lt;/a&gt; has no
+  <br>
+  \title attribute.&lt;/p&gt;
+
+\もし同じサーバ内のファイルにアクセスするのであれば相対パスで指定することもできます。
+
+<pre .example>
+  \See my [About](/about/) page for details.
+
+\参照リンクはリンクしたい文字列を角カッコで囲むのに加え、さらにリンクIDを角カッコで囲みます。
+
+
+<pre .example>
+  \This is [an example][id] reference-style link.
+
+\二つの角カッコの間には半角スペースが一つあっても構いません。
+
+<pre .example>
+  \This is [an example] [id] reference-style link.
+
+\それから、文中のどこでも良いので、このIDに対するリンクを以下のように設定します。
+
+<pre .example>
+  \[id]: http://example.com/  "Optional Title Here"
+
+\これは、
+
+\<ul><li>リンクIDを角カッコで囲んだものである(左からスペース3つ分までインデントすることができる)</li>
+\<li>上の後にはダブルコロン(’:')が続く</li>
+\<li>その後一つ以上のスペースか、タブが続く</li>
+\<li>その後にリンク先のURLが続く</li>
+\<li>その後にリンクのタイトル属性をシングルかダブルクオンテーションで囲んだ状態で追加しても良い</li>
+\</ul>
+
+\リンクURLはアングルブラケット(’&lt;’と’&gt;')で囲むことができます。
+
+<pre .example>
+  \[id]: &lt;http://example.com/&gt;  "Optional Title Here"
+
+\上のリンク定義はMarkdownがリンクを作成するために使用するだけです。変換後のHTML本文には表示されません。
+リンクIDは文字でも数字、スペース、記号が入っていてかまいませんが、英文字の大文字小文字は区別されません。 例えば次の二つ、
+
+<pre .example>
+  \[link text][a]
+  <br>
+  \[link text][A]
+
+\これは同じものとなります。
+暗黙リンクのルールを使用すれば、本文中にリンクIDを書く必要はありません。 この場合はリンク対象文字列がそのままリンクIDとして用いられます。 暗黙リンクのルールを使用するために、リンクIDは記入しないで空の角カッコを用いてください。
+例えばGoogleという言葉をgoogle.comにリンクさせるためにはあなたはただこのように書けば良いことになります。
+
+<pre .example>
+  \[Google][]
+
+\それから別の場所でこのリンクの定義をします。
+
+<pre .example>
+  \[Google]: http://google.com/
+
+\リンク文字列にはスペースを含んでかまわないため、複数の単語で構成されている場合でも同様に扱うことができます。
+
+<pre .example>
+  \Visit [Daring Fireball][] for more information.
+
+\このリンクの定義は以下となります。
+
+<pre .example>
+  \[Daring Fireball]: http://daringfireball.net/
+
+\リンクの定義はMarkdownルールで書かれた文書のどこに位置していてもかまいません。 作者はリンクを設定した段落の直後に記述するのを好みますが、文書の一番最後にまとめて 配置することも可能です。
+以下は実際の例です
+
+<pre .example>
+  \I get 10 times more traffic from [Google] [1] than from
+  <br>
+  \[Yahoo] [2] or [MSN] [3].
+  <br>
+  \
+  <br>
+  \  [1]: http://google.com/        "Google"
+  <br>
+  \  [2]: http://search.yahoo.com/  "Yahoo Search"
+  <br>
+  \  [3]: http://search.msn.com/    "MSN Search"
+
+\暗黙リンクのルールを用いてかわりに下のように書くことも可能です。
+
+<pre .example>
+  \I get 10 times more traffic from [Google][] than from
+  <br>
+  \[Yahoo][] or [MSN][].
+  <br>
+  \
+  <br>
+  \  [google]: http://google.com/        "Google"
+  <br>
+  \  [yahoo]:  http://search.yahoo.com/  "Yahoo Search"
+  <br>
+  \  [msn]:    http://search.msn.com/    "MSN Search"
+
+\上の二つの例はどちらも次のようなHTMLに変換されます。
+
+<pre .example>
+  \&lt;p&gt;I get 10 times more traffic from &lt;a href="http://google.com/"
+  <br>
+  \title="Google"&gt;Google&lt;/a&gt; than from
+  <br>
+  \&lt;a href="http://search.yahoo.com/" title="Yahoo Search"&gt;Yahoo&lt;/a&gt;
+  <br>
+  \or &lt;a href="http://search.msn.com/" title="MSN Search"&gt;MSN&lt;/a&gt;.&lt;/p&gt;
+
+\比較のために同じ段落をインラインリンクのスタイルで書いたものを揚げます。
+
+<pre .example>
+  \I get 10 times more traffic from [Google](http://google.com/ "Google")
+  <br>
+  \than from [Yahoo](http://search.yahoo.com/ "Yahoo Search") or
+  <br>
+  \[MSN](http://search.msn.com/ "MSN Search").
+
+\参照スタイルの利点は書きやすさではありません。 参照スタイルの利点は文書がとても読みやすくなることです。 上に揚げた例を比べてください。リンクの参照スタイルを用いた場合、段落はたった81文字です。 しかしインラインスタイルを用いた場合は176文字になります。 さらにHTMLソースコードの段階では234文字となります。HTMLソースコードでは原文よりもマークアップされています。
+Markdownのリンクの参照スタイルを用いると、原文はブラウザで表示されるも のにより近くなります。段落外にリンクのためのデータを追いやることによっ て、文章の流れを邪魔することなくリンクを追加することができます。
+
+<h4 id="__Emphasis">Emphasis – 強調
+
+\Markdownではアスタリスク(*)やアンダースコア(_)は強調記号として扱われます。 1つの&ast;や_によって囲まれた文字列は、&lt;em&gt;タグで囲まれたものに変換され、 二つの&ast;や_によって囲まれた文字列は、&lt;strong&gt;タグで囲まれたものに変換されます。
+例えば以下のように記述します。
+
+<pre .example>
+  \&ast;single asterisks&ast;
+  <br>
+  \
+  <br>
+  \_single underscores_
+  <br>
+  \
+  <br>
+  \&ast;&ast;double asterisks&ast;&ast;
+  <br>
+  \
+  <br>
+  \__double underscores__
+
+\これは以下のように変換されます。
+
+<pre .example>
+  \&lt;em&gt;single asterisks&lt;/em&gt;
+  <br>
+  \
+  <br>
+  \&lt;em&gt;single underscores&lt;/em&gt;
+  <br>
+  \
+  <br>
+  \&lt;strong&gt;double asterisks&lt;/strong&gt;
+  <br>
+  \
+  <br>
+  \&lt;strong&gt;double underscores&lt;/strong&gt;
+
+\好みのスタイルを用いることができますが、囲む最初と最後は同じ記号でなくてはいけません。
+強調スタイルは単語の途中に用いることもできます。
+
+<pre .example>
+  \un&ast;fucking&ast;believable
+
+\しかし、もし’&ast;’や’_’の前後に半角スペースがある場合には、強調処理は行われないで’&ast;’記号や’_’記号がそのまま文字として表現されます。
+強調ではなく、文字としてアスタリスク記号やアンダースコア記号を表現したい場合には、バックスラッシュ(円記号)をそれらの直前に記述します。
+<pre .example>
+ \\&ast;this text is surrounded by literal asterisks\&ast;
+
+<h4 id="__Code">Code -ソースコードの記述
+
+\ソースコードの断片を記述するためには、バック・クォート(`)で囲みます。 ソースコードのブロックとは異なって、コードの断片の記述は通常の段落内で行います。 例えば、
+<pre .example>
+  \Use the `printf()` function.
+
+\これは以下のように変換されます。
+
+<pre .example>
+  \&lt;p&gt;Use the &lt;code&gt;printf()&lt;/code&gt; function.&lt;/p&gt;
+
+\コードの中でバック・クォートを文字として表現したい場合ために、囲むバック・クォートを複数とすることができます。
+
+<pre .example>
+  \``There is a literal backtick (`) here.``
+
+\これは次のように変換されます。
+
+<pre .example>
+  \&lt;p&gt;&lt;code&gt;There is a literal backtick (`) here.&lt;/code&gt;&lt;/p&gt;
+
+\バック・クォートで囲む内側、最初のバック・クォートの直後と最後のバック・クォートの直前にはスペースがあってかまいません。 これによって、囲まれたバッククォートの最初もしくは最後に文字としてバッククォートを扱うことできます。
+
+<pre .example>
+  \A single backtick in a code span: `` ` ``
+  \
+  \A backtick-delimited string in a code span: `` `foo` ``
+
+\これらは次のように変換されます。
+
+<pre .example>
+  \&lt;p&gt;A single backtick in a code span: &lt;code&gt;`&lt;/code&gt;&lt;/p&gt;
+  <br>
+  \
+  <br>
+  \&lt;p&gt;A backtick-delimited string in a code span: &lt;code&gt;`foo`&lt;/code&gt;&lt;/p&gt;
+
+\コード記述の中ではアンバサンドやアングル・ブラケットはホームページで表現できるように自動的に変換されます。 そのためHTMLのソースコードのサンプルを記述することが簡単となります。 マークダウンは以下の記述を
+
+<pre .example>
+  \Please don't use any `&lt;blink&gt` tags.
+
+\以下に変換します。
+
+<pre .example>
+  \&lt;p&gt;Please don't use any &lt;code&gt;&lt;blink&gt;&lt;/code&gt; tags.&lt;/p&gt;
+
+\またこのように書くこともできます。
+
+<pre .example>
+  \`&amp;#8212;` is the decimal-encoded equivalent of `&amp;mdash;`.
+
+\このように変換されます。
+
+<pre .example>
+  \&lt;p&gt;&lt;code&gt;&#8212;&lt;/code&gt; is the decimal-encoded
+  <br>
+  \equivalent of &lt;code&gt;&mdash;&lt;/code&gt;.&lt;/p&gt;
+
+<h4 id="__Images">Images – 画像
+
+\原文となるテキスト文書の中に画像を置くための「自然な」ルールを考えることは困難です。
+Markdownは画像に関するルールをリンクに関するルールに近い形で扱います。 つまり、直接と参照という二つの形式をサポートします。
+画像の直接リンクの方法は以下のとおりです。
+
+<pre .example>
+  \![Alt text](/path/to/img.jpg)
+  <br>
+  \
+  <br>
+  \![Alt text](/path/to/img.jpg "Optional title")
+
+\つまり、
+一つのビックリマーク(!)が配置してあって…
+角カッコが続きます。この角カッコは、画像の代替テキストを含んでいます。
+さらに画像のURLやパスを囲んだ丸カッコが続きます。後ろにシングルかもしくはダブル・クオンテーションで囲んだタイトルを追加してもかまいません。
+参照式では画像のルールは以下のようになります。
+
+<pre .example>
+  \![Alt text][id]
+
+\idは定められた画像の参照を示すものです。 画像の参照はリンクの場合と同様な定義によって定義されます。
+
+<pre .example>
+  \[id]: url/to/image  "Optional title attribute"
+
+\現在、Markdownでは画像リンクの際に大きさを指定できません。 もし使用したい場合は&lt;img&gt;タグを直接使用してください。
+
+<h3 id="__Miscellaneous">Miscellaneous – その他様々なこと
+
+<h4 id="__AutomaticLinks">Automatic Links – 自動リンク
+
+\MarkdownはURLやメールアドレスへの自動リンクをサポートしています。 URLやメールアドレスをアングル・ブランケット(’&lt;’と’&gt;')で囲むだけです。 つまり、もしURLやメールアドレスを表示して、かつそれがクリックするとリンクするようにするのは あなたはこう書けば良いのです。
+<pre .example>
+  \&lt;http://example.com/&gt;
+
+\Markdownはこれを下のように変換します。
+
+\&lt;a href="http://example.com/"&gt;http://example.com/&lt;/a&gt;
+
+\メールアドレスの自動リンクも同様です。 ただしMarkdownはこの場合、メールアドレスをメールアドレス収集スパムボットから隠蔽するために ランダムな10進法もしくは16進法を構成します。 例えばMarkdownは以下について、
+<pre .example>
+  \&lt;address@example.com&gt;
+
+\このような形で変換します。
+
+<pre .example>
+  \&lt;a href="&amp;#x6D;&amp;#x61;i&amp;#x6C;&amp;#x74;&amp;#x6F;:&amp;#x61;&amp;#x64;&amp;#x64;&amp;#x72;&amp;#x65;
+  <br>
+  &amp;#115;&amp;#115;&amp;#64;&amp;#101;&amp;#120;&amp;#x61;&amp;#109;&amp;#x70;&amp;#x6C;e&amp;#x2E;&amp;#99;&amp;#111;
+  <br>
+  &amp;#109;"&gt;&amp;#x61;&amp;#x64;&amp;#x64;&amp;#x72;&amp;#x65;&amp;#115;&amp;#115;&amp;#64;&amp;#101;&amp;#120;&amp;#x61;
+  <br>
+  &amp;#109;&amp;#x70;&amp;#x6C;e&amp;#x2E;&amp;#99;&amp;#111;&amp;#109;&lt;/a&gt;
+
+\ブラウザでは、address@example.comが表示され、リンクになっているはずです。
+(このエンコードトリックはほとんど、とは言わないまでも多くのアドレス収集ロボットを欺くことができます。 しかし、ロボットの全てではありません。何もやらないよりはましという程度です。 公開されたメールアドレスは何かのきっかけでスパムが届きはじめるものです。)
+
+<h4 id="BackslashEscapes">Backslash Escapes – バックスラッシュ(円記号)による変換回避
+
+\Markdownのルール上特別の意味を持つ記号や文字をそのまま表現する場合にバックスラッシュ(円記号)を使用することによって回避できます。 例えば、もしアスタリスクを強調(HTMLの<em>タグを使用)させるのではなく、そのままアスタリスクを表示したい場合は、 以下のようにアスタリスクの前にバックスラッシュ(円記号)を記述します。
+
+<pre .example>
+  \\&ast;literal asterisks\&ast;
+
+\Markdownでは以下の文字について、バックスラッシュ(円記号)による変換処理の回避が可能です。
+<pre .example>
+  \\   backslash
+  <br>
+  \`   backtick
+  <br>
+  \*   asterisk
+  <br>
+  \_   underscore
+  <br>
+  \{}  curly braces
+  <br>
+  \[]  square brackets
+  <br>
+  \()  parentheses
+  <br>
+  \#   hash mark
+  <br>
+  \+   plus sign
+  <br>
+  \-   minus sign (hyphen)
+  <br>
+  \.   dot
+  <br>
+  \!   exclamation mark
