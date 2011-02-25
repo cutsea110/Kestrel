@@ -6,7 +6,7 @@
         \^{pageHead pc}
         \^{ga}
     <body>
-        <div id="doc" .kui-t1>
+        <div id="doc" .kui-t1 .clearfix>
           <div id="kui-main">
             <div id="maincol" .kui-b>
               \^{header}
@@ -14,11 +14,11 @@
                 <div id="message">#{msg}
               \^{pageBody pc}
               \^{footer}
-          <div id="sidebar" .kui-b>
+          <div id="sidebar" .kui-b .clearfix>
             <div id="kestrel-logo">
               <a title="Go to top page" alt="site logo" href="@?{topView}">
                 <img src="@{StaticR img_kestrel_logo_png}">
-            <div id="sidenavi" .sidebox>
+            <div id="sidenavi" .sidebox .clearfix>
             <div id="recent-changes" .sidebox>
             <div id="tools" .sidebox>
               <fieldset>
