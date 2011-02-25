@@ -6,7 +6,7 @@
         \^{pageHead pc}
         \^{ga}
     <body>
-        <div id="doc" .kui-t1>
+        <div id="doc" .kui-t1 .clearfix>
           <div id="seitoku-header-logo">
             <img id="seitoku-header" src="@{StaticR img_seitoku_header_gif}">
           <div id="kui-main">
@@ -16,8 +16,8 @@
                 <div id="message">#{msg}
               \^{pageBody pc}
               \^{footer}
-          <div id="sidebar" .kui-b>
-            <div id="sidenavi" .sidebox>
+          <div id="sidebar" .kui-b .clearfix>
+            <div id="sidenavi" .sidebox .clearfix>
             <div id="recent-changes" .sidebox>
             <div id="tools" .sidebox>
               <fieldset>
