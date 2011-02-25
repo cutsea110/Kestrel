@@ -184,8 +184,14 @@ function makeImageLink(uri,name,ext,size,pos){
       img = $("<img/>").attr({src:iconsrc+uncache}),
       anc = $("<a/>").attr({href:"#"}),
       li = $("<li/>").addClass("image-gallery"),
-      img_markdown = (imgP ? "!" : "") + "["+name+"]("+uri+")",
+      img_markdown = "",
+      divclose = "\n</div>",
       obj = $("#content")[0];
+  if (imgP) {
+    img_markdown = '<div class="clearfix">\n<img src="'+uri+'" class="floatl" />\n' + divclose;
+  }else{
+    img_markdown ="["+name+"]("+uri+")";
+  }
 
   img.bind('load', function(){
     var ow = $(this).width(),
@@ -211,12 +217,13 @@ function makeImageLink(uri,name,ext,size,pos){
       obj.focus();
       if (jQuery.browser.msie) {
         pos.text = img_markdown;
+        pos.move('character', -(divclose.length));
         pos.select();
       }else{
         var s = obj.value;
-        var np = pos + img_markdown.length;
+        var np = pos + img_markdown.length - divclose.length;
         obj.value = s.substr(0,pos) + img_markdown + s.substr(pos);
-        obj.setSelectionRange(np,np);
+        obj.setSelectionRange(np, np);
       }
       return false;
     });
