@@ -42,7 +42,10 @@ $(document).ready(function(){
   $(".login-options").attr("title","Login to Kestrel").dialog({
     autoOpen: true,
     width: 520,
-    modal: true
+    modal: true,
+    open: function () {
+      document.getElementById('loginAccountId').focus();
+    }
   });
   $(".login_button").click(function(){
     $(this).addClass("press");
