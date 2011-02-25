@@ -197,7 +197,7 @@ function makeImageLink(uri,name,ext,size,pos){
       divclose = "\n</div>",
       obj = $("#content")[0];
   if (imgP) {
-    img_markdown = '<div class="clearfix">\n<img src="'+uri+'" class="floatl" />\n' + divclose;
+    img_markdown = '<div class="clearfix">\n<img src="'+uri+'" title="'+name+'" class="floatl" />\n' + divclose;
   }else{
     img_markdown ="["+name+"]("+uri+")";
   }
