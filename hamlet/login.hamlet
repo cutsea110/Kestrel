@@ -5,7 +5,7 @@
         <tr>
           <th>Account ID:
           <td>
-            <input type="account" name="account" placeholder="account" .watermark .required>
+            <input #loginAccountId type="account" name="account" placeholder="account" .watermark .required>
         <tr>
           <th>Password:
           <td>

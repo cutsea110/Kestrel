@@ -334,6 +334,7 @@ instance YesodAuth Kestrel where
 
     loginHandler = do
       defaultLayout $ do
+        setTitle $ string "Login"
         addCassius $(Settings.cassiusFile "login")
         addHamlet $(Settings.hamletFile "login")
 
