@@ -37,7 +37,6 @@ module Kestrel
     , wikiWriterOption
     , sidePaneWriterOption
     , WriterOptions(..)
-    , showDate
     , dropPrefix
       --
     , UserCrud
@@ -71,8 +70,6 @@ import qualified Text.Highlighting.Kate as Kate
 import Text.XHtml.Strict (showHtmlFragment)
 import Data.Char (toLower)
 import qualified Text.ParserCombinators.Parsec as P
-import Data.Time
-import System.Locale
 import qualified Data.Map as Map (lookup, fromList)
 import Web.Encodings (encodeUrl, decodeUrl)
 import Data.List (intercalate, inits)
@@ -531,9 +528,6 @@ findRight p (a:as) = case p a of
       
 -- mkWikiDictionary :: [(Key Wiki, Wiki)] -> Map.Map String Wiki
 mkWikiDictionary = Map.fromList . map (((,).wikiPath.snd) <*> snd)
-
-showDate :: UTCTime -> String
-showDate = formatTime defaultTimeLocale "%Y-%m-%d %H:%M:%S"
 
 inlinesToString :: [Inline] -> String
 inlinesToString = concatMap go

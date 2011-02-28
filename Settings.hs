@@ -27,6 +27,7 @@ module Settings
     , twitterConsumerSecret
     , googleAnalyticsUA
     , addThisUser
+    , tz
     ) where
 
 import qualified Text.Hamlet as H
@@ -86,6 +87,10 @@ sidePaneTitle = "サイト ナビ"
 
 newDays :: Integer
 newDays = 3
+
+-- | TimeZone. this value used as `hoursToTimeZone tz'.
+tz :: Int
+tz = 9
 
 facebookApplicationId,facebookApplicationSecret :: String
 (facebookApplicationId,facebookApplicationSecret) =

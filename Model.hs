@@ -7,6 +7,9 @@ import Database.Persist.TH (share2)
 import Database.Persist.GenericSql (mkMigrate)
 import Data.Time
 import Data.Int
+import System.Locale
+
+import qualified Settings (tz)
 
 type Version = Int
 
@@ -60,3 +63,8 @@ FileHeader
 userDisplayName :: User -> String
 userDisplayName (User _ _ (Just x) _) = x
 userDisplayName (User x _ _ _) = x
+
+showDate :: UTCTime -> String
+showDate = formatTime defaultTimeLocale "%Y-%m-%d %H:%M:%S" . utc2local
+  where
+    utc2local = utcToLocalTime $ hoursToTimeZone Settings.tz
