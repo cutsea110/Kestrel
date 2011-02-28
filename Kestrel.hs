@@ -62,7 +62,6 @@ import Data.Maybe (isJust)
 import Control.Monad (join, unless, mplus, mzero, MonadPlus)
 import Control.Applicative ((<$>),(<*>))
 import Network.Mail.Mime
-import Network.Wai
 import qualified Data.Text.Lazy
 import qualified Data.Text.Lazy.Encoding
 import Text.Jasmine (minifym)
@@ -90,6 +89,7 @@ import qualified Settings
 data Kestrel = Kestrel
     { getStatic :: Static -- ^ Settings for static file serving.
     , connPool :: Settings.ConnectionPool -- ^ Database connection pool.
+    , isHTTPS :: Bool
     }
 
 -- | A useful synonym; most of the handler functions in your application
@@ -190,7 +190,7 @@ ancestory = map WikiPage . filter (/=[]) . inits . unWikiPage
 -- Please see the documentation for the Yesod typeclass. There are a number
 -- of settings which can be configured by overriding methods here.
 instance Yesod Kestrel where
-    approot _ = Settings.approot
+    approot app = (if isHTTPS app then "https://" else "http://") ++ Settings.approot
     
     defaultLayout widget = do
         y <- getYesod
@@ -201,7 +201,7 @@ instance Yesod Kestrel where
         cr <- getCurrentRoute
         let mgaUA = Settings.googleAnalyticsUA
             maTUser = Settings.addThisUser
-            googleInurl = dropSchema Settings.approot
+            googleInurl = dropSchema $ approot y
             ga = $(Settings.hamletFile "ga")
             header = $(Settings.hamletFile "header")
             footer = $(Settings.hamletFile "footer")
@@ -223,7 +223,7 @@ instance Yesod Kestrel where
     -- This is done to provide an optimization for serving static files from
     -- a separate domain. Please see the staticroot setting in Settings.hs
     urlRenderOverride a (StaticR s) =
-        Just $ uncurry (joinPath a Settings.staticroot) $ renderRoute s
+        Just $ uncurry (joinPath a $ approot a ++ Settings.staticroot) $ renderRoute s
     urlRenderOverride _ _ = Nothing
 
     -- The page to be redirected to when authentication is required.

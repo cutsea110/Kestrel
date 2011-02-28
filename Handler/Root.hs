@@ -61,14 +61,15 @@ getFeedR = runDB $ do
 getRecentChangesR :: Handler RepJson
 getRecentChangesR = do 
   render <- getUrlRender
+  y <- getYesod
   entries <- runDB $ selectList [] [WikiUpdatedDesc] 10 0
   cacheSeconds 10 -- FIXME
   now <- liftIO getCurrentTime
-  jsonToRepJson $ jsonMap [("entries", jsonList $ map (go now render) entries)]
+  jsonToRepJson $ jsonMap [("entries", jsonList $ map (go now y render) entries)]
   where
-    go now r (wid@(WikiId wid'), w) = 
+    go now y r (wid@(WikiId wid'), w) = 
       jsonMap [ ("title", jsonScalar (wikiPath w))
-              , ("uri", jsonScalar $ dropPrefix Settings.rootRelativePath $ r $ WikiR $ fromPath (wikiPath w))
+              , ("uri", jsonScalar $ dropPrefix (approot y) $ r $ WikiR $ fromPath (wikiPath w))
               , ("uday", jsonScalar $ show (wikiUpdated w))
               , ("new", jsonScalar $ show $ ((utctDay now) `diffDays` (utctDay $ wikiUpdated w)) <= Settings.newDays)
               ]

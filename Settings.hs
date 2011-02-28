@@ -15,11 +15,9 @@ module Settings
     , withConnectionPool
     , runConnectionPool
     , approot
-    , rootRelativePath
     , staticroot
     , staticdir
     , s3dir
-    , s3root
     , topTitle
     , sidePaneTitle
     , newDays
@@ -49,17 +47,9 @@ approot :: String
 -- you would probably want it to be:
 -- > approot = "http://www.yesod.com"
 -- Please note that there is no trailing slash.
-approot = "http://localhost:3000"
+approot = "localhost:3000"
 #else
-approot = "http://localhost:3000"
-#endif
-
--- | The base URL for your site's root relative top path with consider apache.
-rootRelativePath :: String
-#ifdef PRODUCTION
-rootRelativePath = "http://localhost:3000"
-#else
-rootRelativePath = "http://localhost:3000"
+approot = "localhost:3000"
 #endif
 
 -- | The location of static files on your system. This is a file system
@@ -81,12 +71,11 @@ staticdir = "static"
 --
 -- To see how this value is used, see urlRenderOverride in Kestrel.hs
 staticroot :: String
-staticroot = approot ++ "/static"
+staticroot = "/static"
+
 
 s3dir :: FilePath
 s3dir = "s3"
-s3root :: String
-s3root = approot ++ "/s3"
 
 topTitle :: String
 -- topTitle = "Kestrel"
