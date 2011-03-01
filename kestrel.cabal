@@ -4,7 +4,7 @@ Synopsis:            the yesod web application.
 Homepage:            https://github.com/cutsea110/Kestrel
 License:             BSD3
 License-file:        LICENSE
-Author:              Seitoku Univ. Junior College, Department of Arts and Sciences
+Author:              Katsutoshi Itoh
 Maintainer:          cutsea110@gmail.com
 Category:            Web
 Build-type:          Simple
