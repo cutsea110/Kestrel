@@ -187,7 +187,7 @@ ancestory = map WikiPage . filter (/=[]) . inits . unWikiPage
 -- Please see the documentation for the Yesod typeclass. There are a number
 -- of settings which can be configured by overriding methods here.
 instance Yesod Kestrel where
-    approot app = (if isHTTPS app then "https://" else "http://") ++ Settings.approot
+    approot app = (if isHTTPS app then "https://" else "http://") ++ Settings.approot ++ Settings.rootbase
     
     defaultLayout widget = do
         y <- getYesod

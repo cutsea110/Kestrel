@@ -21,7 +21,7 @@ import System.Directory
 import System.FilePath
 import Web.Encodings (encodeUrl, decodeUrl)
 
-import qualified Settings (s3dir)
+import qualified Settings (s3dir, rootbase)
 import Settings (widgetFile, cassiusFile)
 
 getUploadR :: Handler RepHtml
@@ -73,7 +73,7 @@ postUploadR = do
         Nothing -> invalidArgs ["upload file is required."]
         Just (fid@(FileHeaderId f), name, ext, fsize, cdate) -> do
           cacheSeconds 10 -- FIXME
-          let rf = dropPrefix (approot y) $ r $ FileR uid fid
+          let rf = Settings.rootbase ++ (dropPrefix (approot y) $ r $ FileR uid fid)
           fmap RepXml $ hamletToContent
                       [$xhamlet|\
 <file>
@@ -127,7 +127,7 @@ deleteFileR uid@(UserId uid') fid@(FileHeaderId fid') = do
     runDB $ delete fid
     let s3dir = Settings.s3dir </> show uid'
         s3fp = s3dir </> show fid'
-        rf = dropPrefix (approot y) $ r $ FileR uid fid
+        rf = Settings.rootbase ++ (dropPrefix (approot y) $ r $ FileR uid fid)
     liftIO $ removeFile s3fp
     fmap RepXml $ hamletToContent
                   [$xhamlet|\
@@ -154,5 +154,5 @@ getFileListR uid@(UserId uid') = do
               , ("ext" , jsonScalar ext)
               , ("size", jsonScalar $ show size)
               , ("cdate", jsonScalar $ show cdate)
-              , ("uri", jsonScalar $ dropPrefix (approot y) $ r $ FileR uid fid)
+              , ("uri", jsonScalar $ Settings.rootbase ++ (dropPrefix (approot y) $ r $ FileR uid fid))
               ]
