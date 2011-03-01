@@ -21,7 +21,7 @@ import System.Directory
 import System.FilePath
 import Web.Encodings (encodeUrl, decodeUrl)
 
-import qualified Settings (approot, rootRelativePath, s3dir, s3root)
+import qualified Settings (s3dir, rootbase)
 import Settings (widgetFile, cassiusFile)
 
 getUploadR :: Handler RepHtml
@@ -62,6 +62,7 @@ upload uid@(UserId uid') fi = do
 postUploadR :: Handler RepXml
 postUploadR = do
   (uid, _) <- requireAuth
+  y <- getYesod
   mfi <- lookupFile "upfile"
   case mfi of
     Nothing -> invalidArgs ["upload file is required."]
@@ -72,7 +73,7 @@ postUploadR = do
         Nothing -> invalidArgs ["upload file is required."]
         Just (fid@(FileHeaderId f), name, ext, fsize, cdate) -> do
           cacheSeconds 10 -- FIXME
-          let rf = dropPrefix Settings.rootRelativePath $ r $ FileR uid fid
+          let rf = Settings.rootbase ++ (dropPrefix (approot y) $ r $ FileR uid fid)
           fmap RepXml $ hamletToContent
                       [$xhamlet|\
 <file>
@@ -117,6 +118,7 @@ postFileR uid@(UserId uid') fid@(FileHeaderId fid') = do
 deleteFileR :: UserId -> FileHeaderId -> Handler RepXml
 deleteFileR uid@(UserId uid') fid@(FileHeaderId fid') = do
   (uid'', _) <- requireAuth
+  y <- getYesod
   if uid/=uid''
     then
     invalidArgs ["You couldn't delete this resource."]
@@ -125,7 +127,7 @@ deleteFileR uid@(UserId uid') fid@(FileHeaderId fid') = do
     runDB $ delete fid
     let s3dir = Settings.s3dir </> show uid'
         s3fp = s3dir </> show fid'
-        rf = dropPrefix Settings.rootRelativePath $ r $ FileR uid fid
+        rf = Settings.rootbase ++ (dropPrefix (approot y) $ r $ FileR uid fid)
     liftIO $ removeFile s3fp
     fmap RepXml $ hamletToContent
                   [$xhamlet|\
@@ -136,12 +138,13 @@ deleteFileR uid@(UserId uid') fid@(FileHeaderId fid') = do
 getFileListR :: UserId -> Handler RepJson
 getFileListR uid@(UserId uid') = do
   _ <- requireAuth
+  y <- getYesod
   render <- getUrlRender
   files <- runDB $ selectList [FileHeaderCreatorEq uid] [FileHeaderCreatedDesc] 0 0
   cacheSeconds 10 -- FIXME
-  jsonToRepJson $ jsonMap [("files", jsonList $ map (go render) files)]
+  jsonToRepJson $ jsonMap [("files", jsonList $ map (go y render) files)]
   where
-    go r (fid@(FileHeaderId fid'), f@FileHeader
+    go y r (fid@(FileHeaderId fid'), f@FileHeader
                { fileHeaderFullname = name
                , fileHeaderExtension = ext
                , fileHeaderFileSize = size
@@ -151,5 +154,5 @@ getFileListR uid@(UserId uid') = do
               , ("ext" , jsonScalar ext)
               , ("size", jsonScalar $ show size)
               , ("cdate", jsonScalar $ show cdate)
-              , ("uri", jsonScalar $ dropPrefix Settings.rootRelativePath $ r $ FileR uid fid)
+              , ("uri", jsonScalar $ Settings.rootbase ++ (dropPrefix (approot y) $ r $ FileR uid fid))
               ]

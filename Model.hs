@@ -3,11 +3,13 @@
 module Model where
 
 import Yesod
-import Yesod.Form.Core
 import Database.Persist.TH (share2)
 import Database.Persist.GenericSql (mkMigrate)
 import Data.Time
 import Data.Int
+import System.Locale
+
+import qualified Settings (tz)
 
 type Version = Int
 
@@ -62,16 +64,7 @@ userDisplayName :: User -> String
 userDisplayName (User _ _ (Just x) _) = x
 userDisplayName (User x _ _ _) = x
 
-
-passwordField' :: (IsForm f, FormType f ~ String)
-              => FormFieldSettings -> Maybe String -> f
-passwordField' = requiredFieldHelper passwordFieldProfile'
+showDate :: UTCTime -> String
+showDate = formatTime defaultTimeLocale "%Y-%m-%d %H:%M:%S" . utc2local
   where
-    passwordFieldProfile' :: FieldProfile s m String
-    passwordFieldProfile' = FieldProfile
-      { fpParse = Right
-      , fpRender = const ""
-      , fpWidget = \theId name val isReq -> 
-      addHamlet [$hamlet|<input id="#{theId}" name="#{name}" type="password" :isReq:required="" value="#{val}">
-|]
-      }
+    utc2local = utcToLocalTime $ hoursToTimeZone Settings.tz

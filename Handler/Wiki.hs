@@ -405,7 +405,6 @@ getHistoriesR wp = do
           notEpoch = \h -> wikiHistoryVersion h /= 0
           canDiff = \h -> notCurrent h || notEpoch h
           canDiff2 = \h -> notCurrent h && notEpoch h
-          showDate = formatTime defaultTimeLocale "%Y-%m-%d %H:%M:%S"
           altClass = \h -> if wikiHistoryVersion h `mod` 2 == 0
                            then "even"::String
                            else "odd"

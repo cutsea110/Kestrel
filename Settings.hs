@@ -15,11 +15,10 @@ module Settings
     , withConnectionPool
     , runConnectionPool
     , approot
-    , rootRelativePath
+    , rootbase
     , staticroot
     , staticdir
     , s3dir
-    , s3root
     , topTitle
     , sidePaneTitle
     , newDays
@@ -29,6 +28,7 @@ module Settings
     , twitterConsumerSecret
     , googleAnalyticsUA
     , addThisUser
+    , tz
     ) where
 
 import qualified Text.Hamlet as H
@@ -49,20 +49,13 @@ approot :: String
 -- you would probably want it to be:
 -- > approot = "http://www.yesod.com"
 -- Please note that there is no trailing slash.
--- approot = "http://192.168.4.147:3000"
-approot = "http://kestrel.timedia.co.jp"
+approot = "kestrel.timedia.co.jp"
 #else
--- approot = "http://192.168.4.147:3000"
-approot = "http://kestrel.timedia.co.jp"
+approot = "kestrel.timedia.co.jp"
 #endif
 
--- | The base URL for your site's root relative top path with consider apache.
-rootRelativePath :: String
-#ifdef PRODUCTION
-rootRelativePath = "http://kestrel.timedia.co.jp"
-#else
-rootRelativePath = "http://kestrel.timedia.co.jp"
-#endif
+rootbase :: String
+rootbase = ""
 
 -- | The location of static files on your system. This is a file system
 -- path. The default value works properly with your scaffolded site.
@@ -83,12 +76,11 @@ staticdir = "static"
 --
 -- To see how this value is used, see urlRenderOverride in Kestrel.hs
 staticroot :: String
-staticroot = approot ++ "/static"
+staticroot = "/static"
+
 
 s3dir :: FilePath
 s3dir = "s3"
-s3root :: String
-s3root = approot ++ "/s3"
 
 topTitle :: String
 -- topTitle = "Kestrel"
@@ -99,6 +91,10 @@ sidePaneTitle = "サイト ナビ"
 
 newDays :: Integer
 newDays = 3
+
+-- | TimeZone. this value used as `hoursToTimeZone tz'.
+tz :: Int
+tz = 9
 
 facebookApplicationId,facebookApplicationSecret :: String
 (facebookApplicationId,facebookApplicationSecret) =
