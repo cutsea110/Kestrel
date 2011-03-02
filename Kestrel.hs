@@ -71,7 +71,7 @@ import Text.XHtml.Strict (showHtmlFragment)
 import Data.Char (toLower)
 import qualified Text.ParserCombinators.Parsec as P
 import qualified Data.Map as Map (lookup, fromList)
-import Web.Encodings (encodeUrl, decodeUrl)
+import Web.Encodings (encodeUrl)
 import Data.List (intercalate, inits)
 import Data.List.Split (splitOn)
 
@@ -193,7 +193,6 @@ instance Yesod Kestrel where
         y <- getYesod
         mu <- maybeAuth
         mmsg <- getMessage
-        render <- getUrlRender
         r2m <- getRouteToMaster
         cr <- getCurrentRoute
         let mgaUA = Settings.googleAnalyticsUA
@@ -488,13 +487,12 @@ wikiLink render pages (Link ls ("", "")) =
       Emph [Str p', Link [Str "?"] (render NewR [("path", path'), ("mode", "v")], p')]
   where
     p' = inlinesToString ls
-    path = decodeUrl p'
     path' = encodeUrl p'
 wikiLink _ _ x = x
 
 codeHighlighting :: Block -> Block
 codeHighlighting b@(CodeBlock (_, attr, _) src) =
-  case marry xs langs of
+  case marry ls langs of
     l:_ ->
       case Kate.highlightAs l src of
         Right result -> RawHtml $ showHtmlFragment $ Kate.formatAsXHtml opts l result
@@ -504,12 +502,11 @@ codeHighlighting b@(CodeBlock (_, attr, _) src) =
     opts = [Kate.OptNumberLines] `mplus` (findRight (P.parse lineNo "") attr)
     -- Language
     toL = map $ map toLower
-    (xs, langs) = (toL attr, toL Kate.languages)
+    (ls, langs) = (toL attr, toL Kate.languages)
     marry xs ys = [x | x <- xs, y <- ys, x == y]
     -- OptNumberFrom Int
     lineNo :: P.Parser Kate.FormatOption
     lineNo = do
-      pref <- P.string "lineFrom"
       n <- number
       P.eof
       return $ Kate.OptNumberFrom n
@@ -570,4 +567,4 @@ dropPrefix xs ys = dp' ys xs ys
 dropSchema :: String -> String
 dropSchema ('h':'t':'t':'p':':':'/':'/':s) = s ++ "/"
 dropSchema ('h':'t':'t':'p':'s':':':'/':'/':s) = s ++ "/"
--- dropSchema s = s -- FIXME
+dropSchema s = s -- FIXME

@@ -12,7 +12,7 @@ Cabal-version:       >=1.6
 Executable kestrel
      cpp-options:    -DPRODUCTION
      Main-is:        kestrel.hs
-     ghc-options:    -Wall -threaded
+     ghc-options:    -Wall -threaded -fno-warn-unused-do-bind
   
      Data-files:    favicon.ico
                   , hamlet/*.hamlet

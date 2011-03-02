@@ -61,13 +61,12 @@ getFeedR = runDB $ do
 getRecentChangesR :: Handler RepJson
 getRecentChangesR = do 
   render <- getUrlRender
-  y <- getYesod
   entries <- runDB $ selectList [] [WikiUpdatedDesc] 10 0
   cacheSeconds 10 -- FIXME
   now <- liftIO getCurrentTime
-  jsonToRepJson $ jsonMap [("entries", jsonList $ map (go now y render) entries)]
+  jsonToRepJson $ jsonMap [("entries", jsonList $ map (go now render) entries)]
   where
-    go now y r (wid@(WikiId wid'), w) = 
+    go now r (_, w) = 
       jsonMap [ ("title", jsonScalar (wikiPath w))
               , ("uri", jsonScalar $ r $ WikiR $ fromPath (wikiPath w))
               , ("uday", jsonScalar $ show (wikiUpdated w))
@@ -79,7 +78,7 @@ getAuthStatusR = do
   mu <- maybeAuth
   case mu of
     Nothing -> jsonToRepJson $ jsonMap [("status", jsonScalar "401")]
-    Just u  -> jsonToRepJson $ jsonMap [("status", jsonScalar "200")]
+    Just _  -> jsonToRepJson $ jsonMap [("status", jsonScalar "200")]
 
 getAuthToGoR :: Handler ()
 getAuthToGoR = do
@@ -87,5 +86,5 @@ getAuthToGoR = do
   case go of
     Nothing -> uncurry (redirectParams RedirectTemporary) topView
     Just r -> do
-      (uid, _) <- requireAuth
+      _ <- requireAuth
       redirectString RedirectTemporary $ pack r
