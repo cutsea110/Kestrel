@@ -62,6 +62,9 @@ FileHeader
     created UTCTime Desc
 |]
 
+instance Item User where
+  itemTitle = userInfoOneline
+
 userDisplayName :: User -> String
 userDisplayName (User _ _ (Just x) _) = x
 userDisplayName (User x _ _ _) = x
@@ -78,6 +81,3 @@ userInfoOneline u = "[" ++ showPrettyActive u ++ "] " ++ userIdent u ++ " (" ++ 
 
 showPrettyActive :: User -> String
 showPrettyActive u = if userActive u then "有効" else "無効"
-
-instance Item User where
-  itemTitle = userInfoOneline
