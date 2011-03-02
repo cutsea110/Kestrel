@@ -7,6 +7,7 @@ import Database.Persist.TH (share2)
 import Database.Persist.GenericSql (mkMigrate)
 import Data.Time
 import Data.Int
+import Data.Maybe (fromMaybe)
 import System.Locale
 
 import qualified Settings (tz)
@@ -68,3 +69,12 @@ showDate :: UTCTime -> String
 showDate = formatTime defaultTimeLocale "%Y-%m-%d %H:%M:%S" . utc2local
   where
     utc2local = utcToLocalTime $ hoursToTimeZone Settings.tz
+
+userInfoOneline :: User -> String
+userInfoOneline u = "[" ++ showPrettyActive u ++ "] " ++ userIdent u ++ " (" ++ nickname u ++ ")"
+  where
+    nickname = fromMaybe "no nickname" . userNickname
+
+showPrettyActive :: User -> String
+showPrettyActive u = if userActive u then "有効" else "無効"
+
