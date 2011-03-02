@@ -75,6 +75,7 @@ postUploadR = do
           fmap RepXml $ hamletToContent
                       [$xhamlet|\
 <file>
+  <fhid>#{show fid}
   <name>#{name}
   <ext>#{ext}
   <size>#{show fsize}
