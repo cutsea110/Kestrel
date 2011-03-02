@@ -3,6 +3,7 @@
 module Model where
 
 import Yesod
+import Yesod.Helpers.Crud
 import Database.Persist.TH (share2)
 import Database.Persist.GenericSql (mkMigrate)
 import Data.Time
@@ -78,3 +79,5 @@ userInfoOneline u = "[" ++ showPrettyActive u ++ "] " ++ userIdent u ++ " (" ++ 
 showPrettyActive :: User -> String
 showPrettyActive u = if userActive u then "有効" else "無効"
 
+instance Item User where
+  itemTitle = userInfoOneline

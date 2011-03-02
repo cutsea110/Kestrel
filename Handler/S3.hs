@@ -11,7 +11,9 @@ module Handler.S3
        ) where
 
 import Kestrel
+import Control.Monad.IO.Class
 import Data.Time
+import Data.Int
 import qualified Data.ByteString.Lazy as L
 import Data.ByteString.Char8 (pack)
 import System.Directory
@@ -28,9 +30,8 @@ getUploadR = do
     addCassius $(cassiusFile "s3/s3")
     addWidget $(widgetFile "s3/upload")
 
--- | upload
---   :: (PersistBackend m, Control.Monad.IO.Class.MonadIO m) =>
---      Key User -> FileInfo -> m (Maybe (Key FileHeader, String, String, Int64, UTCTime))
+upload :: (PersistBackend m, Control.Monad.IO.Class.MonadIO m) =>
+          Key User -> FileInfo -> m (Maybe (Key FileHeader, String, String, Int64, UTCTime))
 upload uid@(UserId uid') fi = do
   if fileName fi /= "" && L.length (fileContent fi) > 0
     then do

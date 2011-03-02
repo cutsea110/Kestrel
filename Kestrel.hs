@@ -59,6 +59,7 @@ import qualified Data.ByteString.Lazy as L
 import Database.Persist.GenericSql
 import Data.Maybe (isJust)
 import Control.Monad (join, unless, mplus, mzero, MonadPlus)
+import Control.Monad.Trans.Class
 import Control.Applicative ((<$>),(<*>))
 import Network.Mail.Mime
 import qualified Data.Text.Lazy
@@ -70,7 +71,7 @@ import qualified Text.Highlighting.Kate as Kate
 import Text.XHtml.Strict (showHtmlFragment)
 import Data.Char (toLower)
 import qualified Text.ParserCombinators.Parsec as P
-import qualified Data.Map as Map (lookup, fromList)
+import qualified Data.Map as Map (lookup, fromList, Map)
 import Web.Encodings (encodeUrl)
 import Data.List (intercalate, inits)
 import Data.List.Split (splitOn)
@@ -255,9 +256,6 @@ instance YesodJquery Kestrel where
   urlJqueryUiJs _ = Left $ StaticR js_jquery_ui_1_8_9_custom_min_js
   urlJqueryUiCss _ = Left $ StaticR css_jquery_ui_1_8_9_custom_css
     
-instance Item User where
-  itemTitle = userInfoOneline
-
 type UserCrud = Crud Kestrel User
 
 instance ToForm User Kestrel where
@@ -434,6 +432,11 @@ instance YesodAuthEmail Kestrel where
 
 
 {- markdown utility -}
+markdownToWikiHtml :: (Route master ~ KestrelRoute,
+                       PersistBackend (t (GGHandler sub master m)),
+                       Monad m,
+                       Control.Monad.Trans.Class.MonadTrans t) =>
+                      WriterOptions -> String -> t (GGHandler sub master m) Html
 markdownToWikiHtml opt raw = do
   render <- lift getUrlRenderParams
   pages <- selectList [] [WikiPathAsc, WikiUpdatedDesc] 0 0
@@ -441,6 +444,12 @@ markdownToWikiHtml opt raw = do
   let pdict = mkWikiDictionary pages
   return $ preEscapedString $ writeHtmlStr opt render pdict $ pandoc
 
+markdownsToWikiHtmls
+  :: (Route master ~ KestrelRoute,
+      PersistBackend (t (GGHandler sub master m)),
+      Monad m,
+      MonadTrans t) =>
+     WriterOptions -> [String] -> t (GGHandler sub master m) [Html]
 markdownsToWikiHtmls opt raws = do
   render <- lift getUrlRenderParams
   pages <- selectList [] [WikiPathAsc, WikiUpdatedDesc] 0 0
@@ -470,15 +479,15 @@ sidePaneWriterOption =
         , writerIdentifierPrefix = "sidepane-"
         }
 
--- writeHtmlStr :: WriterOptions (KestrelRoute -> String) -> Map.Map String Wiki -> Pandoc -> String
+writeHtmlStr ::  WriterOptions -> (KestrelRoute -> [(String, String)] -> String) -> Map.Map String Wiki -> Pandoc -> String
 writeHtmlStr opt render pages = 
   writeHtmlString opt . transformDoc render pages
 
--- transformDoc :: (KestrelRoute -> String) -> Map.Map String Wiki -> Pandoc -> Pandoc
+transformDoc :: (KestrelRoute -> [(String, String)] -> String) -> Map.Map String Wiki -> Pandoc -> Pandoc
 transformDoc render pages = processWith codeHighlighting . processWith (wikiLink render pages)
 
--- wikiLink :: (KestrelRoute -> String) -> Map.Map String Wiki -> Inline -> Inline
 -- Wiki Link Sign of WikiName is written as [WikiName]().
+wikiLink :: (KestrelRoute -> [(String, String)] -> String) -> Map.Map String Wiki -> Inline -> Inline
 wikiLink render pages (Link ls ("", "")) = 
   case Map.lookup p' pages of
     Just _  -> 
@@ -523,7 +532,7 @@ findRight p (a:as) = case p a of
   Left  _ -> findRight p as
   Right x -> return x
       
--- mkWikiDictionary :: [(Key Wiki, Wiki)] -> Map.Map String Wiki
+mkWikiDictionary :: [(WikiId, Wiki)] -> Map.Map String Wiki
 mkWikiDictionary = Map.fromList . map (((,).wikiPath.snd) <*> snd)
 
 inlinesToString :: [Inline] -> String

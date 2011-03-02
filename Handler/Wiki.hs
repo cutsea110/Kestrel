@@ -189,7 +189,7 @@ postWikiR wp = do
       (raw, com, ver) <- runFormPost' $ (,,)
                          <$> stringInput "content"
                          <*> maybeStringInput "comment"
-                         <*> intInput "version"
+                         <*> (intInput "version" :: FormInput sub master Int)
       content <- runDB $ markdownToWikiHtml wikiWriterOption raw
       let editMe = (WikiR wp, [("mode", "e")])
           deleteMe = (WikiR wp, [("mode", "d")])
@@ -322,11 +322,10 @@ postNewR = do
     createWiki :: Handler RepHtml
     createWiki = do
       (uid, _) <- requireAuth
-      (path', raw, com) <- runFormPost' $ (,,)
-                           <$> stringInput "path"
-                           <*> stringInput "content"
-                           <*> maybeStringInput "comment"
-      let path = decodeUrl path'
+      (path, raw, com) <- runFormPost' $ (,,)
+                          <$> (fmap decodeUrl . stringInput) "path"
+                          <*> stringInput "content"
+                          <*> maybeStringInput "comment"
       now <- liftIO getCurrentTime
       runDB $ do
         pid <- insert Wiki { 
@@ -382,7 +381,7 @@ getHistoriesR wp = do
     
     -- pages
     historyList :: Version -> Handler RepHtml
-    historyList v = do
+    historyList ver = do
       mu <- maybeAuth
       let path = pathOf wp
           isTop = wp == topPage
@@ -390,7 +389,7 @@ getHistoriesR wp = do
           pagingSize = 25
       hs'' <- getHistories
       let hs' = mkHistsWithDiff hs''
-          v' = if v >= 0 then v else curver
+          v' = if ver >= 0 then ver else curver
           hs = take pagingSize $ drop (max (curver-v') 0) hs'
           curver = (wikiHistoryVersion.snd.head) hs''
           editMe = (WikiR wp, [("mode", "e")])
@@ -404,9 +403,8 @@ getHistoriesR wp = do
           notEpoch = \h -> wikiHistoryVersion h /= 0
           canDiff = \h -> notCurrent h || notEpoch h
           canDiff2 = \h -> notCurrent h && notEpoch h
-          altClass = \h -> if wikiHistoryVersion h `mod` 2 == 0
-                           then "even"::String
-                           else "odd"
+          altClass :: WikiHistory -> String
+          altClass = \h -> if wikiHistoryVersion h `mod` 2 == 0 then "even" else "odd"
           mnext = if v' >= pagingSize
                   then Just (HistoriesR wp, [("ver", show $ v'-pagingSize)])
                   else Nothing
@@ -414,19 +412,19 @@ getHistoriesR wp = do
         setTitle $ string path
         addCassius $(cassiusFile "wiki")
         addJulius $(juliusFile "wiki")
-        addWidget $(widgetFile "listHistories")
+        addHamlet $(hamletFile "listHistories")
 
         
 
 getHistoryR :: Version -> WikiPage -> Handler RepHtml
-getHistoryR v wp = do
+getHistoryR vsn wp = do
   mode <- lookupGetParam "mode"
   case mode of
-    Just "v" {-       view       -} -> viewHistory v
-    Just "e" {-       edit       -} -> editHistory v
-    Just "p" {- diff to previous -} -> diffPrevious v
-    Just "c" {- diff to current  -} -> diffCurrent v
-    Just "r" {-      revert      -} -> revertHistory v
+    Just "v" {-       view       -} -> viewHistory vsn
+    Just "e" {-       edit       -} -> editHistory vsn
+    Just "p" {- diff to previous -} -> diffPrevious vsn
+    Just "c" {- diff to current  -} -> diffCurrent vsn
+    Just "r" {-      revert      -} -> revertHistory vsn
     _        {-      illegal     -} -> invalidArgs ["The possible values of 'mode' are l,v,e,p,c,r."]
   where
     -- Utility
@@ -540,13 +538,13 @@ getHistoryR v wp = do
 
 
 postHistoryR :: Version -> WikiPage -> Handler RepHtml
-postHistoryR v wp = do
+postHistoryR vsn wp = do
   _ <- requireAuth
   _method <- lookupPostParam "_method"
   case _method of
     Just "preview" -> previewHistory
     Just "commit"  -> putWikiR wp
-    Just "modify"  -> putHistoryR v wp
+    Just "modify"  -> putHistoryR vsn wp
     _              -> invalidArgs ["The possible values of '_method' are preview,commit,modify"]
   where
     
