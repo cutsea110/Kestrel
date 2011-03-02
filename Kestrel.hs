@@ -59,7 +59,7 @@ import qualified Data.ByteString.Lazy as L
 import Database.Persist.GenericSql
 import Data.Maybe (isJust)
 import Control.Monad (join, unless, mplus, mzero, MonadPlus)
-import Control.Monad.Trans.Class
+import Control.Monad.Trans.Class (MonadTrans)
 import Control.Applicative ((<$>),(<*>))
 import Network.Mail.Mime
 import qualified Data.Text.Lazy
