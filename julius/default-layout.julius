@@ -1,5 +1,5 @@
-$(document).ready(function(){
 
+$(document).ready(function(){
   if ('#{show mu}'=='Nothing') {
     $('#userbox').hide();
     $('ul.tabs').hide();
@@ -75,8 +75,7 @@ $(document).ready(function(){
     }
   });
 
-
-  $.getJSON('@RecentChangesR@', function(json){
+  $.getJSON('@{RecentChangesR}', function(json){
       var fs = $('<fieldset><legend>最近の更新</legend></fieldset>'),
           ul = $('<ul/>');
       $.each(json.entries, function(i, item){
