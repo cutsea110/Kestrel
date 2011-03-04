@@ -20,6 +20,9 @@
   <h3 .metatitle>Edit `#{path}'.
   \
   <form method="post" action="@{WikiR wp}" .validate>
+    <button type="submit" name="_method" value="preview">preview
+    <button type="submit" name="_method" value="commit">commit
+    <br>
     <input type="hidden" name="version" value="#{show ver}">
     <textarea id="content" name="content" .required .content>#{raw}
     <div .description>ChangeLog (brief summary of your edit for later reference):

@@ -16,6 +16,9 @@
   <h3 .metatitle>Edit `#{path}'.
   \
   <form method="post" action="@{NewR}" .validate>
+    <button type="submit" name="_method" value="preview">preview
+    <button type="submit" name="_method" value="commit">new create
+    <br>
     <input type="hidden" name="path" value="#{path'}">
     <textarea id="content" name="content" .required .content>
     <div .description>ChangeLog (brief summary of your edit for later reference):
