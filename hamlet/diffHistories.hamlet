@@ -5,25 +5,25 @@
         <a href="@{WikiR a}">#{lastNameOf a}
 <ul .tabs>
   <li>
-    <a href="@{WikiR wp}">View
+    <a href="@{WikiR wp}">表示
   <li>
     <a href="@?{editMe}">Edit
   <li>
-    <a href="@?{deleteMe}">Delete
+    <a href="@?{deleteMe}">削除
   <li .selected>
-    <a href="@{HistoriesR wp}">History
+    <a href="@{HistoriesR wp}">更新履歴
   $if not isTop
     <li>
-      <a href="@?{topView}">Top
+      <a href="@?{topView}">トップ
 \
 <div id="main-content">
   <h3 .metatitle>#{title}
   \
-  <div .plus>+ added line
-  <div .minus>- deleted line
+  <div .plus>+ 追加行
+  <div .minus>- 削除行
   \
   <div align="right">
-    <a href="@{HistoriesR wp}">Return to the edit history
+    <a href="@{HistoriesR wp}">更新履歴に戻る.
   \
   <div .diff>
     \#{content}

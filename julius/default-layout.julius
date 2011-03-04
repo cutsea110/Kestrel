@@ -30,7 +30,7 @@ $(document).ready(function(){
     }
   });
 
-  $(".login-options").attr("title","Login to Kestrel").dialog({
+  $(".login-options").attr("title","ログイン").dialog({
     autoOpen: true,
     width: 520,
     modal: true,
@@ -68,7 +68,7 @@ $(document).ready(function(){
 
 
   $.getJSON('@{RecentChangesR}', function(json){
-      var fs = $('<fieldset><legend>Recent Changes</legend></fieldset>'),
+      var fs = $('<fieldset><legend>最近の更新</legend></fieldset>'),
           ul = $('<ul/>');
       $.each(json.entries, function(i, item){
             var url = item.uri,
@@ -86,7 +86,7 @@ $(document).ready(function(){
       $('#recent-changes').append(fs.append(ul));
   });
 
-  $("#file_selector").hide().attr("title", "Select file").dialog({
+  $("#file_selector").hide().attr("title", "ファイルギャラリー").dialog({
     autoOpen: false,
     width: 680,
     modal: true

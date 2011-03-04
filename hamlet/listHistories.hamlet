@@ -5,54 +5,54 @@
         <a href="@{WikiR a}">#{lastNameOf a}
 <ul .tabs>
   <li>
-    <a href="@{WikiR wp}">View
+    <a href="@{WikiR wp}">表示
   <li>
-    <a href="@?{editMe}">Edit
+    <a href="@?{editMe}">編集
   <li>
-    <a href="@?{deleteMe}">Delete
+    <a href="@?{deleteMe}">削除
   <li .selected>
-    <a href="@{HistoriesR wp}">History
+    <a href="@{HistoriesR wp}">更新履歴
   $if not isTop
     <li>
-      <a href="@?{topView}">Top
+      <a href="@?{topView}">トップ
 \
 <div id="main-content">
-  <h3 .metatitle>`#{path}' ChangeLog.
+  <h3 .metatitle>`#{path}' の更新履歴.
   \
   <table .history>
     <thead>
       <tr>
-        <th rowspan="2">ver.
-        <th rowspan="2">updated date
-        <th>editor
-        <th>changes
-        <th>operation
+        <th rowspan="2">版
+        <th rowspan="2">更新日時
+        <th>更新者
+        <th>変更行数
+        <th>オペレーション
       <tr>
-        <th colspan="3">log comment
+        <th colspan="3">変更メモ
     <tbody>
     $forall h <- hs
       <tr class="#{altClass (snd3 h)}">
         <td rowspan="2" .number>#{show (wikiHistoryVersion (snd3 h))}
         <td rowspan="2">#{showDate (wikiHistoryUpdated (snd3 h))}
         <td>#{userDisplayName (fst3 h)}
-        <td>+#{show (fst (thd3 h))},#{show (snd (thd3 h))} line(s)
+        <td>+#{show (fst (thd3 h))},#{show (snd (thd3 h))}
         <td>
            \[
-           <a href="@?{viewVer (wikiHistoryVersion (snd3 h))}">View
+           <a href="@?{viewVer (wikiHistoryVersion (snd3 h))}">表示
+           \|&nbsp;この版を元に
+           <a href="@?{editVer (wikiHistoryVersion (snd3 h))}">編集
            \|
-           <a href="@?{editVer (wikiHistoryVersion (snd3 h))}">Edit
-           \&nbsp;this version|
-           <a href="@?{revertVer (wikiHistoryVersion (snd3 h))}">Revert
+           <a href="@?{revertVer (wikiHistoryVersion (snd3 h))}">巻き戻し
            \]
            $if canDiff (snd3 h)
-             \[Diff to 
+             \[
              $if notCurrent (snd3 h)
-               <a href="@?{currDiff (wikiHistoryVersion (snd3 h))}">current
+               <a href="@?{currDiff (wikiHistoryVersion (snd3 h))}">最新版
              $if canDiff2 (snd3 h)
                \|
              $if notEpoch (snd3 h)
-               <a href="@?{prevDiff (wikiHistoryVersion (snd3 h))}">previous
-             \]
+               <a href="@?{prevDiff (wikiHistoryVersion (snd3 h))}">前の版
+             \との差分]
       <tr class="#{altClass (snd3 h)}">
         <td colspan="3">
           $maybe u <- mu
@@ -66,14 +66,14 @@
           $nothing
             $maybe com <- wikiHistoryComment (snd3 h)
               $if isNull com
-                <span>*** no log comment ***
+                <span>*** 変更メモなし ***
               $else
                 <span>#{com}
             $nothing
-              <span>*** no log comment ***
+              <span>*** 変更メモなし ***
     $maybe next <- mnext
       <tr>
         <td colspan="5">
           \[
-          <a href="@?{next}">Older Histories...
+          <a href="@?{next}">より古い履歴はこちら.
           \]

@@ -5,31 +5,31 @@
         <a href="@{WikiR a}">#{lastNameOf a}
 <ul .tabs>
   <li>
-    <a href="@{WikiR wp}">View
+    <a href="@{WikiR wp}">表示
   <li .selected>
-    <a href="@?{editMe}">Edit
+    <a href="@?{editMe}">編集
   <li>
-    <a href="@?{deleteMe}">Delete
+    <a href="@?{deleteMe}">削除
   <li>
-    <a href="@{HistoriesR wp}">History
+    <a href="@{HistoriesR wp}">更新履歴
   $if not isTop
     <li>
-      <a href="@?{topView}">Top
+      <a href="@?{topView}">トップ
 \
 <div id="main-content">
-  <h3 .metatitle>Edit `#{path}'.
+  <h3 .metatitle> `#{path}' を編集中.
   \
   <form method="post" action="@{WikiR wp}" .validate>
-    <button type="submit" name="_method" value="preview">preview
-    <button type="submit" name="_method" value="commit">commit
+    <button type="submit" name="_method" value="preview">プレビューする
+    <button type="submit" name="_method" value="commit">更新する
     <br>
     <input type="hidden" name="version" value="#{show ver}">
     <textarea id="content" name="content" .required .content>#{raw}
-    <div .description>ChangeLog (brief summary of your edit for later reference):
+    <div .description>変更メモ (編集履歴で確認しやすいように簡単なメモを書いてください):
     <textarea name="comment" .comment>
     <br>
-    <button type="submit" name="_method" value="preview">preview
-    <button type="submit" name="_method" value="commit">commit
+    <button type="submit" name="_method" value="preview">プレビューする
+    <button type="submit" name="_method" value="commit">更新する
   \
   <div id="help">
     \^{markdown}

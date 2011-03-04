@@ -5,23 +5,23 @@
         <a href="@{WikiR a}">#{lastNameOf a}
 <ul .tabs>
   <li .selected>
-    <a href="@{WikiR wp}">View
+    <a href="@{WikiR wp}">表示
   <li>
-    <a href="@?{editMe}">Edit
+    <a href="@?{editMe}">編集
   <li>
-    <a href="@?{deleteMe}">Delete
+    <a href="@?{deleteMe}">削除
   <li>
-    <a href="@{HistoriesR wp}">History
+    <a href="@{HistoriesR wp}">更新履歴
   $if not isTop
     <li>
-      <a href="@?{topView}">Top
+      <a href="@?{topView}">トップ
 <div id="main-content">
   \#{content}
 \
   <div id="metainfo" align="right">
     $maybe e <- me
-      \Edited by: #{userDisplayName e}
+      \最終更新者: #{userDisplayName e}
     $nothing
-      \Edited by: editor deleted
+      \最終更新者: -
     <br>
-    \Last updated: #{showDate upd}
+    \最終更新日時: #{showDate upd}

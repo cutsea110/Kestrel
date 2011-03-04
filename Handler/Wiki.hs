@@ -150,7 +150,7 @@ $if not (isNull blocks)
       (path, raw, content, upd, ver, _, isTop) <- getwiki wikiWriterOption
       let editMe = (WikiR wp, [("mode", "e")])
           deleteMe = (WikiR wp, [("mode", "d")])
-          markdown = $(hamletFile "markdown")
+          markdown = $(hamletFile "markdown-ja")
       defaultLayout $ do
         setTitle $ string path
         addCassius $(cassiusFile "wiki")
@@ -194,7 +194,7 @@ postWikiR wp = do
       content <- runDB $ markdownToWikiHtml wikiWriterOption raw
       let editMe = (WikiR wp, [("mode", "e")])
           deleteMe = (WikiR wp, [("mode", "d")])
-          markdown = $(hamletFile "markdown")
+          markdown = $(hamletFile "markdown-ja")
       defaultLayout $ do
         setTitle $ string path
         addCassius $(cassiusFile "wiki")
@@ -283,7 +283,7 @@ getNewR = do
               isTop = path==Settings.topTitle
               viewMe = (NewR, [("path", path'), ("mode", "v")])
               editMe = (NewR, [("path", path'), ("mode", "e")])
-              markdown = $(hamletFile "markdown")
+              markdown = $(hamletFile "markdown-ja")
           defaultLayout $ do
             setTitle $ string path
             addCassius $(cassiusFile "wiki")
@@ -311,7 +311,7 @@ postNewR = do
           isTop = path == Settings.topTitle
           viewMe = (NewR, [("path", path'), ("mode", "v")])
           editMe = (NewR, [("path", path'), ("mode", "e")])
-          markdown = $(hamletFile "markdown")
+          markdown = $(hamletFile "markdown-ja")
       content <- runDB $ markdownToWikiHtml wikiWriterOption raw
       defaultLayout $ do
         setTitle $ string path
@@ -488,7 +488,7 @@ getHistoryR v wp = do
           deleteMe = (WikiR wp, [("mode", "d")])
           ver = wikiVersion curp
           notCurrent =  v /= ver
-          markdown = $(hamletFile "markdown")
+          markdown = $(hamletFile "markdown-ja")
       defaultLayout $ do
         setTitle $ string path
         addCassius $(cassiusFile "wiki")
@@ -524,8 +524,8 @@ getHistoryR v wp = do
       let editMe = (WikiR wp, [("mode", "e")])
           deleteMe = (WikiR wp, [("mode", "d")])
           title = if wikiVersion p == wikiHistoryVersion v1
-                  then "updated from " ++ showDate (wikiHistoryUpdated v0)
-                  else "updated between " ++ showDate (wikiHistoryUpdated v0) ++ " to " ++ showDate (wikiHistoryUpdated v1)
+                  then showDate (wikiHistoryUpdated v0) ++ " 以降の変更"
+                  else showDate (wikiHistoryUpdated v0) ++ " から " ++ showDate (wikiHistoryUpdated v1) ++ " の変更"
           content = mkDiff v1 v0
           isTop = wp == topPage
       defaultLayout $ do
@@ -565,7 +565,7 @@ postHistoryR v wp = do
       let editMe = (WikiR wp, [("mode", "e")])
           deleteMe = (WikiR wp, [("mode", "d")])
           notCurrent = v /= ver
-          markdown = $(hamletFile "markdown")
+          markdown = $(hamletFile "markdown-ja")
       defaultLayout $ do
         setTitle $ string path
         addCassius $(cassiusFile "wiki")

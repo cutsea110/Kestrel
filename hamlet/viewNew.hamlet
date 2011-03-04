@@ -5,14 +5,14 @@
         <a href="@{WikiR a}">#{lastNameOf a}
 <ul .tabs>
   <li .selected>
-    <a href="@?{viewMe}">View
+    <a href="@?{viewMe}">表示
   <li>
-    <a href="@?{editMe}">Edit
+    <a href="@?{editMe}">編集
   $if not isTop
     <li>
-      <a href="@?{topView}">Top
+      <a href="@?{topView}">トップ
 \
 <div id="main-content">
-  \There is no page '#{path}'. You may create the page by 
-  <a href="@?{editMe}">Clicking here
+  \'#{path}'というページはまだありません. 作りたい場合には
+  <a href="@?{editMe}">ここをクリックしてください
   \.

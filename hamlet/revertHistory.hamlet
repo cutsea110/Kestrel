@@ -5,27 +5,27 @@
         <a href="@{WikiR a}">#{lastNameOf a}
 <ul .tabs>
   <li>
-    <a href="@{WikiR wp}">View
+    <a href="@{WikiR wp}">表示
   <li>
-    <a href="@?{editMe}">Edit
+    <a href="@?{editMe}">編集
   <li>
-    <a href="@?{deleteMe}">Delete
+    <a href="@?{deleteMe}">削除
   <li .selected>
-    <a href="@{HistoriesR wp}">History
+    <a href="@{HistoriesR wp}">更新履歴
   $if not isTop
     <li>
-      <a href="@?{topView}">Top
+      <a href="@?{topView}">トップ
 \
 <div id="main-content">
-  <h3 .metatitle>This version of `#{path}' back.
+  <h3 .metatitle> `#{path}' の表示中の旧版への巻き戻し確認.
   \
   <form method="post" action="@{HistoryR v wp}">
     <input type="hidden" name="version" value="#{show ver}">
     <input type="hidden" name="content" value="#{raw}">
-    <input type="hidden" name="comment" value="revert this page to the old version #{show v}">
+    <input type="hidden" name="comment" value="#{show v} 版に巻き戻し.">
     <div .warnings>
-      \Warning: revert the page to this old version?
-    <button type="submit" name="_method" value="commit">revert to this version
+      \[警告!]: この旧版に巻き戻しをしますか?
+    <button type="submit" name="_method" value="commit">この版に巻き戻す
     <br>
   \
   <div .preview>
@@ -33,8 +33,8 @@
   \
   <div id="metainfo" align="right">
     $maybe e <- me
-      \Edited by: #{userDisplayName e}
+      \最終更新者: #{userDisplayName e}
     $nothing
-      \Edited by: editor deleted
+      \最終更新者: -
     <br>
-    \Last updated: #{showDate upd}
+    \最終更新日時: #{showDate upd}

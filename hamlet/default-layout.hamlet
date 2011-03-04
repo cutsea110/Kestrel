@@ -22,7 +22,7 @@
             <div id="recent-changes" .sidebox>
             <div id="tools" .sidebox>
               <fieldset>
-                <legend>Tools
+                <legend>検索ツール
                 <form method="get" action="@{WikiListR}">
                   <input type="text" name="q" placeholder="Search..." .watermark>
                   <button type="submit" name="_method" value="search">Go
@@ -35,13 +35,12 @@
                   <button type="submit" name="btnG">Go
         $maybe u <- mu
           <div id="file_selector">
-           \Select from
            <div id="photo-gallery" .scroll>
              <ul id="selectable_images" .inline>
            <hr>
            <form id="upload_form" method="post" enctype="multipart/form-data" action="@{UploadR}">
              <div id="fields" .inline>
                <input id="upload_file" type="file" name="upfile">
-             <input id="go_upload" type="button" name="upload" value="Upload File">
+             <input id="go_upload" type="button" name="upload" value="ファイルをアップロードする">
            <div id="trash-area" .right>
              <img id="trashbox" src="@{StaticR img_trash_empty64_png}" .transparent>
