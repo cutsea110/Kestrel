@@ -55,7 +55,7 @@
              \との差分]
       <tr class="#{altClass (snd3 h)}">
         <td colspan="3">
-          $maybe u <- mu
+          $maybe _ <- mu
             $maybe com <- wikiHistoryComment (snd3 h)
               $if isNull com
                 <textarea name="comment" uri="@{HistoryR (wikiHistoryVersion (snd3 h)) wp}" .inplaceedit>

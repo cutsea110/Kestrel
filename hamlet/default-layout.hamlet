@@ -33,7 +33,7 @@
                   <input type="hidden" name="filter" value="0">
                   <input type="text" name="q" .google>
                   <button type="submit" name="btnG">Go
-        $maybe u <- mu
+        $maybe _ <- mu
           <div id="file_selector">
            <div id="photo-gallery" .scroll>
              <ul id="selectable_images" .inline>
