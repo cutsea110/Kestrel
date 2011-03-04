@@ -230,7 +230,7 @@ putWikiR wp = do
       return pid
       else do
       -- FIXME Conflict?
-      lift $ setMessage $ string "conflict occured. can't save your modify."
+      lift $ setMessage $ string "競合が発生しました.あなたの変更は反映できませんでした."
       return pid
   redirectParams RedirectSeeOther (WikiR wp) [("mode", "v")]
 

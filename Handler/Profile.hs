@@ -10,7 +10,7 @@ getProfileR :: UserId -> Handler RepHtml
 getProfileR uid = do
   (uid', _) <- requireAuth
   unless (uid' == uid) $ do
-    permissionDenied "You couldn't access another user profile."
+    permissionDenied "他人のプロフィールは見ることができません."
   u <- runDB $ get404 uid
   defaultLayout $ do
     setTitle $ string "Profile"
@@ -31,5 +31,5 @@ putProfileR uid = do
     permissionDenied "You couldn't access another user profile."
   nn <- runFormPost' $ stringInput "nickname"
   runDB $ update uid [UserNickname $ Just nn]
-  setMessage "Your profile updated."
+  setMessage "プロフィールを更新しました."
   redirect RedirectTemporary $ ProfileR uid

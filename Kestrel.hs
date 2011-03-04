@@ -305,13 +305,13 @@ instance YesodAuth Kestrel where
             Just (uid, u) -> 
               if userActive u 
               then do
-                lift $ setMessage "You are now logged in."
+                lift $ setMessage "ログイン中."
                 return $ Just uid 
               else do
-                lift $ setMessage "Invalid login."
+                lift $ setMessage "あなたのアカウントは無効です."
                 return Nothing
             Nothing -> do
-              lift $ setMessage "You are now logged in."
+              lift $ setMessage "ログイン中."
               fmap Just $ insert $ User (credsIdent creds) Nothing Nothing True
 
     showAuthId _ = showIntegral
