@@ -83,11 +83,9 @@ s3dir :: FilePath
 s3dir = "s3"
 
 topTitle :: String
--- topTitle = "Kestrel"
-topTitle = "聖徳大学総合文化"
+topTitle = "Kestrel"
 sidePaneTitle :: String
--- sidePaneTitle = "Site Navigation"
-sidePaneTitle = "サイト ナビ"
+sidePaneTitle = "Site Navigation"
 
 newDays :: Integer
 newDays = 3

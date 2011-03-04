@@ -6,7 +6,6 @@ import Kestrel
 
 import Control.Monad
 import Data.Time
-import System.Locale (defaultTimeLocale)
 import Control.Applicative ((<$>),(<*>))
 import Web.Encodings (encodeUrl, decodeUrl)
 import Data.Tuple.HT
@@ -31,8 +30,8 @@ getWikiListR :: Handler RepHtml
 getWikiListR = do
   method <- lookupGetParam "_method"
   case method of
-    Nothing -> invalidArgs ["The possible values of '_method' is search."]
     Just "search" -> searchWiki
+    _ -> invalidArgs ["The possible values of '_method' is search."]
   where
     -- pages
     searchWiki :: Handler RepHtml
@@ -41,7 +40,7 @@ getWikiListR = do
       case q of
         Nothing  -> invalidArgs ["'q' parameter is required."]
         Just []  -> invalidArgs ["Please specify your search."]
-        Just [x] -> invalidArgs ["Search term must be given two or more characters."]
+        Just [_] -> invalidArgs ["Search term must be given two or more characters."]
         Just key -> do
           defaultLayout $ do
             setTitle $ string "Search Result"
@@ -93,8 +92,8 @@ getWikiR wp = do
                 shiftL = drop 1 xs ++ [(False, undefined)]
                 shiftR = (False, undefined):xs
                 transmit :: [(Bool, String)] -> [(Bool, String)] -> [(Bool, String)] -> [(Bool, String)]
-                transmit [] _ _ = []
-                transmit ((o,os):os') ((l,ls):ls') ((r,rs):rs') = (or [o,l,r], os):transmit os' ls' rs'
+                transmit ((o,os):os') ((l,_):ls') ((r,_):rs') = (or [o,l,r], os):transmit os' ls' rs'
+                transmit _ _ _ = []
             remark n xs = remark 1 $ remark (n-1) xs
                 
             group :: [(Bool, String)] -> [[String]]
@@ -174,7 +173,7 @@ $if not (isNull blocks)
 
 postWikiR :: WikiPage -> Handler RepHtml
 postWikiR wp = do
-  (uid, _) <- requireAuth
+  _ <- requireAuth
   _method <- lookupPostParam "_method"
   case _method of
     Just "preview" -> previewWiki
@@ -190,7 +189,7 @@ postWikiR wp = do
       (raw, com, ver) <- runFormPost' $ (,,)
                          <$> stringInput "content"
                          <*> maybeStringInput "comment"
-                         <*> intInput "version"
+                         <*> (intInput "version" :: FormInput sub master Int)
       content <- runDB $ markdownToWikiHtml wikiWriterOption raw
       let editMe = (WikiR wp, [("mode", "e")])
           deleteMe = (WikiR wp, [("mode", "d")])
@@ -237,10 +236,10 @@ putWikiR wp = do
 
 deleteWikiR :: WikiPage -> Handler RepHtml
 deleteWikiR wp = do
-  (uid, _) <- requireAuth
+  _ <- requireAuth
   let path = pathOf wp
   runDB $ do
-    (pid, page) <- getBy404 $ UniqueWiki path
+    (pid, _) <- getBy404 $ UniqueWiki path
     deleteWhere [WikiHistoryWikiEq pid]
     delete pid
     return pid
@@ -293,7 +292,7 @@ getNewR = do
   
 postNewR :: Handler RepHtml
 postNewR = do
-  (uid, _) <- requireAuth
+  _ <- requireAuth
   _method <- lookupPostParam "_method"
   case _method of
     Just "preview" -> previewWiki
@@ -323,11 +322,10 @@ postNewR = do
     createWiki :: Handler RepHtml
     createWiki = do
       (uid, _) <- requireAuth
-      (path', raw, com) <- runFormPost' $ (,,)
-                           <$> stringInput "path"
-                           <*> stringInput "content"
-                           <*> maybeStringInput "comment"
-      let path = decodeUrl path'
+      (path, raw, com) <- runFormPost' $ (,,)
+                          <$> (fmap decodeUrl . stringInput) "path"
+                          <*> stringInput "content"
+                          <*> maybeStringInput "comment"
       now <- liftIO getCurrentTime
       runDB $ do
         pid <- insert Wiki { 
@@ -364,7 +362,7 @@ getHistoriesR wp = do
       runDB $ do
         (pid, _) <- getBy404 $ UniqueWiki path
         hists' <- selectList [WikiHistoryWikiEq pid] [WikiHistoryVersionDesc] 0 0
-        hists <- forM hists' $ \(hid, h) -> do
+        hists <- forM hists' $ \(_, h) -> do
           Just u <- get $ wikiHistoryEditor h
           return (u, h)
         return hists
@@ -383,7 +381,7 @@ getHistoriesR wp = do
     
     -- pages
     historyList :: Version -> Handler RepHtml
-    historyList v = do
+    historyList ver = do
       mu <- maybeAuth
       let path = pathOf wp
           isTop = wp == topPage
@@ -391,7 +389,7 @@ getHistoriesR wp = do
           pagingSize = 25
       hs'' <- getHistories
       let hs' = mkHistsWithDiff hs''
-          v' = if v >= 0 then v else curver
+          v' = if ver >= 0 then ver else curver
           hs = take pagingSize $ drop (max (curver-v') 0) hs'
           curver = (wikiHistoryVersion.snd.head) hs''
           editMe = (WikiR wp, [("mode", "e")])
@@ -405,9 +403,8 @@ getHistoriesR wp = do
           notEpoch = \h -> wikiHistoryVersion h /= 0
           canDiff = \h -> notCurrent h || notEpoch h
           canDiff2 = \h -> notCurrent h && notEpoch h
-          altClass = \h -> if wikiHistoryVersion h `mod` 2 == 0
-                           then "even"::String
-                           else "odd"
+          altClass :: WikiHistory -> String
+          altClass = \h -> if wikiHistoryVersion h `mod` 2 == 0 then "even" else "odd"
           mnext = if v' >= pagingSize
                   then Just (HistoriesR wp, [("ver", show $ v'-pagingSize)])
                   else Nothing
@@ -415,19 +412,19 @@ getHistoriesR wp = do
         setTitle $ string path
         addCassius $(cassiusFile "wiki")
         addJulius $(juliusFile "wiki")
-        addWidget $(widgetFile "listHistories")
+        addHamlet $(hamletFile "listHistories")
 
         
 
 getHistoryR :: Version -> WikiPage -> Handler RepHtml
-getHistoryR v wp = do
+getHistoryR vsn wp = do
   mode <- lookupGetParam "mode"
   case mode of
-    Just "v" {-       view       -} -> viewHistory v
-    Just "e" {-       edit       -} -> editHistory v
-    Just "p" {- diff to previous -} -> diffPrevious v
-    Just "c" {- diff to current  -} -> diffCurrent v
-    Just "r" {-      revert      -} -> revertHistory v
+    Just "v" {-       view       -} -> viewHistory vsn
+    Just "e" {-       edit       -} -> editHistory vsn
+    Just "p" {- diff to previous -} -> diffPrevious vsn
+    Just "c" {- diff to current  -} -> diffCurrent vsn
+    Just "r" {-      revert      -} -> revertHistory vsn
     _        {-      illegal     -} -> invalidArgs ["The possible values of 'mode' are l,v,e,p,c,r."]
   where
     -- Utility
@@ -436,7 +433,7 @@ getHistoryR v wp = do
       let path = pathOf wp
       runDB $ do
         (pid', p') <- getBy404 $ UniqueWiki path
-        (pid, p) <- getBy404 $ UniqueWikiHistory pid' v
+        (_, p) <- getBy404 $ UniqueWikiHistory pid' v
         me <- get $ wikiHistoryEditor p
         let (raw, upd, ver) = (wikiHistoryContent p, wikiHistoryUpdated p, wikiHistoryVersion p)
             isTop = wp == topPage
@@ -449,7 +446,7 @@ getHistoryR v wp = do
       runDB $ do
         (pid, _) <- getBy404 $ UniqueWiki path
         hists' <- selectList [WikiHistoryWikiEq pid] [WikiHistoryVersionDesc] 0 0
-        hists <- forM hists' $ \(hid, h) -> do
+        hists <- forM hists' $ \(_, h) -> do
           Just u <- get $ wikiHistoryEditor h
           return (u, h)
         return hists
@@ -504,7 +501,6 @@ getHistoryR v wp = do
           deleteMe = (WikiR wp, [("mode", "d")])
           ver = wikiVersion curp
           notCurrent =  v /= ver
-          editVer = (HistoryR v wp, [("mode", "e")])
       defaultLayout $ do
         setTitle $ string path
         addCassius $(cassiusFile "wiki")
@@ -535,20 +531,20 @@ getHistoryR v wp = do
         addWidget $(widgetFile "diffHistories")
     
     diffPrevious :: Version -> Handler RepHtml
-    diffPrevious = diffVers $ \p v -> [v, v-1]
+    diffPrevious = diffVers $ \_ v -> [v, v-1]
     
     diffCurrent :: Version -> Handler RepHtml
     diffCurrent = diffVers $ \p v -> [wikiVersion p, v]
 
 
 postHistoryR :: Version -> WikiPage -> Handler RepHtml
-postHistoryR v wp = do
-  (uid, _) <- requireAuth
+postHistoryR vsn wp = do
+  _ <- requireAuth
   _method <- lookupPostParam "_method"
   case _method of
     Just "preview" -> previewHistory
     Just "commit"  -> putWikiR wp
-    Just "modify"  -> putHistoryR v wp
+    Just "modify"  -> putHistoryR vsn wp
     _              -> invalidArgs ["The possible values of '_method' are preview,commit,modify"]
   where
     
@@ -575,12 +571,12 @@ postHistoryR v wp = do
 
 putHistoryR :: Version -> WikiPage -> Handler RepHtml
 putHistoryR v wp = do
-  (uid, _) <- requireAuth
+  _ <- requireAuth
   let path = pathOf wp
   com <- runFormPost' $ maybeStringInput "comment"
   runDB $ do
     (pid, _) <- getBy404 $ UniqueWiki path
-    (hid, h) <- getBy404 $ UniqueWikiHistory pid v
+    (hid, _) <- getBy404 $ UniqueWikiHistory pid v
     update hid [ WikiHistoryComment com ]
   hamletToRepHtml
     [$hamlet|\

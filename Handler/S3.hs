@@ -11,15 +11,14 @@ module Handler.S3
        ) where
 
 import Kestrel
+import Control.Monad.IO.Class
 import Data.Time
 import Data.Int
 import qualified Data.ByteString.Lazy as L
 import Data.ByteString.Char8 (pack)
-import Network.Wai
-import Data.List (intercalate)
 import System.Directory
 import System.FilePath
-import Web.Encodings (encodeUrl, decodeUrl)
+import Web.Encodings (encodeUrl)
 
 import qualified Settings (s3dir, rootbase)
 import Settings (widgetFile, cassiusFile)
@@ -31,9 +30,8 @@ getUploadR = do
     addCassius $(cassiusFile "s3/s3")
     addWidget $(widgetFile "s3/upload")
 
--- | upload
---   :: (PersistBackend m, Control.Monad.IO.Class.MonadIO m) =>
---      Key User -> FileInfo -> m (Maybe (Key FileHeader, String, String, Int64, UTCTime))
+upload :: (PersistBackend m, Control.Monad.IO.Class.MonadIO m) =>
+          Key User -> FileInfo -> m (Maybe (Key FileHeader, String, String, Int64, UTCTime))
 upload uid@(UserId uid') fi = do
   if fileName fi /= "" && L.length (fileContent fi) > 0
     then do
@@ -71,12 +69,13 @@ postUploadR = do
       mf <- runDB $ upload uid fi
       case mf of
         Nothing -> invalidArgs ["upload file is required."]
-        Just (fid@(FileHeaderId f), name, ext, fsize, cdate) -> do
+        Just (fid, name, ext, fsize, cdate) -> do
           cacheSeconds 10 -- FIXME
           let rf = Settings.rootbase ++ (dropPrefix (approot y) $ r $ FileR uid fid)
           fmap RepXml $ hamletToContent
                       [$xhamlet|\
 <file>
+  <fhid>#{show fid}
   <name>#{name}
   <ext>#{ext}
   <size>#{show fsize}
@@ -98,22 +97,21 @@ putUploadR = do
 
 
 getFileR :: UserId -> FileHeaderId -> Handler RepHtml
-getFileR uid@(UserId uid') fid@(FileHeaderId fid') = do
+getFileR (UserId uid') fid@(FileHeaderId fid') = do
   h <- runDB $ get404 fid
-  let UserId id = fileHeaderCreator h
-      s3dir = Settings.s3dir </> show uid'
+  let s3dir = Settings.s3dir </> show uid'
       s3fp = s3dir </> show fid'
   setHeader "Content-Type" $ pack $ fileHeaderContentType h
   setHeader "Content-Disposition" $ pack $ "attachment; filename=" ++ fileHeaderEfname h
   return $ RepHtml $ ContentFile s3fp
 
 postFileR :: UserId -> FileHeaderId -> Handler RepXml
-postFileR uid@(UserId uid') fid@(FileHeaderId fid') = do
-  (uid, _) <- requireAuth
+postFileR uid fid = do
+  _ <- requireAuth
   _method <- lookupPostParam "_method"
   case _method of
     Just "delete" -> deleteFileR uid fid
-    Nothing       -> invalidArgs ["The possible values of '_method' are delete."]
+    _ -> invalidArgs ["The possible values of '_method' are delete."]
 
 deleteFileR :: UserId -> FileHeaderId -> Handler RepXml
 deleteFileR uid@(UserId uid') fid@(FileHeaderId fid') = do
@@ -136,7 +134,7 @@ deleteFileR uid@(UserId uid') fid@(FileHeaderId fid') = do
 |]
 
 getFileListR :: UserId -> Handler RepJson
-getFileListR uid@(UserId uid') = do
+getFileListR uid = do
   _ <- requireAuth
   y <- getYesod
   render <- getUrlRender
@@ -144,7 +142,7 @@ getFileListR uid@(UserId uid') = do
   cacheSeconds 10 -- FIXME
   jsonToRepJson $ jsonMap [("files", jsonList $ map (go y render) files)]
   where
-    go y r (fid@(FileHeaderId fid'), f@FileHeader
+    go y r (fid, FileHeader
                { fileHeaderFullname = name
                , fileHeaderExtension = ext
                , fileHeaderFileSize = size

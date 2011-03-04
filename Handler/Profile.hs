@@ -2,7 +2,7 @@
 module Handler.Profile where
 
 import Kestrel
-import Settings (topTitle, hamletFile, cassiusFile, juliusFile, widgetFile)
+import Settings (hamletFile, juliusFile)
 
 import Control.Monad (unless)
 
