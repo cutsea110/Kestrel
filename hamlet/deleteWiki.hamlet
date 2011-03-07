@@ -5,22 +5,26 @@
         <a href="@{WikiR a}">#{lastNameOf a}
 <ul .tabs>
   <li>
-    <a href="@{WikiR wp}">View
+    <a href="@{WikiR wp}">表示
   <li>
-    <a href="@?{editMe}">Edit
+    <a href="@?{editMe}">編集
   <li .selected>
-    <a href="@?{deleteMe}">Delete
+    <a href="@?{deleteMe}">削除
   <li>
-    <a href="@{HistoriesR wp}">History
+    <a href="@{HistoriesR wp}">更新履歴
   $if not isTop
     <li>
-      <a href="@?{topView}">Top
+      <a href="@?{topView}">トップ
 \
 <div id="main-content">
-  <h3 .metatitle>Delete `#{path}'.
+  <h3 .metatitle> `#{path}' 削除確認.
   \
   <div .warnings>
-    \Warning: deleting the page cannot be undone. Are you sure?
+    [警告!]: このコンテンツを削除すると更新履歴も含めて
+    <br>
+    完全に削除されて二度と元に戻すことは出来ません.
+    <br>
+    本当に削除しますか?
   \
   <form method="post" action="@{WikiR wp}">
-    <button type="submit" name="_method" value="delete">i'm sure, delete it!
+    <button type="submit" name="_method" value="delete">それでも削除する

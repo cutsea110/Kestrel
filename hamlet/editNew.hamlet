@@ -5,24 +5,27 @@
         <a href="@{WikiR a}">#{lastNameOf a}
 <ul .tabs>
   <li>
-    <a href="@?{viewMe}">View
+    <a href="@?{viewMe}">表示
   <li .selected>
-    <a href="@?{editMe}">Edit
+    <a href="@?{editMe}">編集
   $if not isTop
     <li>
-      <a href="@?{topView}">Top
+      <a href="@?{topView}">トップ
 \
 <div id="main-content">
-  <h3 .metatitle>Edit `#{path}'.
+  <h3 .metatitle> `#{path}' を編集中.
   \
   <form method="post" action="@{NewR}" .validate>
+    <button type="submit" name="_method" value="preview">プレビューする
+    <button type="submit" name="_method" value="commit">新規作成する
+    <br>
     <input type="hidden" name="path" value="#{path'}">
     <textarea id="content" name="content" .required .content>
-    <div .description>ChangeLog (brief summary of your edit for later reference):
+    <div .description>変更メモ (編集履歴で確認しやすいように簡単なメモを書いてください):
     <textarea name="comment" .comment>
     <br>
-    <button type="submit" name="_method" value="preview">preview
-    <button type="submit" name="_method" value="commit">new create
+    <button type="submit" name="_method" value="preview">プレビューする
+    <button type="submit" name="_method" value="commit">新規作成する
   \
   <div id="help">
     \^{markdown}

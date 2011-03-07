@@ -102,26 +102,26 @@ getPasswordR = do
     case maid of
         Just _ -> return ()
         Nothing -> do
-            setMessage $ string "You must be logged in to set a password"
+            setMessage $ string "パスワードを変更するにはログインしてください."
             redirect RedirectTemporary $ toMaster loginR
     defaultLayout $ do
-        setTitle $ string "Set password"
+        setTitle $ string "パスワード変更"
         addHamlet
             [$hamlet|\
 <h3>Set a new password
 <form method="post" action="@{toMaster setpassR}">
     <table>
         <tr>
-            <th>New password
+            <th>新パスワード
             <td>
                 <input type="password" name="new">
         <tr>
-            <th>Confirm
+            <th>新パスワード(確認)
             <td>
                 <input type="password" name="confirm">
         <tr>
             <td colspan="2">
-                <input type="submit" value="Submit">
+                <input type="submit" value="変更">
 |]
 
 postPasswordR :: YesodAuthHashDB master => GHandler Auth master ()
@@ -131,17 +131,17 @@ postPasswordR = do
         <*> stringInput "confirm"
     toMaster <- getRouteToMaster
     unless (new == confirm) $ do
-        setMessage $ string "Passwords did not match, please try again"
+        setMessage $ string "パスワードが合致していません.再度入力しなおしてください."
         redirect RedirectTemporary $ toMaster setpassR
     maid <- maybeAuthId
     aid <- case maid of
             Nothing -> do
-                setMessage $ string "You must be logged in to set a password"
+                setMessage $ string "パスワードを変更するにはログインしてください."
                 redirect RedirectTemporary $ toMaster loginR
             Just aid -> return aid
     let sha1pass = encrypt new
     setPassword aid sha1pass
-    setMessage $ string "Password updated"
+    setMessage $ string "パスワードを更新しました."
     y <- getYesod
     redirect RedirectTemporary $ loginDest y
 

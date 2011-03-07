@@ -230,7 +230,7 @@ putWikiR wp = do
       return pid
       else do
       -- FIXME Conflict?
-      lift $ setMessage $ string "conflict occured. can't save your modify."
+      lift $ setMessage $ string "競合が発生しました.あなたの変更は反映できませんでした."
       return pid
   redirectParams RedirectSeeOther (WikiR wp) [("mode", "v")]
 
@@ -520,8 +520,8 @@ getHistoryR vsn wp = do
       let editMe = (WikiR wp, [("mode", "e")])
           deleteMe = (WikiR wp, [("mode", "d")])
           title = if wikiVersion p == wikiHistoryVersion v1
-                  then "updated from " ++ showDate (wikiHistoryUpdated v0)
-                  else "updated between " ++ showDate (wikiHistoryUpdated v0) ++ " to " ++ showDate (wikiHistoryUpdated v1)
+                  then showDate (wikiHistoryUpdated v0) ++ " 以降の変更"
+                  else showDate (wikiHistoryUpdated v0) ++ " から " ++ showDate (wikiHistoryUpdated v1) ++ " の変更"
           content = mkDiff v1 v0
           isTop = wp == topPage
       defaultLayout $ do

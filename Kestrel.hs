@@ -305,13 +305,13 @@ instance YesodAuth Kestrel where
             Just (uid, u) -> 
               if userActive u 
               then do
-                lift $ setMessage "You are now logged in."
+                lift $ setMessage "ログイン中."
                 return $ Just uid 
               else do
-                lift $ setMessage "Invalid login."
+                lift $ setMessage "あなたのアカウントは無効です."
                 return Nothing
             Nothing -> do
-              lift $ setMessage "You are now logged in."
+              lift $ setMessage "ログイン中."
               fmap Just $ insert $ User (credsIdent creds) Nothing Nothing True
 
     showAuthId _ = showIntegral
@@ -464,7 +464,7 @@ wikiWriterOption :: WriterOptions
 wikiWriterOption = 
   defaultWriterOptions{
           writerStandalone = True
-        , writerTemplate = "$if(toc)$\n<a id='pandoc-TOC-toggle' href=''></a><div id='pandoc-TOC-Title'>Table of Contents</div>\n$toc$\n$endif$\n$body$"
+        , writerTemplate = "$if(toc)$\n<a id='pandoc-TOC-toggle' href=''></a><div id='pandoc-TOC-Title'>目次</div>\n$toc$\n$endif$\n$body$"
         , writerTableOfContents = True
         , writerNumberSections = False
         , writerIdentifierPrefix = "pandoc-"

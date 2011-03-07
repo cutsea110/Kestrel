@@ -3,11 +3,11 @@
     <form method="post" action="@{AuthR loginR}" .auth .validate>
       <table .nostyle>
         <tr>
-          <th>Account ID:
+          <th>アカウントID:
           <td>
             <input #loginAccountId type="account" name="account" placeholder="account" .watermark .required>
         <tr>
-          <th>Password:
+          <th>パスワード:
           <td>
             <input type="password" name="password" placeholder="password" .watermark .required>
-      <input type="submit" value="Login via account">
+      <input type="submit" value="このアカウントでログインする">
