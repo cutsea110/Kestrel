@@ -112,9 +112,9 @@ addThisUser = Just "cutsea110"
 -- specific.
 connStr :: String
 #ifdef PRODUCTION
-connStr = "user=devel password=yesoddevel host=localhost port=5432 dbname=kestrel"
+connStr = "user=soubun password=sougoubunnka host=localhost port=5432 dbname=kestrel"
 #else
-connStr = "user=devel password=yesoddevel host=localhost port=5432 dbname=kestrel_debug"
+connStr = "user=soubun password=sougoubunnka host=localhost port=5432 dbname=kestrel_debug"
 #endif
 
 -- | Your application will keep a connection pool and take connections from
