@@ -108,7 +108,7 @@ getPasswordR = do
         setTitle $ string "パスワード変更"
         addHamlet
             [$hamlet|\
-<h3>Set a new password
+<h3>パスワード変更
 <form method="post" action="@{toMaster setpassR}">
     <table>
         <tr>

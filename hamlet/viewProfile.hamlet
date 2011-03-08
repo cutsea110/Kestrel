@@ -1,12 +1,12 @@
-<h3>Set Your Profile
+<h3>プロフィール設定
 <form method="post" action="@{ProfileR uid}">
   <input type="hidden" name="_method" value="modify">
   <table .nostyle>
     <tr>
-      <th>User Ident:
+      <th>アカウントID:
       <td>#{userIdent u}
     <tr>
-      <th>Nickname:
+      <th>ニックネーム:
       <td>
         $maybe n <- userNickname u
           <input type="text" name="nickname" uri="@{ProfileR uid}" value="#{n}" .inplaceedit>
