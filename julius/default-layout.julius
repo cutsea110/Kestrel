@@ -60,7 +60,7 @@ $(document).ready(function(){
     },
     error: function(msg, status) {
       if ('#{show mu}'!='Nothing') {
-        var anc = $('<a/>').attr({href:'@?{sidePaneNew}'}).text('Edit #{Settings.sidePaneTitle}');
+        var anc = $('<a/>').attr({href:'@?{sidePaneNew}'}).text('#{Settings.sidePaneTitle}を編集する');
         $('#sidenavi').append(anc);
       }
     }
