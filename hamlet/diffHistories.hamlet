@@ -7,7 +7,7 @@
   <li>
     <a href="@{WikiR wp}">表示
   <li>
-    <a href="@?{editMe}">Edit
+    <a href="@?{editMe}">編集
   <li>
     <a href="@?{deleteMe}">削除
   <li .selected>
