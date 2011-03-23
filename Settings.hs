@@ -22,6 +22,7 @@ module Settings
     , topTitle
     , sidePaneTitle
     , newDays
+    , numOfRecentChanges
     , facebookApplicationId
     , facebookApplicationSecret
     , twitterConsumerKey
@@ -89,6 +90,8 @@ sidePaneTitle = "サイト ナビ"
 
 newDays :: Integer
 newDays = 3
+numOfRecentChanges :: Int
+numOfRecentChanges = 20
 
 -- | TimeZone. this value used as `hoursToTimeZone tz'.
 tz :: Int

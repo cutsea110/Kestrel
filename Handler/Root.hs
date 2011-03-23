@@ -61,7 +61,7 @@ getFeedR = runDB $ do
 getRecentChangesR :: Handler RepJson
 getRecentChangesR = do 
   render <- getUrlRender
-  entries <- runDB $ selectList [] [WikiUpdatedDesc] 10 0
+  entries <- runDB $ selectList [] [WikiUpdatedDesc] Settings.numOfRecentChanges 0
   cacheSeconds 10 -- FIXME
   now <- liftIO getCurrentTime
   jsonToRepJson $ jsonMap [("entries", jsonList $ map (go now render) entries)]
