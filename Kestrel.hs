@@ -135,7 +135,7 @@ mkYesodData "Kestrel" [$parseRoutes|
 
 /admin AdminR UserCrud userCrud
 
-/wiki/*WikiPage WikiR GET POST PUT DELETE
+/kestrel/*WikiPage WikiR GET POST PUT DELETE
 /new NewR GET POST
 /histories/*WikiPage HistoriesR GET
 /history/#Version/*WikiPage HistoryR GET POST PUT

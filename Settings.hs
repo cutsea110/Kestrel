@@ -103,10 +103,10 @@ twitterConsumerKey,twitterConsumerSecret :: String
   ("abcdefghijklmnopqrstu","ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnop")
 
 googleAnalyticsUA :: Maybe String
-googleAnalyticsUA = Just "UA-1234567-8"
+googleAnalyticsUA = Just "UA-22232523-1"
 
 addThisUser :: Maybe String
-addThisUser = Just "cutsea110"
+addThisUser = Just "bisocie"
 
 -- | The database connection string. The meaning of this string is backend-
 -- specific.
