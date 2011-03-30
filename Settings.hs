@@ -50,9 +50,9 @@ approot :: String
 -- you would probably want it to be:
 -- > approot = "http://www.yesod.com"
 -- Please note that there is no trailing slash.
-approot = "kestrel.timedia.co.jp"
+approot = "soubun.seitoku.ac.jp"
 #else
-approot = "kestrel.timedia.co.jp"
+approot = "soubun.seitoku.ac.jp"
 #endif
 
 rootbase :: String
