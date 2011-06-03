@@ -1,16 +1,32 @@
 Name:                kestrel
 Version:             0.2
-Synopsis:            the yesod web application.
-Homepage:            https://github.com/cutsea110/Kestrel
 License:             BSD3
 License-file:        LICENSE
 Author:              Katsutoshi Itoh
 Maintainer:          cutsea110@gmail.com
+Synopsis:            the yesod web application.
+Description:         a WIKI clone written in haskell.
 Category:            Web
-Build-type:          Simple
+Stability:           Experimental
 Cabal-version:       >=1.6
+Build-type:          Simple
+Homepage:            https://github.com/cutsea110/Kestrel
+
+Flag production
+     Description:   Build the production executable.
+     Default:       False
+Flag devel
+     Description:   Build for use with "yesod devel"
+     Default:       False
+
 Library
+     if flag(devel)
+         Buildable: True
+     else
+         Buildable: False
      exposed-modules: Controller
+     hs-souce-dirs: .
+
      other-modules: Kestrel
                     Model
                     Settings
@@ -19,10 +35,20 @@ Library
                     Handler.Profile
                     Handler.Wiki
                     Handler.S3
+                    Kestrel.Helpers.Auth.HashDB
+
 Executable kestrel
-     cpp-options:    -DPRODUCTION
+     if flag(devel)
+         Buildable: False
+
+     if flag(production)
+         cpp-options:    -DPRODUCTION
+         ghc-options:    -Wall -threaded -fno-warn-unused-do-bind -fno-warn-type-defaults -O2
+     else
+         ghc-options:    -Wall -threaded -fno-warn-unused-do-bind -fno-warn-type-defaults
+
      Main-is:        kestrel.hs
-     ghc-options:    -Wall -threaded -fno-warn-unused-do-bind -fno-warn-type-defaults
+     hs-source-dirs: .
   
      Data-files:    favicon.ico
                   , hamlet/*.hamlet
