@@ -31,7 +31,7 @@ Executable kestrel
 
   -- Packages needed in order to build this package.
      Build-depends: base         >= 4       && < 5
-                  , yesod        >= 0.7     && < 0.8
+                  , yesod        >= 0.8     && < 0.9
                   , yesod-auth
                   , yesod-static
                   , yesod-form
@@ -43,13 +43,15 @@ Executable kestrel
                   , directory
                   , bytestring
                   , text
-                  , persistent   >= 0.3.1.1
-                  , persistent-postgresql
+                  , persistent   >= 0.5.1
+                  , persistent-postgresql >= 0.5.0
+                  , persistent-template
+                  , http-types
                   , template-haskell
                   , hamlet
                   , web-routes
                   , hjsmin       >= 0.0.12  && < 0.1
-                  , web-encodings == 0.3.0.4
+                  , web-encodings == 0.3.0.6
                   , highlighting-kate
                   , pandoc       == 1.6.0.1
                   , split

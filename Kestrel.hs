@@ -30,7 +30,7 @@ module Kestrel
     , fromPath
     , fromWiki
     , ancestory
-    , setpassR -- Auth.Account
+    , setpassR -- Auth.HashDB
       --
     , markdownToWikiHtml
     , markdownsToWikiHtmls
@@ -41,6 +41,7 @@ module Kestrel
       --
     , UserCrud
     , userCrud
+    , (+++)
     ) where
 
 import Yesod
@@ -50,35 +51,35 @@ import Yesod.Helpers.Auth
 import Kestrel.Helpers.Auth.HashDB
 import Yesod.Helpers.Auth.OpenId
 import Yesod.Helpers.Auth.Facebook
-import Yesod.Helpers.Auth.Email
 -- import Yesod.Helpers.Auth.OAuth
 import Yesod.Helpers.Crud
 import Yesod.Form.Jquery
 import System.Directory
 import qualified Data.ByteString.Lazy as L
 import Database.Persist.GenericSql
-import Data.Maybe (isJust)
-import Control.Monad (join, unless, mplus, mzero, MonadPlus)
+import Control.Monad (unless, mplus, mzero, MonadPlus)
 import Control.Monad.Trans.Class (MonadTrans)
 import Control.Applicative ((<$>),(<*>))
-import Network.Mail.Mime
-import qualified Data.Text.Lazy
-import qualified Data.Text.Lazy.Encoding
 import Text.Jasmine (minifym)
 import Text.Pandoc
 import Text.Pandoc.Shared
 import qualified Text.Highlighting.Kate as Kate
 import Text.XHtml.Strict (showHtmlFragment)
-import Data.Char (toLower)
 import qualified Text.ParserCombinators.Parsec as P
 import qualified Data.Map as Map (lookup, fromList, Map)
 import Web.Encodings (encodeUrl)
-import Data.List (intercalate, inits)
-import Data.List.Split (splitOn)
+import Web.Encodings.StringLike ()
+import Data.List (inits)
+import Data.Char (toLower)
+import Data.Text (Text)
+import qualified Data.Text as T
 
 import Model
 import StaticFiles
 import qualified Settings
+
+(+++) :: Text -> Text -> Text
+(+++) = T.append
 
 -- | The site argument for your application. This can be a good place to
 -- keep settings and values requiring initialization before your application
@@ -148,38 +149,38 @@ mkYesodData "Kestrel" [$parseRoutes|
 /s3/user/#UserId/list.json FileListR GET
 |]
 
-newtype WikiPage = WikiPage { unWikiPage :: [String] } deriving (Eq, Show, Read)
+newtype WikiPage = WikiPage { unWikiPage :: [Text] } deriving (Eq, Show, Read)
 instance MultiPiece WikiPage where
   toMultiPiece = unWikiPage
-  fromMultiPiece = Right . WikiPage
+  fromMultiPiece = Just . WikiPage
   
 topPage :: WikiPage
 topPage = WikiPage [Settings.topTitle]
-topView :: (KestrelRoute, [(String, String)])
+topView :: (KestrelRoute, [(Text, Text)])
 topView = (WikiR topPage, [("mode","v")])
-topNew :: (KestrelRoute, [(String, String)])
+topNew :: (KestrelRoute, [(Text, Text)])
 topNew = (NewR, [("path", encodeUrl Settings.topTitle)])
 
 sidePane :: WikiPage
 sidePane = WikiPage [Settings.sidePaneTitle]
 sidePaneView :: KestrelRoute
 sidePaneView = WikiR sidePane
-sidePaneNew :: (KestrelRoute, [(String, String)])
+sidePaneNew :: (KestrelRoute, [(Text, Text)])
 sidePaneNew = (NewR, [("path", encodeUrl Settings.sidePaneTitle), ("mode", "e")])
 
-simpleSidePane :: (KestrelRoute, [(String, String)])
+simpleSidePane :: (KestrelRoute, [(Text, Text)])
 simpleSidePane = (WikiR sidePane, [("mode", "s")])
 
-pathOf :: WikiPage -> String
-pathOf = intercalate ":" . unWikiPage
+pathOf :: WikiPage -> Text
+pathOf = T.intercalate ":" . unWikiPage
 
-fromPath :: String -> WikiPage
-fromPath path = WikiPage $ splitOn ":" path
+fromPath :: Text -> WikiPage
+fromPath path = WikiPage $ T.splitOn ":" path
 
 fromWiki :: Wiki -> WikiPage
 fromWiki = fromPath . wikiPath
 
-lastNameOf :: WikiPage -> String
+lastNameOf :: WikiPage -> Text
 lastNameOf = last . unWikiPage
 
 ancestory :: WikiPage -> [WikiPage]
@@ -188,7 +189,7 @@ ancestory = map WikiPage . filter (/=[]) . inits . unWikiPage
 -- Please see the documentation for the Yesod typeclass. There are a number
 -- of settings which can be configured by overriding methods here.
 instance Yesod Kestrel where
-    approot app = (if isHTTPS app then "https://" else "http://") ++ Settings.approot ++ Settings.rootbase
+    approot app = (if isHTTPS app then "https://" else "http://") +++ Settings.approot +++ Settings.rootbase
     
     defaultLayout widget = do
         y <- getYesod
@@ -214,13 +215,13 @@ instance Yesod Kestrel where
           addScriptEither $ Left $ StaticR plugins_watermark_jquery_watermark_js
           addCassius $(Settings.cassiusFile "default-layout")
           addJulius $(Settings.juliusFile "default-layout")
-          atomLink FeedR Settings.topTitle
+          atomLink FeedR $ T.unpack Settings.topTitle
         hamletToRepHtml $(Settings.hamletFile "default-layout")
         
     -- This is done to provide an optimization for serving static files from
     -- a separate domain. Please see the staticroot setting in Settings.hs
     urlRenderOverride a (StaticR s) =
-        Just $ uncurry (joinPath a $ approot a ++ Settings.staticroot) $ renderRoute s
+        Just $ uncurry (joinPath a $ approot a +++ Settings.staticroot) $ renderRoute s
     urlRenderOverride _ _ = Nothing
 
     -- The page to be redirected to when authentication is required.
@@ -231,7 +232,7 @@ instance Yesod Kestrel where
     -- expiration dates to be set far in the future without worry of
     -- users receiving stale content.
     addStaticContent ext' _ content = do
-        let fn = base64md5 content ++ '.' : ext'
+        let fn = base64md5 content ++ '.' : T.unpack ext'
         let content' =
                 if ext' == "js"
                     then case minifym content of
@@ -243,7 +244,7 @@ instance Yesod Kestrel where
         let fn' = statictmp ++ fn
         exists <- liftIO $ doesFileExist fn'
         unless exists $ liftIO $ L.writeFile fn' content'
-        return $ Just $ Right (StaticR $ StaticRoute ["tmp", fn] [], [])
+        return $ Just $ Right (StaticR $ StaticRoute ["tmp", T.pack fn] [], [])
 
 -- How to run database actions.
 instance YesodPersist Kestrel where
@@ -314,29 +315,21 @@ instance YesodAuth Kestrel where
               lift $ setMessage "ログイン中."
               fmap Just $ insert $ User (credsIdent creds) Nothing Nothing True
 
-    showAuthId _ = showIntegral
-    readAuthId _ = readIntegral
-
     authPlugins = [ authHashDB
                   , authOpenId
                   , authFacebook Settings.facebookApplicationId 
                                  Settings.facebookApplicationSecret 
                                  []
---                  , authTwitter Settings.twitterConsumerKey
---                                Settings.twitterConsumerSecret
-                  , authEmail ]
+                  ]
 
     loginHandler = do
       defaultLayout $ do
-        setTitle $ string "Login"
+        setTitle "Login"
         addCassius $(Settings.cassiusFile "login")
         addHamlet $(Settings.hamletFile "login")
 
 instance YesodAuthHashDB Kestrel where
     type AuthHashDBId Kestrel = UserId
-
-    showAuthHashDBId _ = showIntegral
-    readAuthHashDBId _ = readIntegral
 
     getPassword uid = runDB $ do
       ma <- get uid
@@ -354,89 +347,12 @@ instance YesodAuthHashDB Kestrel where
                 }
     getHashDB = runDB . fmap (fmap userIdent) . get
 
-
-instance YesodAuthEmail Kestrel where
-    type AuthEmailId Kestrel = EmailId
-
-    showAuthEmailId _ = showIntegral
-    readAuthEmailId _ = readIntegral
-
-    addUnverified email verkey =
-        runDB $ insert $ Email email Nothing $ Just verkey
-    sendVerifyEmail email _ verurl = liftIO $ renderSendMail Mail
-        { mailHeaders =
-            [ ("From", "noreply")
-            , ("To", email)
-            , ("Subject", "Verify your email address")
-            ]
-        , mailParts = [[textPart, htmlPart]]
-        }
-      where
-        textPart = Part
-            { partType = "text/plain; charset=utf-8"
-            , partEncoding = None
-            , partFilename = Nothing
-            , partContent = Data.Text.Lazy.Encoding.encodeUtf8
-                          $ Data.Text.Lazy.pack $ unlines
-                [ "Please confirm your email address by clicking on the link below."
-                , ""
-                , verurl
-                , ""
-                , "Thank you"
-                ]
-            , partHeaders = []
-            }
-        htmlPart = Part
-            { partType = "text/html; charset=utf-8"
-            , partEncoding = None
-            , partFilename = Nothing
-            , partContent = renderHtml [$hamlet|\
-<p>Please confirm your email address by clicking on the link below.
-<p>
-    <a href="#{verurl}">#{verurl}
-<p>Thank you
-|]
-            , partHeaders = []
-            }
-    getVerifyKey = runDB . fmap (join . fmap emailVerkey) . get
-    setVerifyKey eid key = runDB $ update eid [EmailVerkey $ Just key]
-    verifyAccount eid = runDB $ do
-        me <- get eid
-        case me of
-            Nothing -> return Nothing
-            Just e -> do
-                let email = emailEmail e
-                case emailUser e of
-                    Just uid -> return $ Just uid
-                    Nothing -> do
-                        uid <- insert $ User email Nothing Nothing True
-                        update eid [EmailUser $ Just uid, EmailVerkey Nothing]
-                        return $ Just uid
-    getPassword uid = runDB $ do
-        me <- get uid
-        case me of
-            Nothing -> return Nothing
-            Just u -> return $ userPassword u
-    setPassword uid salted = runDB $ update uid [UserPassword $ Just salted]
-    getEmailCreds email = runDB $ do
-        me <- getBy $ UniqueEmail email
-        case me of
-            Nothing -> return Nothing
-            Just (eid, e) -> return $ Just EmailCreds
-                { emailCredsId = eid
-                , emailCredsAuthId = emailUser e
-                , emailCredsStatus = isJust $ emailUser e
-                , emailCredsVerkey = emailVerkey e
-                }
-    getEmail = runDB . fmap (fmap emailEmail) . get
-
-
 {- markdown utility -}
 markdownToWikiHtml :: (Route master ~ KestrelRoute,
                        PersistBackend (t (GGHandler sub master m)),
                        Monad m,
                        Control.Monad.Trans.Class.MonadTrans t) =>
-                      WriterOptions -> String -> t (GGHandler sub master m) Html
+                      WriterOptions -> Text -> t (GGHandler sub master m) Html
 markdownToWikiHtml opt raw = do
   render <- lift getUrlRenderParams
   pages <- selectList [] [WikiPathAsc, WikiUpdatedDesc] 0 0
@@ -449,7 +365,7 @@ markdownsToWikiHtmls
       PersistBackend (t (GGHandler sub master m)),
       Monad m,
       MonadTrans t) =>
-     WriterOptions -> [String] -> t (GGHandler sub master m) [Html]
+     WriterOptions -> [Text] -> t (GGHandler sub master m) [Html]
 markdownsToWikiHtmls opt raws = do
   render <- lift getUrlRenderParams
   pages <- selectList [] [WikiPathAsc, WikiUpdatedDesc] 0 0
@@ -457,8 +373,8 @@ markdownsToWikiHtmls opt raws = do
   let pdict = mkWikiDictionary pages
   return $ map (preEscapedString . writeHtmlStr opt render pdict) pandocs
 
-readDoc :: String -> Pandoc
-readDoc = readMarkdown defaultParserState . tabFilter (stateTabStop defaultParserState)
+readDoc :: Text -> Pandoc
+readDoc = readMarkdown defaultParserState . tabFilter (stateTabStop defaultParserState) . T.unpack
 
 wikiWriterOption :: WriterOptions
 wikiWriterOption = 
@@ -479,24 +395,26 @@ sidePaneWriterOption =
         , writerIdentifierPrefix = "sidepane-"
         }
 
-writeHtmlStr ::  WriterOptions -> (KestrelRoute -> [(String, String)] -> String) -> Map.Map String Wiki -> Pandoc -> String
+writeHtmlStr ::  WriterOptions -> (KestrelRoute -> [(Text, Text)] -> Text) -> Map.Map Text Wiki -> Pandoc -> String
 writeHtmlStr opt render pages = 
   writeHtmlString opt . transformDoc render pages
 
-transformDoc :: (KestrelRoute -> [(String, String)] -> String) -> Map.Map String Wiki -> Pandoc -> Pandoc
+transformDoc :: (KestrelRoute -> [(Text, Text)] -> Text) -> Map.Map Text Wiki -> Pandoc -> Pandoc
 transformDoc render pages = processWith codeHighlighting . processWith (wikiLink render pages)
 
 -- Wiki Link Sign of WikiName is written as [WikiName]().
-wikiLink :: (KestrelRoute -> [(String, String)] -> String) -> Map.Map String Wiki -> Inline -> Inline
+wikiLink :: (KestrelRoute -> [(Text, Text)] -> Text) -> Map.Map Text Wiki -> Inline -> Inline
 wikiLink render pages (Link ls ("", "")) = 
-  case Map.lookup p' pages of
+  case Map.lookup p'' pages of
     Just _  -> 
-      Link [Str p'] (render (WikiR $ fromPath p') [("mode", "v")], p')
+      Link [Str p'] (render' (WikiR $ fromPath p'') [("mode", "v")], p')
     Nothing -> 
-      Emph [Str p', Link [Str "?"] (render NewR [("path", path'), ("mode", "v")], p')]
+      Emph [Str p', Link [Str "?"] (render' NewR [("path", path'), ("mode", "v")], p')]
   where
     p' = inlinesToString ls
-    path' = encodeUrl p'
+    p'' = T.pack p'
+    path' = encodeUrl p''
+    render' = (T.unpack .) . render
 wikiLink _ _ x = x
 
 codeHighlighting :: Block -> Block
@@ -532,7 +450,7 @@ findRight p (a:as) = case p a of
   Left  _ -> findRight p as
   Right x -> return x
       
-mkWikiDictionary :: [(WikiId, Wiki)] -> Map.Map String Wiki
+mkWikiDictionary :: [(WikiId, Wiki)] -> Map.Map Text Wiki
 mkWikiDictionary = Map.fromList . map (((,).wikiPath.snd) <*> snd)
 
 inlinesToString :: [Inline] -> String
@@ -564,16 +482,15 @@ inlinesToString = concatMap go
           Note _                  -> ""
 
 -- TODO: remove this if yesod support Root Relative URL.
-dropPrefix :: (Eq a) => [a] -> [a] -> [a]
+dropPrefix :: Text -> Text -> Text
 dropPrefix xs ys = dp' ys xs ys
   where
-    dp' :: (Eq a) => [a] -> [a] -> [a] -> [a]
-    dp' _  []     ys'     = ys'
-    dp' os _      []      = os
-    dp' os (x:xs') (y:ys') | x==y = dp' os xs' ys'
-                           | otherwise = os
+    dp' o x y | T.null x = y
+              | T.null y = o
+              | T.head x == T.head y = dp' o (T.tail x) (T.tail y)
+              | otherwise = o
 
-dropSchema :: String -> String
-dropSchema ('h':'t':'t':'p':':':'/':'/':s) = s ++ "/"
-dropSchema ('h':'t':'t':'p':'s':':':'/':'/':s) = s ++ "/"
-dropSchema s = s -- FIXME
+dropSchema :: Text -> Text
+dropSchema s | s `T.isPrefixOf` "http://" = T.drop 7 s
+             | s `T.isPrefixOf` "https://" = T.drop 8 s
+             | otherwise = s -- FIXME

@@ -13,7 +13,7 @@ getProfileR uid = do
     permissionDenied "他人のプロフィールは見ることができません."
   u <- runDB $ get404 uid
   defaultLayout $ do
-    setTitle $ string "Profile"
+    setTitle "Profile"
     addJulius $(juliusFile "profile")
     addHamlet $(hamletFile "viewProfile")
 

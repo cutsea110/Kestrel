@@ -5,7 +5,7 @@ import Kestrel
 import Yesod.Helpers.AtomFeed
 import Yesod.Helpers.Sitemap
 import Data.Time
-import Data.ByteString.Char8 (pack)
+import qualified Data.Text as T
 
 import qualified Settings
 
@@ -67,8 +67,8 @@ getRecentChangesR = do
   jsonToRepJson $ jsonMap [("entries", jsonList $ map (go now render) entries)]
   where
     go now r (_, w) = 
-      jsonMap [ ("title", jsonScalar (wikiPath w))
-              , ("uri", jsonScalar $ r $ WikiR $ fromPath (wikiPath w))
+      jsonMap [ ("title", jsonScalar $ T.unpack (wikiPath w))
+              , ("uri", jsonScalar $ T.unpack $ r $ WikiR $ fromPath (wikiPath w))
               , ("uday", jsonScalar $ show (wikiUpdated w))
               , ("new", jsonScalar $ show $ ((utctDay now) `diffDays` (utctDay $ wikiUpdated w)) <= Settings.newDays)
               ]
@@ -87,4 +87,4 @@ getAuthToGoR = do
     Nothing -> uncurry (redirectParams RedirectTemporary) topView
     Just r -> do
       _ <- requireAuth
-      redirectString RedirectTemporary $ pack r
+      redirectText RedirectTemporary r

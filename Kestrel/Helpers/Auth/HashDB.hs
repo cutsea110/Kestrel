@@ -1,5 +1,6 @@
 {-# LANGUAGE QuasiQuotes, TypeFamilies #-}
 {-# LANGUAGE CPP #-}
+{-# LANGUAGE OverloadedStrings #-}
 -- | replace Yesod.Helpers.Auth.HashDB
 -- initialize password and insert user account manually.
 -- How to make SHA1 password by
@@ -20,13 +21,15 @@ import Control.Monad (unless)
 import Control.Applicative ((<$>), (<*>))
 import Data.ByteString.Lazy.Char8  (pack)
 import Data.Digest.Pure.SHA        (sha1, showDigest)
+import Data.Text (Text)
+import qualified Data.Text as T
 
 loginR, setpassR :: AuthRoute
 loginR = PluginR "account" ["login"]
 setpassR = PluginR "account" ["set-password"]
 
-type HashDB = String
-type EncriptedPass = String
+type HashDB = Text
+type EncriptedPass = Text
 
 -- | Data stored in a database for each user account.
 data HashDBCreds m = HashDBCreds
@@ -37,8 +40,8 @@ data HashDBCreds m = HashDBCreds
 class YesodAuth m => YesodAuthHashDB m where
     type AuthHashDBId m
 
-    showAuthHashDBId :: m -> AuthHashDBId m -> String
-    readAuthHashDBId :: m -> String -> Maybe (AuthHashDBId m)
+--    showAuthHashDBId :: m -> AuthHashDBId m -> Text
+--    readAuthHashDBId :: m -> Text -> Maybe (AuthHashDBId m)
 
     getPassword :: AuthId m -> GHandler Auth m (Maybe EncriptedPass)
     setPassword :: AuthId m -> EncriptedPass -> GHandler Auth m ()
@@ -102,10 +105,10 @@ getPasswordR = do
     case maid of
         Just _ -> return ()
         Nothing -> do
-            setMessage $ string "パスワードを変更するにはログインしてください."
+            setMessage $ "パスワードを変更するにはログインしてください."
             redirect RedirectTemporary $ toMaster loginR
     defaultLayout $ do
-        setTitle $ string "パスワード変更"
+        setTitle $ "パスワード変更"
         addHamlet
             [$hamlet|\
 <h3>パスワード変更
@@ -131,19 +134,19 @@ postPasswordR = do
         <*> stringInput "confirm"
     toMaster <- getRouteToMaster
     unless (new == confirm) $ do
-        setMessage $ string "パスワードが合致していません.再度入力しなおしてください."
+        setMessage "パスワードが合致していません.再度入力しなおしてください."
         redirect RedirectTemporary $ toMaster setpassR
     maid <- maybeAuthId
     aid <- case maid of
             Nothing -> do
-                setMessage $ string "パスワードを変更するにはログインしてください."
+                setMessage "パスワードを変更するにはログインしてください."
                 redirect RedirectTemporary $ toMaster loginR
             Just aid -> return aid
     let sha1pass = encrypt new
     setPassword aid sha1pass
-    setMessage $ string "パスワードを更新しました."
+    setMessage "パスワードを更新しました."
     y <- getYesod
     redirect RedirectTemporary $ loginDest y
 
-encrypt :: String -> String
-encrypt = showDigest . sha1 . pack
+encrypt :: Text -> Text
+encrypt = T.pack . showDigest . sha1 . pack . T.unpack
