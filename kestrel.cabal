@@ -1,5 +1,5 @@
 Name:                kestrel
-Version:             0.1
+Version:             0.2
 Synopsis:            the yesod web application.
 Homepage:            https://github.com/cutsea110/Kestrel
 License:             BSD3
@@ -9,6 +9,16 @@ Maintainer:          cutsea110@gmail.com
 Category:            Web
 Build-type:          Simple
 Cabal-version:       >=1.6
+Library
+     exposed-modules: Controller
+     other-modules: Kestrel
+                    Model
+                    Settings
+                    StaticFiles
+                    Handler.Root
+                    Handler.Profile
+                    Handler.Wiki
+                    Handler.S3
 Executable kestrel
      cpp-options:    -DPRODUCTION
      Main-is:        kestrel.hs
