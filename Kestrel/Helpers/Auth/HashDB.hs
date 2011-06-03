@@ -105,10 +105,10 @@ getPasswordR = do
     case maid of
         Just _ -> return ()
         Nothing -> do
-            setMessage $ "パスワードを変更するにはログインしてください."
+            setMessage "パスワードを変更するにはログインしてください."
             redirect RedirectTemporary $ toMaster loginR
     defaultLayout $ do
-        setTitle $ "パスワード変更"
+        setTitle "パスワード変更"
         addHamlet
             [$hamlet|\
 <h3>パスワード変更
