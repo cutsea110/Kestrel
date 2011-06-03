@@ -4,6 +4,7 @@
 {-# OPTIONS_GHC -fno-warn-orphans #-}
 module Controller
     ( withKestrel
+    , withDevelApp
     ) where
 
 import Kestrel
@@ -12,6 +13,7 @@ import Yesod.Helpers.Static
 import Yesod.Helpers.Auth
 import Database.Persist.GenericSql
 import Network.Wai
+import Data.Dynamic (Dynamic, toDyn)
 
 -- Import all relevant handler modules here.
 import Handler.Root
@@ -36,3 +38,6 @@ withKestrel f = Settings.withConnectionPool $ \p -> do
     f $ \req -> (if isSecure req then https else http) req
   where
     s = static Settings.staticdir
+
+withDevelApp :: Dynamic
+withDevelApp = toDyn (withKestrel :: (Application -> IO ()) -> IO ())

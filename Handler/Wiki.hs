@@ -10,11 +10,14 @@ import Control.Applicative ((<$>),(<*>))
 import Web.Encodings (encodeUrl, decodeUrl)
 import Data.Tuple.HT
 import Data.Algorithm.Diff
-import Data.List (intercalate, groupBy)
-import Data.List.Split (splitOn)
+import Data.List (groupBy)
+import Data.Text (Text)
+import qualified Data.Text as T
+import Text.Hamlet (preEscapedText)
 
 import Settings (topTitle, hamletFile, cassiusFile, juliusFile, widgetFile)
 import StaticFiles
+
 
 getEitherWikiNewR :: WikiPage -> Handler RepHtml
 getEitherWikiNewR wp = do
@@ -39,11 +42,11 @@ getWikiListR = do
       q <- lookupGetParam "q"
       case q of
         Nothing  -> invalidArgs ["'q' parameter is required."]
-        Just []  -> invalidArgs ["Please specify your search."]
-        Just [_] -> invalidArgs ["Search term must be given two or more characters."]
-        Just key -> do
-          defaultLayout $ do
-            setTitle $ string "Search Result"
+        Just key -> case T.length key of
+          0 -> invalidArgs ["Please specify your search."]
+          1 -> invalidArgs ["Search term must be given two or more characters."]
+          _ -> defaultLayout $ do
+            setTitle $ preEscapedText "Search Result"
             addCassius $(cassiusFile "wiki")
             addJulius $(juliusFile "wikilist")
             addStylesheet $ StaticR css_hk_kate_css
@@ -62,7 +65,7 @@ getWikiR wp = do
     Nothing  {- default mode -} -> viewWiki  -- FIXME
   where
     -- Utility
-    getwiki :: WriterOptions -> Handler (String, String, Html, UTCTime, Version, Maybe User, Bool)
+    getwiki :: WriterOptions -> Handler (Text, Text, Html, UTCTime, Version, Maybe User, Bool)
     getwiki opt = do
       let path = pathOf wp
       runDB $ do
@@ -73,33 +76,33 @@ getWikiR wp = do
         content <- markdownToWikiHtml opt raw
         return (path, raw, content, upd, ver, me, isTop)
     
-    searchWord :: String -> String -> [Html]
-    searchWord key content = pileUp $ map (search key) $ lines content
+    searchWord :: Text -> Text -> [Html]
+    searchWord key content = pileUp $ map (search key) $ T.lines content
       where
-        search :: String -> String -> (Bool, String)
+        search :: Text -> Text -> (Bool, Text)
         search word line = (found, highlighted)
           where 
-            splitted = splitOn word line
+            splitted = T.splitOn word line
             found = length splitted > 1
-            highlighted = intercalate ("<span class='highlight'>"++word++"</span>") splitted
+            highlighted = T.intercalate ("<span class='highlight'>"+++word+++"</span>") splitted
             
-        pileUp :: [(Bool, String)] -> [Html]
-        pileUp = map toHtml . group . remark 3
+        pileUp :: [(Bool, Text)] -> [Html]
+        pileUp = map toHtml' . group . remark 3
           where
-            remark :: Int -> [(Bool, String)] -> [(Bool, String)]
+            remark :: Int -> [(Bool, Text)] -> [(Bool, Text)]
             remark 1 xs = transmit xs shiftL shiftR
               where
                 shiftL = drop 1 xs ++ [(False, undefined)]
                 shiftR = (False, undefined):xs
-                transmit :: [(Bool, String)] -> [(Bool, String)] -> [(Bool, String)] -> [(Bool, String)]
+                transmit :: [(Bool, Text)] -> [(Bool, Text)] -> [(Bool, Text)] -> [(Bool, Text)]
                 transmit ((o,os):os') ((l,_):ls') ((r,_):rs') = (or [o,l,r], os):transmit os' ls' rs'
                 transmit _ _ _ = []
             remark n xs = remark 1 $ remark (n-1) xs
                 
-            group :: [(Bool, String)] -> [[String]]
+            group :: [(Bool, Text)] -> [[Text]]
             group = map (map snd) . filter (fst.head) . groupBy (\x y -> fst x == fst y)
-            toHtml :: [String] -> Html
-            toHtml = preEscapedString . intercalate "<br/>"
+            toHtml' :: [Text] -> Html
+            toHtml' = preEscapedText . T.intercalate "<br/>"
 
     
     -- Pages
@@ -137,7 +140,7 @@ $if not (isNull blocks)
       let editMe = (WikiR wp, [("mode", "e")])
           deleteMe = (WikiR wp, [("mode", "d")])
       defaultLayout $ do
-        setTitle $ string path
+        setTitle $ preEscapedText path
         addCassius $(cassiusFile "wiki")
         addJulius $(juliusFile "wiki")
         addStylesheet $ StaticR css_hk_kate_css
@@ -151,7 +154,7 @@ $if not (isNull blocks)
           deleteMe = (WikiR wp, [("mode", "d")])
           markdown = $(hamletFile "markdown-ja")
       defaultLayout $ do
-        setTitle $ string path
+        setTitle $ preEscapedText path
         addCassius $(cassiusFile "wiki")
         addJulius $(juliusFile "wiki")
         addStylesheet $ StaticR css_hk_kate_css
@@ -164,7 +167,7 @@ $if not (isNull blocks)
       let editMe = (WikiR wp, [("mode", "e")])
           deleteMe = (WikiR wp, [("mode", "d")])
       defaultLayout $ do
-        setTitle $ string path
+        setTitle $ preEscapedText path
         addCassius $(cassiusFile "wiki")
         addJulius $(juliusFile "wiki")
         addStylesheet $ StaticR css_hk_kate_css
@@ -195,7 +198,7 @@ postWikiR wp = do
           deleteMe = (WikiR wp, [("mode", "d")])
           markdown = $(hamletFile "markdown-ja")
       defaultLayout $ do
-        setTitle $ string path
+        setTitle $ preEscapedText path
         addCassius $(cassiusFile "wiki")
         addJulius $(juliusFile "wiki")
         addStylesheet $ StaticR css_hk_kate_css
@@ -230,7 +233,7 @@ putWikiR wp = do
       return pid
       else do
       -- FIXME Conflict?
-      lift $ setMessage $ string "競合が発生しました.あなたの変更は反映できませんでした."
+      lift $ setMessage $ preEscapedText "競合が発生しました.あなたの変更は反映できませんでした."
       return pid
   redirectParams RedirectSeeOther (WikiR wp) [("mode", "v")]
 
@@ -265,7 +268,7 @@ getNewR = do
               viewMe = (NewR, [("path", path'), ("mode", "v")])
               editMe = (NewR, [("path", path'), ("mode", "e")])
           defaultLayout $ do
-            setTitle $ string path
+            setTitle $ preEscapedText path
             addCassius $(cassiusFile "wiki")
             addJulius $(juliusFile "wiki")
             addStylesheet $ StaticR css_hk_kate_css
@@ -284,7 +287,7 @@ getNewR = do
               editMe = (NewR, [("path", path'), ("mode", "e")])
               markdown = $(hamletFile "markdown-ja")
           defaultLayout $ do
-            setTitle $ string path
+            setTitle $ preEscapedText path
             addCassius $(cassiusFile "wiki")
             addJulius $(juliusFile "wiki")
             addStylesheet $ StaticR css_hk_kate_css
@@ -313,7 +316,7 @@ postNewR = do
           markdown = $(hamletFile "markdown-ja")
       content <- runDB $ markdownToWikiHtml wikiWriterOption raw
       defaultLayout $ do
-        setTitle $ string path
+        setTitle $ preEscapedText path
         addCassius $(cassiusFile "wiki")
         addJulius $(juliusFile "wiki")
         addStylesheet $ StaticR css_hk_kate_css
@@ -353,7 +356,7 @@ getHistoriesR wp = do
   ver <- lookupGetParam "ver"
   case ver of
     Nothing -> historyList $ -1
-    Just v  -> historyList $ read v
+    Just v  -> historyList $ read $ T.unpack v
   where
     -- Utility
     getHistories :: Handler [(User, WikiHistory)]
@@ -372,7 +375,7 @@ getHistoriesR wp = do
       where 
         p2t :: (a, b) -> c -> (a, b, c)
         p2t (x, y) z = (x, y, z)
-        new = map (lines . wikiHistoryContent . snd) hs
+        new = map (T.lines . wikiHistoryContent . snd) hs
         old = tail new ++ [[]]
         diffs = zipWith ((foldr dc (0,0).).getDiff) new old
         dc (F,_) (f,s) = (f+1,s)
@@ -403,13 +406,13 @@ getHistoriesR wp = do
           notEpoch = \h -> wikiHistoryVersion h /= 0
           canDiff = \h -> notCurrent h || notEpoch h
           canDiff2 = \h -> notCurrent h && notEpoch h
-          altClass :: WikiHistory -> String
+          altClass :: WikiHistory -> Text
           altClass = \h -> if wikiHistoryVersion h `mod` 2 == 0 then "even" else "odd"
           mnext = if v' >= pagingSize
-                  then Just (HistoriesR wp, [("ver", show $ v'-pagingSize)])
+                  then Just (HistoriesR wp, [("ver", T.pack . show $ v'-pagingSize)])
                   else Nothing
       defaultLayout $ do
-        setTitle $ string path
+        setTitle $ preEscapedText path
         addCassius $(cassiusFile "wiki")
         addJulius $(juliusFile "wiki")
         addHamlet $(hamletFile "listHistories")
@@ -428,7 +431,7 @@ getHistoryR vsn wp = do
     _        {-      illegal     -} -> invalidArgs ["The possible values of 'mode' are l,v,e,p,c,r."]
   where
     -- Utility
-    getHistory :: Version -> Handler (String, String, Html, UTCTime, Version, Maybe User, Bool, Wiki)
+    getHistory :: Version -> Handler (Text, Text, Html, UTCTime, Version, Maybe User, Bool, Wiki)
     getHistory v = do
       let path = pathOf wp
       runDB $ do
@@ -452,13 +455,13 @@ getHistoryR vsn wp = do
         return hists
             
     mkDiff :: WikiHistory -> WikiHistory -> Html
-    mkDiff new old = preEscapedString $ foldr d2h "" diffs
+    mkDiff new old = preEscapedText $ foldr d2h "" diffs
       where
         diffs = getDiff (lines' new) (lines' old)
-        lines' = lines . wikiHistoryContent
-        d2h (F, l) xs = "<span class='plus'>+&nbsp;" ++ l ++ "</span><br/>" ++ xs
-        d2h (S, l) xs = "<span class='minus'>-&nbsp;" ++ l ++ "</span><br/>" ++ xs
-        d2h (B, l) xs = "<span>&nbsp;&nbsp;" ++ l ++ "</span><br/>" ++ xs
+        lines' = T.lines . wikiHistoryContent
+        d2h (F, l) xs = "<span class='plus'>+&nbsp;" +++ l +++ "</span><br/>" +++ xs
+        d2h (S, l) xs = "<span class='minus'>-&nbsp;" +++ l +++ "</span><br/>" +++ xs
+        d2h (B, l) xs = "<span>&nbsp;&nbsp;" +++ l +++ "</span><br/>" +++ xs
         
     -- pages
     viewHistory :: Version -> Handler RepHtml
@@ -471,7 +474,7 @@ getHistoryR vsn wp = do
           editVer = (HistoryR v wp, [("mode", "e")])
           currDiff = (HistoryR v wp, [("mode", "c")])
       defaultLayout $ do
-        setTitle $ string path
+        setTitle $ preEscapedText path
         addCassius $(cassiusFile "wiki")
         addJulius $(juliusFile "wiki")
         addStylesheet $ StaticR css_hk_kate_css
@@ -487,7 +490,7 @@ getHistoryR vsn wp = do
           notCurrent =  v /= ver
           markdown = $(hamletFile "markdown-ja")
       defaultLayout $ do
-        setTitle $ string path
+        setTitle $ preEscapedText path
         addCassius $(cassiusFile "wiki")
         addJulius $(juliusFile "wiki")
         addStylesheet $ StaticR css_hk_kate_css
@@ -502,7 +505,7 @@ getHistoryR vsn wp = do
           ver = wikiVersion curp
           notCurrent =  v /= ver
       defaultLayout $ do
-        setTitle $ string path
+        setTitle $ preEscapedText path
         addCassius $(cassiusFile "wiki")
         addJulius $(juliusFile "wiki")
         addStylesheet $ StaticR css_hk_kate_css
@@ -525,7 +528,7 @@ getHistoryR vsn wp = do
           content = mkDiff v1 v0
           isTop = wp == topPage
       defaultLayout $ do
-        setTitle $ string path
+        setTitle $ preEscapedText path
         addCassius $(cassiusFile "wiki")
         addJulius $(juliusFile "wiki")
         addWidget $(widgetFile "diffHistories")
@@ -563,7 +566,7 @@ postHistoryR vsn wp = do
           notCurrent = v /= ver
           markdown = $(hamletFile "markdown-ja")
       defaultLayout $ do
-        setTitle $ string path
+        setTitle $ preEscapedText path
         addCassius $(cassiusFile "wiki")
         addJulius $(juliusFile "wiki")
         addStylesheet $ StaticR css_hk_kate_css
