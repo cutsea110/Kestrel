@@ -1,0 +1,8 @@
+s3/
+static/tmp/
+dist/
+log/
+*.o
+*.hi
+client_session_key.aes
+kestrel
