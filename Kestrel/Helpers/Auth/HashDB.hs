@@ -40,9 +40,6 @@ data HashDBCreds m = HashDBCreds
 class YesodAuth m => YesodAuthHashDB m where
     type AuthHashDBId m
 
---    showAuthHashDBId :: m -> AuthHashDBId m -> Text
---    readAuthHashDBId :: m -> Text -> Maybe (AuthHashDBId m)
-
     getPassword :: AuthId m -> GHandler Auth m (Maybe EncriptedPass)
     setPassword :: AuthId m -> EncriptedPass -> GHandler Auth m ()
     getHashDBCreds :: HashDB -> GHandler Auth m (Maybe (HashDBCreds m))
