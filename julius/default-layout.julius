@@ -1,4 +1,18 @@
 $(document).ready(function(){
+
+  if($.browser.msie && $.browser.version < 8){
+    $("button[name=_method]").each(function(){
+      // IEではbuttonのvalueを取得するのは異常に面倒くさい
+      // ダメなのは以下
+      // jquery $(this).val(), $(this).attr('value')
+      // javascript element.getAttribute('value')
+      // というわけでattributesのgetNamedItem経由でnodeValueを取得した
+      //
+      var btn = document.getElementsByName($(this).attr('name'))[0];
+      $(this).text( btn.attributes.getNamedItem('value').nodeValue );
+    });
+  }
+
   $("#message").fadeOut(3000, function(){$(this).remove();});
 
   $("form.validate").submit(function(){
