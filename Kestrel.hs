@@ -74,7 +74,7 @@ import Data.List (inits)
 import Data.Char (toLower)
 import Data.Text (Text)
 import qualified Data.Text as T
-import Text.Hamlet.NonPoly (IHamlet, ihamletFile)
+import Text.Hamlet.NonPoly (ihamletFile)
 
 import Model
 import StaticFiles
@@ -201,6 +201,7 @@ instance Yesod Kestrel where
         mmsg <- getMessage
         r2m <- getRouteToMaster
         cr <- getCurrentRoute
+        msgShow <- getMessageRender
         let mgaUA = Settings.googleAnalyticsUA
             maTUser = Settings.addThisUser
             googleInurl = dropSchema $ approot y

@@ -4,13 +4,32 @@ Go: Go
 SearchPlaceholder: Search...
 UploadFile: Upload file
 Login: Login
+
+# default-layout.julius
+RecentChanges: Recent Changes
+Gallery: Gallery
+Editing page@Text: #{page} Editing.
+WarnFieldsRequired: Fields are required.
+
+# wiki.julius
+ShowTOC: show Contents
+HideTOC: hide Contents
+NullText: *** no comment log ***
+
 # header
-NowLogin: Login.
+NowLogin: You are now logged in.
 Logout: Logout
-ChangePassword: change password.
+ChangePassword: Set password.
 FileGallery: Upload File
 ChangeProf: change your nickname.
 SimpleFileUploader: simple file uploader
+
+# login
+AccountID: Account ID
+Password: Password
+LoginViaAccount: Login via account
+LoginViaOpenID: Login via OpenID
+
 # wiki
 VIEW: View
 EDIT: Edit

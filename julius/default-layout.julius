@@ -22,7 +22,7 @@ $(document).ready(function(){
       $(this).removeClass('invalid');
       if ( $.trim($(this).val()) == "") {
         $(this).addClass('invalid');
-        $(this).after("<span class='invalid'>必須入力項目です.</span>");
+        $(this).after("<span class='invalid'>#{msgShow MsgWarnFieldsRequired}</span>");
         valid = false;
       }
     });
@@ -44,7 +44,7 @@ $(document).ready(function(){
     }
   });
 
-  $(".login-options").attr("title","ログイン").dialog({
+  $(".login-options").attr("title","#{msgShow MsgLogin}").dialog({
     autoOpen: true,
     width: 520,
     modal: true,
@@ -74,7 +74,7 @@ $(document).ready(function(){
     },
     error: function(msg, status) {
       if ('#{show mu}'!='Nothing') {
-        var anc = $('<a/>').attr({href:'@?{sidePaneNew}'}).text('#{Settings.sidePaneTitle}を編集する');
+        var anc = $('<a/>').attr({href:'@?{sidePaneNew}'}).text('#{msgShow (MsgEditing Settings.sidePaneTitle)}');
         $('#sidenavi').append(anc);
       }
     }
@@ -82,7 +82,7 @@ $(document).ready(function(){
 
 
   $.getJSON('@{RecentChangesR}', function(json){
-      var fs = $('<fieldset><legend>最近の更新</legend></fieldset>'),
+      var fs = $('<fieldset><legend>#{msgShow MsgRecentChanges}</legend></fieldset>'),
           ul = $('<ul/>');
       $.each(json.entries, function(i, item){
             var url = item.uri,
@@ -100,7 +100,7 @@ $(document).ready(function(){
       $('#recent-changes').append(fs.append(ul));
   });
 
-  $("#file_selector").hide().attr("title", "ファイルギャラリー").dialog({
+  $("#file_selector").hide().attr("title", "#{msgShow MsgGallery}").dialog({
     autoOpen: false,
     width: 680,
     modal: true
