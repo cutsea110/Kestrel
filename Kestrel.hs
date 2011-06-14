@@ -42,6 +42,7 @@ module Kestrel
     , UserCrud
     , userCrud
     , (+++)
+    , KestrelMessage (..)
     ) where
 
 import Yesod
@@ -73,6 +74,7 @@ import Data.List (inits)
 import Data.Char (toLower)
 import Data.Text (Text)
 import qualified Data.Text as T
+import Text.Hamlet.NonPoly (IHamlet, ihamletFile)
 
 import Model
 import StaticFiles
@@ -80,6 +82,8 @@ import qualified Settings
 
 (+++) :: Text -> Text -> Text
 (+++) = T.append
+
+mkMessage "Kestrel" "messages" "en"
 
 -- | The site argument for your application. This can be a good place to
 -- keep settings and values requiring initialization before your application
@@ -200,9 +204,9 @@ instance Yesod Kestrel where
         let mgaUA = Settings.googleAnalyticsUA
             maTUser = Settings.addThisUser
             googleInurl = dropSchema $ approot y
-            ga = $(Settings.hamletFile "ga")
-            header = $(Settings.hamletFile "header")
-            footer = $(Settings.hamletFile "footer")
+            ga = $(ihamletFile "hamlet/ga.hamlet")
+            header = $(ihamletFile "hamlet/header.hamlet")
+            footer = $(ihamletFile "hamlet/footer.hamlet")
         pc <- widgetToPageContent $ do
           widget
           addScriptEither $ urlJqueryJs y
@@ -216,7 +220,7 @@ instance Yesod Kestrel where
           addCassius $(Settings.cassiusFile "default-layout")
           addJulius $(Settings.juliusFile "default-layout")
           atomLink FeedR $ T.unpack Settings.topTitle
-        hamletToRepHtml $(Settings.hamletFile "default-layout")
+        ihamletToRepHtml $(ihamletFile "hamlet/default-layout.hamlet")
         
     -- This is done to provide an optimization for serving static files from
     -- a separate domain. Please see the staticroot setting in Settings.hs

@@ -27,6 +27,7 @@ import Settings (widgetFile, cassiusFile)
 getUploadR :: Handler RepHtml
 getUploadR = do
   (uid,_) <- requireAuth
+  msg <- getMessageRender
   defaultLayout $ do
     addCassius $(cassiusFile "s3/s3")
     addWidget $(widgetFile "s3/upload")

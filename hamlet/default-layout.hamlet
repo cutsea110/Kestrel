@@ -3,7 +3,7 @@
 <html>
     <head>
         <title>#{pageTitle pc}
-        \^{pageHead pc}
+        \^{const $ pageHead pc}
         \^{ga}
     <body>
         <div id="doc" .kui-t1 .clearfix>
@@ -12,7 +12,7 @@
               \^{header}
               $maybe msg <- mmsg
                 <div id="message">#{msg}
-              \^{pageBody pc}
+              \^{const $ pageBody pc}
               \^{footer}
           <div id="sidebar" .kui-b .clearfix>
             <div id="kestrel-logo">
@@ -22,17 +22,17 @@
             <div id="recent-changes" .sidebox>
             <div id="tools" .sidebox>
               <fieldset>
-                <legend>検索ツール
+                <legend>_{MsgTools}
                 <form method="get" action="@{WikiListR}">
-                  <input type="text" name="q" placeholder="Search..." .watermark>
-                  <button type="submit" name="_method" value="search">Go
+                  <input type="text" name="q" placeholder="_{MsgSearchPlaceholder}" .watermark>
+                  <button type="submit" name="_method" value="search">_{MsgGo}
                 <form method="get" action="http://www.google.com/search">
                   <input type="hidden" name="hq" value="inurl:#{googleInurl}">
                   <input type="hidden" name="ie" value="UTF-8">
                   <input type="hidden" name="oe" value="UTF-8">
                   <input type="hidden" name="filter" value="0">
                   <input type="text" name="q" .google>
-                  <button type="submit" name="btnG">Go
+                  <button type="submit" name="btnG">_{MsgGo}
         $maybe _ <- mu
           <div id="file_selector">
            <div id="photo-gallery" .scroll>
@@ -41,6 +41,6 @@
            <form id="upload_form" method="post" enctype="multipart/form-data" action="@{UploadR}">
              <div id="fields" .inline>
                <input id="upload_file" type="file" name="upfile">
-             <input id="go_upload" type="button" name="upload" value="ファイルをアップロードする">
+             <input id="go_upload" type="button" name="upload" value="_{MsgUploadFile}">
            <div id="trash-area" .right>
              <img id="trashbox" src="@{StaticR img_trash_empty64_png}" .transparent>
