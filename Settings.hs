@@ -53,13 +53,13 @@ approot :: Text
 -- you would probably want it to be:
 -- > approot = "http://www.yesod.com"
 -- Please note that there is no trailing slash.
-approot = "localhost:3000"
+approot = "research.timedia.co.jp"
 #else
-approot = "localhost:3000"
+approot = "research.timedia.co.jp"
 #endif
 
 rootbase :: Text
-rootbase = ""
+rootbase = "/kestrel"
 
 -- | The location of static files on your system. This is a file system
 -- path. The default value works properly with your scaffolded site.
@@ -118,9 +118,9 @@ addThisUser = Just "cutsea110"
 -- specific.
 connStr :: Text
 #ifdef PRODUCTION
-connStr = "user=cut-sea password=yesoddevel host=localhost port=5432 dbname=kestrel"
+connStr = "user=cutsea110 password=ilovescheme host=localhost port=5432 dbname=kestrel"
 #else
-connStr = "user=cut-sea password=yesoddevel host=localhost port=5432 dbname=kestrel_debug"
+connStr = "user=cutsea110 password=ilovescheme host=localhost port=5432 dbname=kestrel"
 #endif
 
 -- | Your application will keep a connection pool and take connections from

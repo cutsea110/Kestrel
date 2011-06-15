@@ -5,12 +5,12 @@
         <a href="@{WikiR a}">#{lastNameOf a}
 <ul .tabs>
   <li .selected>
-    <a href="@?{viewMe}">表示
+    <a href="@?{viewMe}">_{MsgVIEW}
   <li>
-    <a href="@?{editMe}">編集
+    <a href="@?{editMe}">_{MsgEDIT}
   $if not isTop
     <li>
-      <a href="@?{topView}">トップ
+      <a href="@?{topView}">_{MsgTOP}
 \
 <div id="main-content">
   \'#{path}'というページはまだありません. 作りたい場合には

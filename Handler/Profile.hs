@@ -2,7 +2,7 @@
 module Handler.Profile where
 
 import Kestrel
-import Settings (hamletFile, juliusFile)
+import Settings (juliusFile)
 
 import Control.Monad (unless)
 
@@ -15,7 +15,7 @@ getProfileR uid = do
   defaultLayout $ do
     setTitle "Profile"
     addJulius $(juliusFile "profile")
-    addHamlet $(hamletFile "viewProfile")
+    addWidget $(whamletFile "hamlet/viewProfile.hamlet")
 
 postProfileR :: UserId -> Handler ()
 postProfileR uid = do

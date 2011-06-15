@@ -30,6 +30,10 @@ Password: パスワード
 LoginViaAccount: このアカウントでログインする
 LoginViaOpenID: OpenIDでログインする
 
+# profile
+ProfileSettings: プロフィール設定
+NickName: ニックネーム
+
 # wiki
 VIEW: 表示
 EDIT: 編集
@@ -38,3 +42,8 @@ HISTORY: 更新履歴
 TOP: トップ
 LastEditor: 最終更新者
 LastUpdatedDate: 最終更新日時
+Preview: プレビューする
+MorePreview: もう一度プレビューする
+Update: 更新する
+CreateNew: 新規作成する
+REVERT: 巻き戻し

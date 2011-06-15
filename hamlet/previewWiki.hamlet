@@ -5,24 +5,24 @@
         <a href="@{WikiR a}">#{lastNameOf a}
 <ul .tabs>
   <li>
-    <a href="@{WikiR wp}">表示
+    <a href="@{WikiR wp}">_{MsgVIEW}
   <li .selected>
-    <a href="@?{editMe}">編集
+    <a href="@?{editMe}">_{MsgEDIT}
   <li>
-    <a href="@?{deleteMe}">削除
+    <a href="@?{deleteMe}">_{MsgDELETE}
   <li>
-    <a href="@{HistoriesR wp}">更新履歴
+    <a href="@{HistoriesR wp}">_{MsgHISTORY}
   $if not isTop
     <li>
-      <a href="@?{topView}">トップ
+      <a href="@?{topView}">_{MsgTOP}
 \
 <div id="main-content">
   <h3 .metatitle> `#{path}' のプレビュー中.
   \
   <form method="post" action="@{WikiR wp}" .validate>
     <input type="hidden" name="version" value="#{show ver}">
-    <button type="submit" name="_method" value="preview">もう一度プレビューする
-    <button type="submit" name="_method" value="commit">更新する
+    <button type="submit" name="_method" value="preview">_{MsgMorePreview}
+    <button type="submit" name="_method" value="commit">_{MsgUpdate}
     \
     <div .preview>#{content}
     <br>
@@ -32,8 +32,8 @@
       $maybe c <- com
          \#{c}
     <br>
-    <button type="submit" name="_method" value="preview">もう一度プレビューする
-    <button type="submit" name="_method" value="commit">更新する
+    <button type="submit" name="_method" value="preview">_{MsgMorePreview}
+    <button type="submit" name="_method" value="commit">_{MsgUpdate}
   \
   <div id="help">
     \^{markdown}

@@ -145,7 +145,7 @@ $if not (isNull blocks)
         addCassius $(cassiusFile "wiki")
         addJulius $(juliusFile "wiki")
         addStylesheet $ StaticR css_hk_kate_css
-        addWidget $(widgetFile "viewWiki")
+        addWidget $(whamletFile "hamlet/viewWiki.hamlet")
 
     editWiki :: Handler RepHtml
     editWiki = do
@@ -160,7 +160,7 @@ $if not (isNull blocks)
         addCassius $(cassiusFile "wiki")
         addJulius $(juliusFile "wiki")
         addStylesheet $ StaticR css_hk_kate_css
-        addWidget $(widgetFile "editWiki")
+        addWidget $(whamletFile "hamlet/editWiki.hamlet")
             
     deleteWiki :: Handler RepHtml
     deleteWiki = do
@@ -174,7 +174,7 @@ $if not (isNull blocks)
         addCassius $(cassiusFile "wiki")
         addJulius $(juliusFile "wiki")
         addStylesheet $ StaticR css_hk_kate_css
-        addWidget $(widgetFile "deleteWiki")
+        addWidget $(whamletFile "hamlet/deleteWiki.hamlet")
 
 
 postWikiR :: WikiPage -> Handler RepHtml
@@ -206,7 +206,7 @@ postWikiR wp = do
         addCassius $(cassiusFile "wiki")
         addJulius $(juliusFile "wiki")
         addStylesheet $ StaticR css_hk_kate_css
-        addWidget $(widgetFile "previewWiki")
+        addWidget $(whamletFile "hamlet/previewWiki.hamlet")
 
 putWikiR :: WikiPage -> Handler RepHtml
 putWikiR wp = do
@@ -277,7 +277,7 @@ getNewR = do
             addCassius $(cassiusFile "wiki")
             addJulius $(juliusFile "wiki")
             addStylesheet $ StaticR css_hk_kate_css
-            addWidget $(widgetFile "viewNew")
+            addWidget $(whamletFile "hamlet/viewNew.hamlet")
     
     editNew :: Handler RepHtml
     editNew = do
@@ -297,7 +297,7 @@ getNewR = do
             addCassius $(cassiusFile "wiki")
             addJulius $(juliusFile "wiki")
             addStylesheet $ StaticR css_hk_kate_css
-            addWidget $(widgetFile "editNew")
+            addWidget $(whamletFile "hamlet/editNew.hamlet")
   
 postNewR :: Handler RepHtml
 postNewR = do
@@ -327,7 +327,7 @@ postNewR = do
         addCassius $(cassiusFile "wiki")
         addJulius $(juliusFile "wiki")
         addStylesheet $ StaticR css_hk_kate_css
-        addWidget $(widgetFile "previewNew")
+        addWidget $(whamletFile "hamlet/previewNew.hamlet")
     
     createWiki :: Handler RepHtml
     createWiki = do
@@ -423,7 +423,7 @@ getHistoriesR wp = do
         setTitle $ preEscapedText path
         addCassius $(cassiusFile "wiki")
         addJulius $(juliusFile "wiki")
-        addHamlet $(hamletFile "listHistories")
+        addWidget $(whamletFile "hamlet/listHistories.hamlet")
 
         
 
@@ -487,7 +487,7 @@ getHistoryR vsn wp = do
         addCassius $(cassiusFile "wiki")
         addJulius $(juliusFile "wiki")
         addStylesheet $ StaticR css_hk_kate_css
-        addWidget $(widgetFile "viewHistory")
+        addWidget $(whamletFile "hamlet/viewHistory.hamlet")
 
     editHistory :: Version -> Handler RepHtml
     editHistory v = do
@@ -504,7 +504,7 @@ getHistoryR vsn wp = do
         addCassius $(cassiusFile "wiki")
         addJulius $(juliusFile "wiki")
         addStylesheet $ StaticR css_hk_kate_css
-        addWidget $(widgetFile "editHistory")
+        addWidget $(whamletFile "hamlet/editHistory.hamlet")
     
     revertHistory :: Version -> Handler RepHtml
     revertHistory v = do
@@ -520,7 +520,7 @@ getHistoryR vsn wp = do
         addCassius $(cassiusFile "wiki")
         addJulius $(juliusFile "wiki")
         addStylesheet $ StaticR css_hk_kate_css
-        addWidget $(widgetFile "revertHistory")
+        addWidget $(whamletFile "hamlet/revertHistory.hamlet")
 
     diffVers :: (Wiki -> Version -> [Version]) -> Version -> Handler RepHtml
     diffVers selver v = do
@@ -543,7 +543,7 @@ getHistoryR vsn wp = do
         setTitle $ preEscapedText path
         addCassius $(cassiusFile "wiki")
         addJulius $(juliusFile "wiki")
-        addWidget $(widgetFile "diffHistories")
+        addWidget $(whamletFile "hamlet/diffHistories.hamlet")
     
     diffPrevious :: Version -> Handler RepHtml
     diffPrevious = diffVers $ \_ v -> [v, v-1]
@@ -583,7 +583,7 @@ postHistoryR vsn wp = do
         addCassius $(cassiusFile "wiki")
         addJulius $(juliusFile "wiki")
         addStylesheet $ StaticR css_hk_kate_css
-        addWidget $(widgetFile "previewHistory")
+        addWidget $(whamletFile "hamlet/previewHistory.hamlet")
 
 putHistoryR :: Version -> WikiPage -> Handler RepHtml
 putHistoryR v wp = do

@@ -30,6 +30,10 @@ Password: Password
 LoginViaAccount: Login via account
 LoginViaOpenID: Login via OpenID
 
+# profile
+ProfileSettings: Profile Settings
+NickName: Nickname
+
 # wiki
 VIEW: View
 EDIT: Edit
@@ -38,3 +42,8 @@ HISTORY: History
 TOP: Top
 LastEditor: Editor
 LastUpdatedDate: Updated Date
+Preview: preview
+MorePreview: more preview
+Update: update
+CreateNew: create new
+REVERT: Revert

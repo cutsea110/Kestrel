@@ -5,16 +5,16 @@
         <a href="@{WikiR a}">#{lastNameOf a}
 <ul .tabs>
   <li>
-    <a href="@{WikiR wp}">表示
+    <a href="@{WikiR wp}">_{MsgVIEW}
   <li>
-    <a href="@?{editMe}">編集
+    <a href="@?{editMe}">_{MsgEDIT}
   <li>
-    <a href="@?{deleteMe}">削除
+    <a href="@?{deleteMe}">_{MsgDELETE}
   <li .selected>
-    <a href="@{HistoriesR wp}">更新履歴
+    <a href="@{HistoriesR wp}">_{MsgHISTORY}
   $if not isTop
     <li>
-      <a href="@?{topView}">トップ
+      <a href="@?{topView}">_{MsgTOP}
 \
 <div id="main-content">
   <h3 .metatitle>`#{path}' の更新履歴.
@@ -38,11 +38,11 @@
         <td>+#{show (fst (thd3 h))},#{show (snd (thd3 h))}
         <td>
            \[
-           <a href="@?{viewVer (wikiHistoryVersion (snd3 h))}">表示
+           <a href="@?{viewVer (wikiHistoryVersion (snd3 h))}">_{MsgVIEW}
            \|&nbsp;この版を元に
-           <a href="@?{editVer (wikiHistoryVersion (snd3 h))}">編集
+           <a href="@?{editVer (wikiHistoryVersion (snd3 h))}">_{MsgEDIT}
            \|
-           <a href="@?{revertVer (wikiHistoryVersion (snd3 h))}">巻き戻し
+           <a href="@?{revertVer (wikiHistoryVersion (snd3 h))}">_{MsgREVERT}
            \]
            $if canDiff (snd3 h)
              \[
@@ -66,11 +66,11 @@
           $nothing
             $maybe com <- wikiHistoryComment (snd3 h)
               $if isNull com
-                <span>*** 変更メモなし ***
+                <span>_{MsgNullText}
               $else
                 <span>#{com}
             $nothing
-              <span>*** 変更メモなし ***
+              <span>_{MsgNullText}
     $maybe next <- mnext
       <tr>
         <td colspan="5">
