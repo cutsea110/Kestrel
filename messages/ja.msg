@@ -60,3 +60,10 @@ MorePreview: もう一度プレビューする
 Update: 更新する
 CreateNew: 新規作成する
 REVERT: 巻き戻し
+
+# deleteWiki
+ConfirmRemove path@Text: `#{path}' の削除確認.
+RemoveAnyway: それでも削除する
+Warning: 警告!
+WarnForDelete: このコンテンツを削除すると更新履歴も含めて完全に削除されて二度と元に戻すことは出来ません.
+ConfirmDeleteLastChance: 本当に削除しますか?

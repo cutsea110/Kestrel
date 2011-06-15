@@ -60,3 +60,10 @@ MorePreview: more preview
 Update: update
 CreateNew: create new
 REVERT: Revert
+
+# deleteWiki
+ConfirmRemove path@Text: Confirm removal of `#{path}'.
+RemoveAnyway: Remove anyway
+Warning: Warning!
+WarnForDelete: Never be restored completely been removed and updated with the history of this content can not delete.
+ConfirmDeleteLastChance: Do you want to delete it?

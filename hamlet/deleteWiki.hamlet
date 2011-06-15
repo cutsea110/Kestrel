@@ -17,14 +17,12 @@
       <a href="@?{topView}">_{MsgTOP}
 \
 <div id="main-content">
-  <h3 .metatitle> `#{path}' 削除確認.
+  <h3 .metatitle> _{MsgConfirmRemove path}
   \
   <div .warnings>
-    [警告!]: このコンテンツを削除すると更新履歴も含めて
+    [_{MsgWarning}]: _{MsgWarnForDelete}
     <br>
-    完全に削除されて二度と元に戻すことは出来ません.
-    <br>
-    本当に削除しますか?
+    _{MsgConfirmDeleteLastChance}
   \
   <form method="post" action="@{WikiR wp}">
-    <button type="submit" name="_method" value="delete">それでも削除する
+    <button type="submit" name="_method" value="delete">_{MsgRemoveAnyway}
