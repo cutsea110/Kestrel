@@ -19,11 +19,11 @@
 <div id="main-content">
   <h3 .metatitle>#{title}
   \
-  <div .plus>+ 追加行
-  <div .minus>- 削除行
+  <div .plus>+ _{MsgAddedRows}
+  <div .minus>- _{MsgRemovedRows}
   \
   <div align="right">
-    <a href="@{HistoriesR wp}">更新履歴に戻る.
+    <a href="@{HistoriesR wp}">_{MsgReturnToChangeHistory}
   \
   <div .diff>
     \#{content}

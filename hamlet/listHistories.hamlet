@@ -17,18 +17,18 @@
       <a href="@?{topView}">_{MsgTOP}
 \
 <div id="main-content">
-  <h3 .metatitle>`#{path}' の更新履歴.
+  <h3 .metatitle>_{MsgChangeHistoryOf path}
   \
   <table .history>
     <thead>
       <tr>
-        <th rowspan="2">版
-        <th rowspan="2">更新日時
-        <th>更新者
-        <th>変更行数
-        <th>オペレーション
+        <th rowspan="2">_{MsgVersion}
+        <th rowspan="2">_{MsgUpdatedDate}
+        <th>_{MsgEditor}
+        <th>_{MsgChangeLines}
+        <th>_{MsgOperation}
       <tr>
-        <th colspan="3">変更メモ
+        <th colspan="3">_{MsgCommentLog}
     <tbody>
     $forall h <- hs
       <tr class="#{altClass (snd3 h)}">
@@ -39,20 +39,20 @@
         <td>
            \[
            <a href="@?{viewVer (wikiHistoryVersion (snd3 h))}">_{MsgVIEW}
-           \|&nbsp;この版を元に
+           \|&nbsp;_{MsgThisVerOfTheOriginal}&nbsp;
            <a href="@?{editVer (wikiHistoryVersion (snd3 h))}">_{MsgEDIT}
            \|
            <a href="@?{revertVer (wikiHistoryVersion (snd3 h))}">_{MsgREVERT}
            \]
            $if canDiff (snd3 h)
-             \[
+             \[_{MsgPreDiffBetween}
              $if notCurrent (snd3 h)
-               <a href="@?{currDiff (wikiHistoryVersion (snd3 h))}">最新版
+               <a href="@?{currDiff (wikiHistoryVersion (snd3 h))}">_{MsgLatestVersion}
              $if canDiff2 (snd3 h)
                \|
              $if notEpoch (snd3 h)
-               <a href="@?{prevDiff (wikiHistoryVersion (snd3 h))}">前の版
-             \との差分]
+               <a href="@?{prevDiff (wikiHistoryVersion (snd3 h))}">_{MsgPreviousVersion}
+             \_{MsgPostDiffBetween}]
       <tr class="#{altClass (snd3 h)}">
         <td colspan="3">
           $maybe _ <- mu
@@ -75,5 +75,5 @@
       <tr>
         <td colspan="5">
           \[
-          <a href="@?{next}">より古い履歴はこちら.
+          <a href="@?{next}">_{MsgForEvenOlderHistory}
           \]

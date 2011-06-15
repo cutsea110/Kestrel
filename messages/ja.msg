@@ -67,3 +67,23 @@ RemoveAnyway: それでも削除する
 Warning: 警告!
 WarnForDelete: このコンテンツを削除すると更新履歴も含めて完全に削除されて二度と元に戻すことは出来ません.
 ConfirmDeleteLastChance: 本当に削除しますか?
+
+#diffHistories
+AddedRows: 追加行
+RemovedRows: 削除行
+ReturnToChangeHistory: 更新履歴に戻る.
+
+# listHistories
+ChangeHistoryOf path@Text: `#{path}' の更新履歴.
+Version: 版
+UpdatedDate: 更新日時
+Editor: 更新者
+ChangeLines: 変更行数
+Operation: オペレーション
+CommentLog: 変更メモ
+LatestVersion: 最新版
+PreviousVersion: 前の版
+PreDiffBetween:
+PostDiffBetween: との差分
+ThisVerOfTheOriginal: この版を元に
+ForEvenOlderHistory: より古い履歴はこちら.

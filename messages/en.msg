@@ -67,3 +67,23 @@ RemoveAnyway: Remove anyway
 Warning: Warning!
 WarnForDelete: Never be restored completely been removed and updated with the history of this content can not delete.
 ConfirmDeleteLastChance: Do you want to delete it?
+
+#diffHistories
+AddedRows: added
+RemovedRows: removed
+ReturnToChangeHistory: Return to Change History.
+
+# listHistories
+ChangeHistoryOf path@Text: Revision history of `#{path}'
+Version: Ver.
+UpdatedDate: Updated Date
+Editor: Editor
+ChangeLines: lines
+Operation: Operation between
+CommentLog: Comment
+LatestVersion: Latest Version
+PreviousVersion: Previous Version
+PreDiffBetween: Difference between
+PostDiffBetween:
+ThisVerOfTheOriginal: This version of the original
+ForEvenOlderHistory: Click here for even older history.
