@@ -1,3 +1,16 @@
+# Kestrel.hs
+InvalidAccount: あなたのアカウントは無効です.
+TOC: 目次
+
+# Profile.hs
+CouldntAccessAnotherUserProfile: 他人のプロフィールを見ることができません.
+UpdatedProfile: プロフィールを更新しました.
+
+# Wiki.hs
+ConflictOccurred: 競合が発生しました.あなたの変更は反映できませんでした.
+ChangesSince time@UTCTime: #{showDate time} 以降の変更
+ChangesBetween from@UTCTime to@UTCTime: #{showDate from} から #{showDate to} の変更
+
 # default-layout
 Tools: 検索ツール
 Go: Go

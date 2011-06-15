@@ -35,8 +35,9 @@ getSitemapR = do
 
 getFeedR :: Handler RepAtom
 getFeedR = runDB $ do
+  msgShow <- lift $ getMessageRender
   tops <- selectList [] [WikiUpdatedDesc] 10 0
-  entries <- markdownsToWikiHtmls noToc $ map (wikiContent . snd) tops
+  entries <- markdownsToWikiHtmls (noToc msgShow) $ map (wikiContent . snd) tops
   let uday = (wikiUpdated . snd . head) tops
   lift $ atomFeed Feed
     { feedTitle = Settings.topTitle
@@ -54,7 +55,7 @@ getFeedR = runDB $ do
       , feedEntryTitle = wikiPath w
       , feedEntryContent = e
       }
-    noToc = wikiWriterOption
+    noToc r = (wikiWriterOption r)
       { writerTableOfContents = False
       }
 

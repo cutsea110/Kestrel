@@ -3,14 +3,14 @@
     <form method="post" action="@{AuthR loginR}" .auth .validate>
       <table .nostyle>
         <tr>
-          <th>アカウントID:
+          <th>_{MsgAccountID}:
           <td>
             <input #loginAccountId type="account" name="account" placeholder="account" .watermark .required>
         <tr>
-          <th>パスワード:
+          <th>_{MsgPassword}:
           <td>
             <input type="password" name="password" placeholder="password" .watermark .required>
-      <input type="submit" value="このアカウントでログインする">
+      <input type="submit" value="_{MsgLoginViaAccount}">
   <div .center>
     <h3>&mdash; OR &mdash;
   <div .center>
@@ -27,4 +27,4 @@
   <div .center>
     <form method="get" action="@{AuthR forwardUrl}" .auth>
         <input id="openid_identifier" type="text" name="openid_identifier" value="http://">
-        <input id="openid_submit" type="submit" value="OpenIDでログインする">
+        <input id="openid_submit" type="submit" value="_{MsgLoginViaOpenID}">

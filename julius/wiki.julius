@@ -6,7 +6,7 @@ $(document).ready(function(){
 
   $("#pandoc-TOC-toggle").click(function(){
     hideTOC = !hideTOC;
-    $(this).text(hideTOC ? '#{msgShow MsgShowTOC}' : '#{msgShow MsgShowTOC}');
+    $(this).text(hideTOC ? '#{msgShow MsgShowTOC}' : '#{msgShow MsgHideTOC}');
     $("#pandoc-TOC-Title,#pandoc-TOC").toggleClass("hidden", hideTOC);
     return false;
   });

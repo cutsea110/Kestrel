@@ -6,6 +6,7 @@ import Kestrel
 
 import Control.Monad
 import Data.Time
+import Data.Time.Clock
 import Control.Applicative ((<$>),(<*>))
 import Web.Encodings (encodeUrl, decodeUrl)
 import Data.Tuple.HT
@@ -137,7 +138,7 @@ $if not (isNull blocks)
     viewWiki :: Handler RepHtml
     viewWiki = do
       msgShow <- getMessageRender
-      (path, raw, content, upd, ver, me, isTop) <- getwiki wikiWriterOption
+      (path, raw, content, upd, ver, me, isTop) <- getwiki (wikiWriterOption msgShow)
       let editMe = (WikiR wp, [("mode", "e")])
           deleteMe = (WikiR wp, [("mode", "d")])
       defaultLayout $ do
@@ -151,7 +152,7 @@ $if not (isNull blocks)
     editWiki = do
       (uid, _) <- requireAuth
       msgShow <- getMessageRender
-      (path, raw, content, upd, ver, _, isTop) <- getwiki wikiWriterOption
+      (path, raw, content, upd, ver, _, isTop) <- getwiki (wikiWriterOption msgShow)
       let editMe = (WikiR wp, [("mode", "e")])
           deleteMe = (WikiR wp, [("mode", "d")])
           markdown = $(hamletFile "markdown-ja")
@@ -166,7 +167,7 @@ $if not (isNull blocks)
     deleteWiki = do
       (uid, _) <- requireAuth
       msgShow <- getMessageRender
-      (path, raw, content, upd, ver, me, isTop) <- getwiki wikiWriterOption
+      (path, raw, content, upd, ver, me, isTop) <- getwiki (wikiWriterOption msgShow)
       let editMe = (WikiR wp, [("mode", "e")])
           deleteMe = (WikiR wp, [("mode", "d")])
       defaultLayout $ do
@@ -197,7 +198,7 @@ postWikiR wp = do
                          <$> stringInput "content"
                          <*> maybeStringInput "comment"
                          <*> (intInput "version" :: FormInput sub master Int)
-      content <- runDB $ markdownToWikiHtml wikiWriterOption raw
+      content <- runDB $ markdownToWikiHtml (wikiWriterOption msgShow) raw
       let editMe = (WikiR wp, [("mode", "e")])
           deleteMe = (WikiR wp, [("mode", "d")])
           markdown = $(hamletFile "markdown-ja")
@@ -211,6 +212,7 @@ postWikiR wp = do
 putWikiR :: WikiPage -> Handler RepHtml
 putWikiR wp = do
   (uid, _) <- requireAuth
+  msgShow <- getMessageRender
   let path = pathOf wp
   now <- liftIO getCurrentTime
   (raw, com, ver) <- runFormPost' $ (,,)
@@ -237,7 +239,7 @@ putWikiR wp = do
       return pid
       else do
       -- FIXME Conflict?
-      lift $ setMessage $ preEscapedText "競合が発生しました.あなたの変更は反映できませんでした."
+      lift $ setMessage $ preEscapedText $ msgShow MsgConflictOccurred
       return pid
   redirectParams RedirectSeeOther (WikiR wp) [("mode", "v")]
 
@@ -321,7 +323,7 @@ postNewR = do
           viewMe = (NewR, [("path", path'), ("mode", "v")])
           editMe = (NewR, [("path", path'), ("mode", "e")])
           markdown = $(hamletFile "markdown-ja")
-      content <- runDB $ markdownToWikiHtml wikiWriterOption raw
+      content <- runDB $ markdownToWikiHtml (wikiWriterOption msgShow) raw
       defaultLayout $ do
         setTitle $ preEscapedText path
         addCassius $(cassiusFile "wiki")
@@ -441,6 +443,7 @@ getHistoryR vsn wp = do
     -- Utility
     getHistory :: Version -> Handler (Text, Text, Html, UTCTime, Version, Maybe User, Bool, Wiki)
     getHistory v = do
+      msgShow <- getMessageRender
       let path = pathOf wp
       runDB $ do
         (pid', p') <- getBy404 $ UniqueWiki path
@@ -448,7 +451,7 @@ getHistoryR vsn wp = do
         me <- get $ wikiHistoryEditor p
         let (raw, upd, ver) = (wikiHistoryContent p, wikiHistoryUpdated p, wikiHistoryVersion p)
             isTop = wp == topPage
-        content <- markdownToWikiHtml wikiWriterOption raw
+        content <- markdownToWikiHtml (wikiWriterOption msgShow) raw
         return (path, raw, content, upd, ver, me, isTop, p')
 
     getHistories :: Handler [(User, WikiHistory)]
@@ -535,8 +538,8 @@ getHistoryR vsn wp = do
       let editMe = (WikiR wp, [("mode", "e")])
           deleteMe = (WikiR wp, [("mode", "d")])
           title = if wikiVersion p == wikiHistoryVersion v1
-                  then showDate (wikiHistoryUpdated v0) ++ " 以降の変更"
-                  else showDate (wikiHistoryUpdated v0) ++ " から " ++ showDate (wikiHistoryUpdated v1) ++ " の変更"
+                  then msgShow $ MsgChangesSince $ wikiHistoryUpdated v0
+                  else msgShow $ MsgChangesBetween (wikiHistoryUpdated v0) (wikiHistoryUpdated v1)
           content = mkDiff v1 v0
           isTop = wp == topPage
       defaultLayout $ do
@@ -573,7 +576,7 @@ postHistoryR vsn wp = do
                             <*> maybeStringInput "comment"
                             <*> intInput "version"
                             <*> intInput "original_version"
-      content <- runDB $ markdownToWikiHtml wikiWriterOption raw
+      content <- runDB $ markdownToWikiHtml (wikiWriterOption msgShow) raw
       let editMe = (WikiR wp, [("mode", "e")])
           deleteMe = (WikiR wp, [("mode", "d")])
           notCurrent = v /= ver

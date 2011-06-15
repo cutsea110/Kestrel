@@ -1,3 +1,16 @@
+# Kestrel.hs
+InvalidAccount: Your account is invalid.
+TOC: Table of Contents
+
+# Profile.hs
+CouldntAccessAnotherUserProfile: you couldn't access another user profile.
+UpdatedProfile: your profile updated.
+
+# Wiki.hs
+ConflictOccurred: Conflict occurred. Your changes couldn't be propagated.
+ChangesSince time@UTCTime: Changes since #{showDate time}.
+ChangesBetween from@UTCTime to@UTCTime: Changes between #{showDate from} and #{showDate to}
+
 # default-layout
 Tools: Tools
 Go: Go
@@ -12,8 +25,8 @@ Editing page@Text: #{page} Editing.
 WarnFieldsRequired: Fields are required.
 
 # wiki.julius
-ShowTOC: show Contents
-HideTOC: hide Contents
+ShowTOC: show TOC
+HideTOC: hide TOC
 NullText: *** no comment log ***
 
 # header

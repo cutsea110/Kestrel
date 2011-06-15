@@ -73,7 +73,9 @@ import Web.Encodings.StringLike ()
 import Data.List (inits)
 import Data.Char (toLower)
 import Data.Text (Text)
+import Data.Time.Clock (UTCTime(..))
 import qualified Data.Text as T
+import Text.Hamlet (preEscapedText)
 import Text.Hamlet.NonPoly (ihamletFile)
 
 import Model
@@ -305,19 +307,21 @@ instance YesodAuth Kestrel where
     -- Where to send a user after logout
     logoutDest _ = RootR
 
-    getAuthId creds = runDB $ do
+    getAuthId creds = do
+      msgShow <- getMessageRender
+      runDB $ do
         x <- getBy $ UniqueUser $ credsIdent creds
         case x of
             Just (uid, u) -> 
               if userActive u 
               then do
-                lift $ setMessage "ログイン中."
+                lift $ setMessage $ preEscapedText $ msgShow MsgNowLogin
                 return $ Just uid 
               else do
-                lift $ setMessage "あなたのアカウントは無効です."
+                lift $ setMessage $ preEscapedText $ msgShow MsgInvalidAccount
                 return Nothing
             Nothing -> do
-              lift $ setMessage "ログイン中."
+              lift $ setMessage $ preEscapedText $ msgShow MsgNowLogin
               fmap Just $ insert $ User (credsIdent creds) Nothing Nothing True
 
     authPlugins = [ authHashDB
@@ -331,7 +335,7 @@ instance YesodAuth Kestrel where
       defaultLayout $ do
         setTitle "Login"
         addCassius $(Settings.cassiusFile "login")
-        addHamlet $(Settings.hamletFile "login")
+        addWidget $(whamletFile "hamlet/login.hamlet")
 
 instance YesodAuthHashDB Kestrel where
     type AuthHashDBId Kestrel = UserId
@@ -381,11 +385,11 @@ markdownsToWikiHtmls opt raws = do
 readDoc :: Text -> Pandoc
 readDoc = readMarkdown defaultParserState . tabFilter (stateTabStop defaultParserState) . T.unpack
 
-wikiWriterOption :: WriterOptions
-wikiWriterOption = 
+wikiWriterOption :: (KestrelMessage -> Text) -> WriterOptions
+wikiWriterOption msgShow =
   defaultWriterOptions{
           writerStandalone = True
-        , writerTemplate = "$if(toc)$\n<a id='pandoc-TOC-toggle' href=''></a><div id='pandoc-TOC-Title'>目次</div>\n$toc$\n$endif$\n$body$"
+        , writerTemplate = "$if(toc)$\n<a id='pandoc-TOC-toggle' href=''></a><div id='pandoc-TOC-Title'>" ++ T.unpack (msgShow MsgTOC) ++ "</div>\n$toc$\n$endif$\n$body$"
         , writerTableOfContents = True
         , writerNumberSections = False
         , writerIdentifierPrefix = "pandoc-"
