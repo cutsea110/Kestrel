@@ -136,6 +136,7 @@ $if not (isNull blocks)
     
     viewWiki :: Handler RepHtml
     viewWiki = do
+      msgShow <- getMessageRender
       (path, raw, content, upd, ver, me, isTop) <- getwiki wikiWriterOption
       let editMe = (WikiR wp, [("mode", "e")])
           deleteMe = (WikiR wp, [("mode", "d")])
@@ -149,6 +150,7 @@ $if not (isNull blocks)
     editWiki :: Handler RepHtml
     editWiki = do
       (uid, _) <- requireAuth
+      msgShow <- getMessageRender
       (path, raw, content, upd, ver, _, isTop) <- getwiki wikiWriterOption
       let editMe = (WikiR wp, [("mode", "e")])
           deleteMe = (WikiR wp, [("mode", "d")])
@@ -163,6 +165,7 @@ $if not (isNull blocks)
     deleteWiki :: Handler RepHtml
     deleteWiki = do
       (uid, _) <- requireAuth
+      msgShow <- getMessageRender
       (path, raw, content, upd, ver, me, isTop) <- getwiki wikiWriterOption
       let editMe = (WikiR wp, [("mode", "e")])
           deleteMe = (WikiR wp, [("mode", "d")])
@@ -187,6 +190,7 @@ postWikiR wp = do
     
     previewWiki :: Handler RepHtml
     previewWiki = do
+      msgShow <- getMessageRender
       let path = pathOf wp
           isTop = wp == topPage
       (raw, com, ver) <- runFormPost' $ (,,)
@@ -259,6 +263,7 @@ getNewR = do
   where
     viewNew :: Handler RepHtml
     viewNew = do
+      msgShow <- getMessageRender
       path'' <- lookupGetParam "path"
       case path'' of
         Nothing -> invalidArgs ["'path' query paramerter is required."]
@@ -277,6 +282,7 @@ getNewR = do
     editNew :: Handler RepHtml
     editNew = do
       (uid, _) <- requireAuth
+      msgShow <- getMessageRender
       path'' <- lookupGetParam "path"
       case path'' of
         Nothing -> invalidArgs ["'path' query paramerter is required."]
@@ -305,6 +311,7 @@ postNewR = do
     previewWiki :: Handler RepHtml
     previewWiki = do
       (uid, _) <- requireAuth
+      msgShow <- getMessageRender
       (path', raw, com) <- runFormPost' $ (,,)
                            <$> stringInput "path"
                            <*> stringInput "content"
@@ -386,6 +393,7 @@ getHistoriesR wp = do
     historyList :: Version -> Handler RepHtml
     historyList ver = do
       mu <- maybeAuth
+      msgShow <- getMessageRender
       let path = pathOf wp
           isTop = wp == topPage
           isNull = (""==)
@@ -466,6 +474,7 @@ getHistoryR vsn wp = do
     -- pages
     viewHistory :: Version -> Handler RepHtml
     viewHistory v = do
+      msgShow <- getMessageRender
       (path, raw, content, upd, _, me, isTop, curp) <- getHistory v
       let editMe = (WikiR wp, [("mode", "e")])
           deleteMe = (WikiR wp, [("mode", "d")])
@@ -483,6 +492,7 @@ getHistoryR vsn wp = do
     editHistory :: Version -> Handler RepHtml
     editHistory v = do
       (uid, _) <- requireAuth
+      msgShow <- getMessageRender
       (path, raw, content, upd, _, me, isTop, curp) <- getHistory v
       let editMe = (WikiR wp, [("mode", "e")])
           deleteMe = (WikiR wp, [("mode", "d")])
@@ -499,6 +509,7 @@ getHistoryR vsn wp = do
     revertHistory :: Version -> Handler RepHtml
     revertHistory v = do
       (uid, _) <- requireAuth
+      msgShow <- getMessageRender
       (path, raw, content, upd, _, me, isTop, curp) <- getHistory v
       let editMe = (WikiR wp, [("mode", "e")])
           deleteMe = (WikiR wp, [("mode", "d")])
@@ -513,6 +524,7 @@ getHistoryR vsn wp = do
 
     diffVers :: (Wiki -> Version -> [Version]) -> Version -> Handler RepHtml
     diffVers selver v = do
+      msgShow <- getMessageRender
       let path = pathOf wp
       (p, v1, v0) <- runDB $ do
         (pid, p) <- getBy404 $ UniqueWiki path
@@ -553,6 +565,7 @@ postHistoryR vsn wp = do
     
     previewHistory :: Handler RepHtml
     previewHistory = do
+      msgShow <- getMessageRender
       let path = pathOf wp
           isTop = wp == topPage
       (raw, com, ver, v) <- runFormPost' $ (,,,)
