@@ -6,7 +6,6 @@ import Kestrel
 
 import Control.Monad
 import Data.Time
-import Data.Time.Clock
 import Control.Applicative ((<$>),(<*>))
 import Web.Encodings (encodeUrl, decodeUrl)
 import Data.Tuple.HT
