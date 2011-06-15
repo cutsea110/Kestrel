@@ -60,11 +60,13 @@ MorePreview: more preview
 Update: update
 CreateNew: create new
 REVERT: Revert
+ChangeLog: ChangeLog
+ChangeLogDescription: Please write brief notes to help you check the history of changes.
+Warning: Warning!
 
 # deleteWiki
 ConfirmRemove path@Text: Confirm removal of `#{path}'.
 RemoveAnyway: Remove anyway
-Warning: Warning!
 WarnForDelete: Never be restored completely been removed and updated with the history of this content can not delete.
 ConfirmDeleteLastChance: Do you want to delete it?
 
@@ -87,3 +89,16 @@ PreDiffBetween: Difference between
 PostDiffBetween:
 ThisVerOfTheOriginal: This version of the original
 ForEvenOlderHistory: Click here for even older history.
+
+# editHistory
+EditingHistory path@Text: Editing `#{path}'.
+WrittenBachToTheOriginalVer v@Int: Written back to the original Ver.#{show v}.
+
+# previewHistory
+PreviewOfThe page@Text: Preview of the `#{page}.
+
+# revertHistory
+RewindToThePreviousVerOfTheConfirmationDisplayOf path@Text: Rewind to the previous version of the confirmation display of `#{path}'.
+Rewind v@Int: Rewind Ver.#{show v}.
+ConfirmRewindLastChance: Do you want to rewind to a previous version of this?
+RewindToThisEdition: Rewind to this edition.

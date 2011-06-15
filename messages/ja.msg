@@ -60,11 +60,13 @@ MorePreview: もう一度プレビューする
 Update: 更新する
 CreateNew: 新規作成する
 REVERT: 巻き戻し
+ChangeLog: 変更メモ
+ChangeLogDescription: 編集履歴で確認しやすいように簡単なメモを書いてください.
+Warning: 警告!
 
 # deleteWiki
 ConfirmRemove path@Text: `#{path}' の削除確認.
 RemoveAnyway: それでも削除する
-Warning: 警告!
 WarnForDelete: このコンテンツを削除すると更新履歴も含めて完全に削除されて二度と元に戻すことは出来ません.
 ConfirmDeleteLastChance: 本当に削除しますか?
 
@@ -87,3 +89,16 @@ PreDiffBetween:
 PostDiffBetween: との差分
 ThisVerOfTheOriginal: この版を元に
 ForEvenOlderHistory: より古い履歴はこちら.
+
+# editHistory
+EditingHistory path@Text: `#{path}' を編集中.
+WrittenBachToTheOriginalVer v@Int: 第 #{show v} 版を元に書き戻した.
+
+# previewHistory
+PreviewOfThe page@Text: `#{page} のプレビュー中.
+
+# revertHistory
+RewindToThePreviousVerOfTheConfirmationDisplayOf path@Text: `#{path}' の表示中の旧版への巻き戻し確認.
+Rewind v@Int: 第 #{show v} 版に巻き戻し.
+ConfirmRewindLastChance: この旧版に巻き戻しをしますか?
+RewindToThisEdition: この版に巻き戻す.

@@ -17,7 +17,7 @@
       <a href="@?{topView}">_{MsgTOP}
 \
 <div id="main-content">
-  <h3 .metatitle> `#{path}' のプレビュー中.
+  <h3 .metatitle> _{MsgPreviewOfThe path}
   \
   <form method="post" action="@{HistoryR v wp}" .validate>
     <input type="hidden" name="version" value="#{show ver}">
@@ -28,7 +28,7 @@
     <div .preview>#{content}
     <br>
     <textarea id="content" name="content" .required .content>#{raw}
-    <div .description>変更メモ (編集履歴で確認しやすいように簡単なメモを書いてください):
+    <div .description>_{MsgChangeLog} (_{MsgChangeLogDescription}):
     <textarea name="comment" .comment>
       $maybe c <- com
          \#{c}

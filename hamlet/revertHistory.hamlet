@@ -17,15 +17,15 @@
       <a href="@?{topView}">_{MsgTOP}
 \
 <div id="main-content">
-  <h3 .metatitle> `#{path}' の表示中の旧版への巻き戻し確認.
+  <h3 .metatitle> _{MsgRewindToThePreviousVerOfTheConfirmationDisplayOf path}
   \
   <form method="post" action="@{HistoryR v wp}">
     <input type="hidden" name="version" value="#{show ver}">
     <input type="hidden" name="content" value="#{raw}">
-    <input type="hidden" name="comment" value="#{show v} 版に巻き戻し.">
+    <input type="hidden" name="comment" value="_{MsgRewind v}">
     <div .warnings>
-      \[警告!]: この旧版に巻き戻しをしますか?
-    <button type="submit" name="_method" value="commit">この版に巻き戻す
+      \[_{MsgWarning}]: _{MsgConfirmRewindLastChance}
+    <button type="submit" name="_method" value="commit">_{MsgRewindToThisEdition}
     <br>
   \
   <div .preview>

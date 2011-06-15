@@ -17,7 +17,7 @@
       <a href="@?{topView}">_{MsgTOP}
 \
 <div id="main-content">
-  <h3 .metatitle> `#{path}' を編集中.
+  <h3 .metatitle> _{MsgEditingHistory path}
   \
   <form method="post" action="@{HistoryR v wp}" .validate>
     <button type="submit" name="_method" value="preview">_{MsgPreview}
@@ -26,10 +26,10 @@
     <input type="hidden" name="version" value="#{show ver}">
     <input type="hidden" name="original_version" value="#{show v}">
     <textarea id="content" name="content" .required .content>#{raw}
-    <div .description>変更メモ (編集履歴で確認しやすいように簡単なメモを書いてください):
+    <div .description>_{MsgChangeLog} (_{MsgChangeLogDescription}):
     <textarea name="comment" .comment>
       $if notCurrent
-        \ #{show v} 版を元に書き戻した.
+        \ _{MsgWrittenBachToTheOriginalVer v}
     <br>
     <button type="submit" name="_method" value="preview">_{MsgPreview}
     <button type="submit" name="_method" value="commit">_{MsgUpdate}
