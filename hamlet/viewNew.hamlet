@@ -13,6 +13,6 @@
       <a href="@?{topView}">_{MsgTOP}
 \
 <div id="main-content">
-  \'#{path}'というページはまだありません. 作りたい場合には
-  <a href="@?{editMe}">ここをクリックしてください
+  \_{MsgNotYetThePage path} _{MsgIfYouWantToCreate}
+  <a href="@?{editMe}">_{MsgClickHere}
   \.

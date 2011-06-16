@@ -70,6 +70,11 @@ RemoveAnyway: Remove anyway
 WarnForDelete: Never be restored completely been removed and updated with the history of this content can not delete.
 ConfirmDeleteLastChance: Do you want to delete it?
 
+# viewNew
+NotYetThePage path@Text: Page of `#{path}' yet.
+IfYouWantToCreate: If you want to create,
+ClickHere: Click here.
+
 #diffHistories
 AddedRows: added
 RemovedRows: removed
@@ -85,10 +90,15 @@ Operation: Operation between
 CommentLog: Comment
 LatestVersion: Latest Version
 PreviousVersion: Previous Version
-PreDiffBetween: Difference between
+PreDiffBetween: Difference between 
 PostDiffBetween:
-ThisVerOfTheOriginal: This version of the original
+ThisVerOfTheOriginal: This version of the original 
 ForEvenOlderHistory: Click here for even older history.
+
+# viewHistory
+DiffWithTheLatestVer: Diff with the latest version.
+BasedOnTheEditingOfThisEdition: Based on the editing of this edition.
+BackToTheEditingHistory: Back to the editing history.
 
 # editHistory
 EditingHistory path@Text: Editing `#{path}'.

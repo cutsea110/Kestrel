@@ -19,11 +19,11 @@
 <div id="main-content">
   <div align="right">
     $if notCurrent
-      <a href="@?{currDiff}">最新版との差分表示.
+      <a href="@?{currDiff}">_{MsgDiffWithTheLatestVer}
       <br>
-    <a href="@?{editVer}">この版を元に編集.
+    <a href="@?{editVer}">_{MsgBasedOnTheEditingOfThisEdition}
     <br>
-    <a href="@{HistoriesR wp}">更新履歴に戻る.
+    <a href="@{HistoriesR wp}">_{MsgBackToTheEditingHistory}
   \
   <div .history>
     \#{content}

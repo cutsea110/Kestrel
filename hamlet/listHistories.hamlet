@@ -39,7 +39,7 @@
         <td>
            \[
            <a href="@?{viewVer (wikiHistoryVersion (snd3 h))}">_{MsgVIEW}
-           \|&nbsp;_{MsgThisVerOfTheOriginal}&nbsp;
+           \| _{MsgThisVerOfTheOriginal}
            <a href="@?{editVer (wikiHistoryVersion (snd3 h))}">_{MsgEDIT}
            \|
            <a href="@?{revertVer (wikiHistoryVersion (snd3 h))}">_{MsgREVERT}

@@ -70,6 +70,11 @@ RemoveAnyway: それでも削除する
 WarnForDelete: このコンテンツを削除すると更新履歴も含めて完全に削除されて二度と元に戻すことは出来ません.
 ConfirmDeleteLastChance: 本当に削除しますか?
 
+# viewNew
+NotYetThePage path@Text: `#{path}' というページはまだありません.
+IfYouWantToCreate: 作りたい場合には,
+ClickHere: ここをクリックしてください.
+
 #diffHistories
 AddedRows: 追加行
 RemovedRows: 削除行
@@ -87,8 +92,13 @@ LatestVersion: 最新版
 PreviousVersion: 前の版
 PreDiffBetween:
 PostDiffBetween: との差分
-ThisVerOfTheOriginal: この版を元に
+ThisVerOfTheOriginal: この版を元に 
 ForEvenOlderHistory: より古い履歴はこちら.
+
+# viewHistory
+DiffWithTheLatestVer: 最新版との差分表示.
+BasedOnTheEditingOfThisEdition: この版を元に編集.
+BackToTheEditingHistory: 更新履歴に戻る.
 
 # editHistory
 EditingHistory path@Text: `#{path}' を編集中.
