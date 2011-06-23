@@ -1,19 +1,19 @@
 <div id="userbox">
   $maybe u <- mu
-    \ログイン中
+    \_{MsgNowLogin}
     \ 
-    <a title="プロフィール変更はこちらから" href="@{ProfileR (fst u)}">#{userDisplayName (snd u)}
+    <a title="_{MsgChangeProf}" href="@{ProfileR (fst u)}">#{userDisplayName (snd u)}
     \.
     <form method="get" action="@{AuthR LogoutR}" .inline>
-      <button type="submit" .link>ログアウト
+      <button type="submit" .link>_{MsgLogout}
     <form method="get" action="@{AuthR setpassR}" .inline>
-      <button type="submit" .link>パスワード変更
+      <button type="submit" .link>_{MsgChangePassword}
   $nothing
     <form method="get" action="@{AuthToGoR}">
       $maybe cr <- cr
         <input type="hidden" name="go" value="@{r2m cr}">
-      <button type="submit" .link>ログイン
+      <button type="submit" .link>_{MsgLogin}
 <div id="file-list-view">
   $maybe u <- mu
     <form method="get" action="@{FileListR (fst u)}">
-      <button id="file-select-button" type="submit" .link>アップロードファイル
+      <button id="file-select-button" type="submit" .link>_{MsgFileGallery}

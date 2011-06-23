@@ -1,12 +1,12 @@
-<h3>プロフィール設定
+<h3>_{MsgProfileSettings}
 <form method="post" action="@{ProfileR uid}">
   <input type="hidden" name="_method" value="modify">
   <table .nostyle>
     <tr>
-      <th>アカウントID:
+      <th>_{MsgAccountID}:
       <td>#{userIdent u}
     <tr>
-      <th>ニックネーム:
+      <th>_{MsgNickName}:
       <td>
         $maybe n <- userNickname u
           <input type="text" name="nickname" uri="@{ProfileR uid}" value="#{n}" .inplaceedit>

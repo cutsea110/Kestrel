@@ -136,7 +136,8 @@ $if not (isNull blocks)
     
     viewWiki :: Handler RepHtml
     viewWiki = do
-      (path, raw, content, upd, ver, me, isTop) <- getwiki wikiWriterOption
+      msgShow <- getMessageRender
+      (path, raw, content, upd, ver, me, isTop) <- getwiki (wikiWriterOption msgShow)
       let editMe = (WikiR wp, [("mode", "e")])
           deleteMe = (WikiR wp, [("mode", "d")])
       defaultLayout $ do
@@ -144,12 +145,13 @@ $if not (isNull blocks)
         addCassius $(cassiusFile "wiki")
         addJulius $(juliusFile "wiki")
         addStylesheet $ StaticR css_hk_kate_css
-        addWidget $(widgetFile "viewWiki")
+        addWidget $(whamletFile "hamlet/viewWiki.hamlet")
 
     editWiki :: Handler RepHtml
     editWiki = do
       (uid, _) <- requireAuth
-      (path, raw, content, upd, ver, _, isTop) <- getwiki wikiWriterOption
+      msgShow <- getMessageRender
+      (path, raw, content, upd, ver, _, isTop) <- getwiki (wikiWriterOption msgShow)
       let editMe = (WikiR wp, [("mode", "e")])
           deleteMe = (WikiR wp, [("mode", "d")])
           markdown = $(hamletFile "markdown-ja")
@@ -158,12 +160,13 @@ $if not (isNull blocks)
         addCassius $(cassiusFile "wiki")
         addJulius $(juliusFile "wiki")
         addStylesheet $ StaticR css_hk_kate_css
-        addWidget $(widgetFile "editWiki")
+        addWidget $(whamletFile "hamlet/editWiki.hamlet")
             
     deleteWiki :: Handler RepHtml
     deleteWiki = do
       (uid, _) <- requireAuth
-      (path, raw, content, upd, ver, me, isTop) <- getwiki wikiWriterOption
+      msgShow <- getMessageRender
+      (path, raw, content, upd, ver, me, isTop) <- getwiki (wikiWriterOption msgShow)
       let editMe = (WikiR wp, [("mode", "e")])
           deleteMe = (WikiR wp, [("mode", "d")])
       defaultLayout $ do
@@ -171,7 +174,7 @@ $if not (isNull blocks)
         addCassius $(cassiusFile "wiki")
         addJulius $(juliusFile "wiki")
         addStylesheet $ StaticR css_hk_kate_css
-        addWidget $(widgetFile "deleteWiki")
+        addWidget $(whamletFile "hamlet/deleteWiki.hamlet")
 
 
 postWikiR :: WikiPage -> Handler RepHtml
@@ -187,13 +190,14 @@ postWikiR wp = do
     
     previewWiki :: Handler RepHtml
     previewWiki = do
+      msgShow <- getMessageRender
       let path = pathOf wp
           isTop = wp == topPage
       (raw, com, ver) <- runFormPost' $ (,,)
                          <$> stringInput "content"
                          <*> maybeStringInput "comment"
                          <*> (intInput "version" :: FormInput sub master Int)
-      content <- runDB $ markdownToWikiHtml wikiWriterOption raw
+      content <- runDB $ markdownToWikiHtml (wikiWriterOption msgShow) raw
       let editMe = (WikiR wp, [("mode", "e")])
           deleteMe = (WikiR wp, [("mode", "d")])
           markdown = $(hamletFile "markdown-ja")
@@ -202,11 +206,12 @@ postWikiR wp = do
         addCassius $(cassiusFile "wiki")
         addJulius $(juliusFile "wiki")
         addStylesheet $ StaticR css_hk_kate_css
-        addWidget $(widgetFile "previewWiki")
+        addWidget $(whamletFile "hamlet/previewWiki.hamlet")
 
 putWikiR :: WikiPage -> Handler RepHtml
 putWikiR wp = do
   (uid, _) <- requireAuth
+  msgShow <- getMessageRender
   let path = pathOf wp
   now <- liftIO getCurrentTime
   (raw, com, ver) <- runFormPost' $ (,,)
@@ -233,7 +238,7 @@ putWikiR wp = do
       return pid
       else do
       -- FIXME Conflict?
-      lift $ setMessage $ preEscapedText "競合が発生しました.あなたの変更は反映できませんでした."
+      lift $ setMessage $ preEscapedText $ msgShow MsgConflictOccurred
       return pid
   redirectParams RedirectSeeOther (WikiR wp) [("mode", "v")]
 
@@ -259,6 +264,7 @@ getNewR = do
   where
     viewNew :: Handler RepHtml
     viewNew = do
+      msgShow <- getMessageRender
       path'' <- lookupGetParam "path"
       case path'' of
         Nothing -> invalidArgs ["'path' query paramerter is required."]
@@ -272,11 +278,12 @@ getNewR = do
             addCassius $(cassiusFile "wiki")
             addJulius $(juliusFile "wiki")
             addStylesheet $ StaticR css_hk_kate_css
-            addWidget $(widgetFile "viewNew")
+            addWidget $(whamletFile "hamlet/viewNew.hamlet")
     
     editNew :: Handler RepHtml
     editNew = do
       (uid, _) <- requireAuth
+      msgShow <- getMessageRender
       path'' <- lookupGetParam "path"
       case path'' of
         Nothing -> invalidArgs ["'path' query paramerter is required."]
@@ -291,7 +298,7 @@ getNewR = do
             addCassius $(cassiusFile "wiki")
             addJulius $(juliusFile "wiki")
             addStylesheet $ StaticR css_hk_kate_css
-            addWidget $(widgetFile "editNew")
+            addWidget $(whamletFile "hamlet/editNew.hamlet")
   
 postNewR :: Handler RepHtml
 postNewR = do
@@ -305,6 +312,7 @@ postNewR = do
     previewWiki :: Handler RepHtml
     previewWiki = do
       (uid, _) <- requireAuth
+      msgShow <- getMessageRender
       (path', raw, com) <- runFormPost' $ (,,)
                            <$> stringInput "path"
                            <*> stringInput "content"
@@ -314,13 +322,13 @@ postNewR = do
           viewMe = (NewR, [("path", path'), ("mode", "v")])
           editMe = (NewR, [("path", path'), ("mode", "e")])
           markdown = $(hamletFile "markdown-ja")
-      content <- runDB $ markdownToWikiHtml wikiWriterOption raw
+      content <- runDB $ markdownToWikiHtml (wikiWriterOption msgShow) raw
       defaultLayout $ do
         setTitle $ preEscapedText path
         addCassius $(cassiusFile "wiki")
         addJulius $(juliusFile "wiki")
         addStylesheet $ StaticR css_hk_kate_css
-        addWidget $(widgetFile "previewNew")
+        addWidget $(whamletFile "hamlet/previewNew.hamlet")
     
     createWiki :: Handler RepHtml
     createWiki = do
@@ -386,6 +394,7 @@ getHistoriesR wp = do
     historyList :: Version -> Handler RepHtml
     historyList ver = do
       mu <- maybeAuth
+      msgShow <- getMessageRender
       let path = pathOf wp
           isTop = wp == topPage
           isNull = (""==)
@@ -415,7 +424,7 @@ getHistoriesR wp = do
         setTitle $ preEscapedText path
         addCassius $(cassiusFile "wiki")
         addJulius $(juliusFile "wiki")
-        addHamlet $(hamletFile "listHistories")
+        addWidget $(whamletFile "hamlet/listHistories.hamlet")
 
         
 
@@ -433,6 +442,7 @@ getHistoryR vsn wp = do
     -- Utility
     getHistory :: Version -> Handler (Text, Text, Html, UTCTime, Version, Maybe User, Bool, Wiki)
     getHistory v = do
+      msgShow <- getMessageRender
       let path = pathOf wp
       runDB $ do
         (pid', p') <- getBy404 $ UniqueWiki path
@@ -440,7 +450,7 @@ getHistoryR vsn wp = do
         me <- get $ wikiHistoryEditor p
         let (raw, upd, ver) = (wikiHistoryContent p, wikiHistoryUpdated p, wikiHistoryVersion p)
             isTop = wp == topPage
-        content <- markdownToWikiHtml wikiWriterOption raw
+        content <- markdownToWikiHtml (wikiWriterOption msgShow) raw
         return (path, raw, content, upd, ver, me, isTop, p')
 
     getHistories :: Handler [(User, WikiHistory)]
@@ -466,6 +476,7 @@ getHistoryR vsn wp = do
     -- pages
     viewHistory :: Version -> Handler RepHtml
     viewHistory v = do
+      msgShow <- getMessageRender
       (path, raw, content, upd, _, me, isTop, curp) <- getHistory v
       let editMe = (WikiR wp, [("mode", "e")])
           deleteMe = (WikiR wp, [("mode", "d")])
@@ -478,11 +489,12 @@ getHistoryR vsn wp = do
         addCassius $(cassiusFile "wiki")
         addJulius $(juliusFile "wiki")
         addStylesheet $ StaticR css_hk_kate_css
-        addWidget $(widgetFile "viewHistory")
+        addWidget $(whamletFile "hamlet/viewHistory.hamlet")
 
     editHistory :: Version -> Handler RepHtml
     editHistory v = do
       (uid, _) <- requireAuth
+      msgShow <- getMessageRender
       (path, raw, content, upd, _, me, isTop, curp) <- getHistory v
       let editMe = (WikiR wp, [("mode", "e")])
           deleteMe = (WikiR wp, [("mode", "d")])
@@ -494,11 +506,12 @@ getHistoryR vsn wp = do
         addCassius $(cassiusFile "wiki")
         addJulius $(juliusFile "wiki")
         addStylesheet $ StaticR css_hk_kate_css
-        addWidget $(widgetFile "editHistory")
+        addWidget $(whamletFile "hamlet/editHistory.hamlet")
     
     revertHistory :: Version -> Handler RepHtml
     revertHistory v = do
       (uid, _) <- requireAuth
+      msgShow <- getMessageRender
       (path, raw, content, upd, _, me, isTop, curp) <- getHistory v
       let editMe = (WikiR wp, [("mode", "e")])
           deleteMe = (WikiR wp, [("mode", "d")])
@@ -509,10 +522,11 @@ getHistoryR vsn wp = do
         addCassius $(cassiusFile "wiki")
         addJulius $(juliusFile "wiki")
         addStylesheet $ StaticR css_hk_kate_css
-        addWidget $(widgetFile "revertHistory")
+        addWidget $(whamletFile "hamlet/revertHistory.hamlet")
 
     diffVers :: (Wiki -> Version -> [Version]) -> Version -> Handler RepHtml
     diffVers selver v = do
+      msgShow <- getMessageRender
       let path = pathOf wp
       (p, v1, v0) <- runDB $ do
         (pid, p) <- getBy404 $ UniqueWiki path
@@ -523,15 +537,15 @@ getHistoryR vsn wp = do
       let editMe = (WikiR wp, [("mode", "e")])
           deleteMe = (WikiR wp, [("mode", "d")])
           title = if wikiVersion p == wikiHistoryVersion v1
-                  then showDate (wikiHistoryUpdated v0) ++ " 以降の変更"
-                  else showDate (wikiHistoryUpdated v0) ++ " から " ++ showDate (wikiHistoryUpdated v1) ++ " の変更"
+                  then msgShow $ MsgChangesSince $ wikiHistoryUpdated v0
+                  else msgShow $ MsgChangesBetween (wikiHistoryUpdated v0) (wikiHistoryUpdated v1)
           content = mkDiff v1 v0
           isTop = wp == topPage
       defaultLayout $ do
         setTitle $ preEscapedText path
         addCassius $(cassiusFile "wiki")
         addJulius $(juliusFile "wiki")
-        addWidget $(widgetFile "diffHistories")
+        addWidget $(whamletFile "hamlet/diffHistories.hamlet")
     
     diffPrevious :: Version -> Handler RepHtml
     diffPrevious = diffVers $ \_ v -> [v, v-1]
@@ -553,6 +567,7 @@ postHistoryR vsn wp = do
     
     previewHistory :: Handler RepHtml
     previewHistory = do
+      msgShow <- getMessageRender
       let path = pathOf wp
           isTop = wp == topPage
       (raw, com, ver, v) <- runFormPost' $ (,,,)
@@ -560,7 +575,7 @@ postHistoryR vsn wp = do
                             <*> maybeStringInput "comment"
                             <*> intInput "version"
                             <*> intInput "original_version"
-      content <- runDB $ markdownToWikiHtml wikiWriterOption raw
+      content <- runDB $ markdownToWikiHtml (wikiWriterOption msgShow) raw
       let editMe = (WikiR wp, [("mode", "e")])
           deleteMe = (WikiR wp, [("mode", "d")])
           notCurrent = v /= ver
@@ -570,7 +585,7 @@ postHistoryR vsn wp = do
         addCassius $(cassiusFile "wiki")
         addJulius $(juliusFile "wiki")
         addStylesheet $ StaticR css_hk_kate_css
-        addWidget $(widgetFile "previewHistory")
+        addWidget $(whamletFile "hamlet/previewHistory.hamlet")
 
 putHistoryR :: Version -> WikiPage -> Handler RepHtml
 putHistoryR v wp = do

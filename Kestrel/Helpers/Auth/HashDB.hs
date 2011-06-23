@@ -1,6 +1,9 @@
 {-# LANGUAGE QuasiQuotes, TypeFamilies #-}
 {-# LANGUAGE CPP #-}
 {-# LANGUAGE OverloadedStrings #-}
+{-# LANGUAGE MultiParamTypeClasses #-}
+{-# LANGUAGE Rank2Types #-}
+{-# LANGUAGE FlexibleInstances #-}
 -- | replace Yesod.Helpers.Auth.HashDB
 -- initialize password and insert user account manually.
 -- How to make SHA1 password by
@@ -23,6 +26,59 @@ import Data.ByteString.Lazy.Char8  (pack)
 import Data.Digest.Pure.SHA        (sha1, showDigest)
 import Data.Text (Text)
 import qualified Data.Text as T
+import Text.Hamlet (preEscapedText)
+
+(+++) :: Text -> Text -> Text
+(+++) = T.append
+
+-- for I18N
+data Message = AccountID
+             | Password
+             | IfYouWantToChangePassword
+             | ChangePassword
+             | NewPassword
+             | Confirm
+             | Update
+             | LoginViaAccount
+             | UpdatedPassword
+             | PasswordDoesntMatch
+             | ReEnterAgain
+
+english :: Message -> Text
+english AccountID = "Account ID"
+english Password = "Password"
+english IfYouWantToChangePassword = "If you want to change password,please login."
+english ChangePassword = "Change Password"
+english NewPassword = "New Password"
+english Confirm = "Confirm"
+english Update = "update"
+english LoginViaAccount = "Login via account"
+english UpdatedPassword = "your password updated."
+english PasswordDoesntMatch = "The password doesn't match"
+english ReEnterAgain = "Please re-enter again."
+
+japanese :: Message -> Text
+japanese AccountID = "アカウントID"
+japanese Password = "パスワード"
+japanese IfYouWantToChangePassword = "パスワードを変更するにはログインしてください."
+japanese ChangePassword = "パスワード変更"
+japanese NewPassword = "新パスワード"
+japanese Confirm = "確認"
+japanese Update = "変更"
+japanese LoginViaAccount = "このアカウントでログインする"
+japanese UpdatedPassword = "パスワードを更新しました."
+japanese PasswordDoesntMatch = "パスワードが合致していません."
+japanese ReEnterAgain = "再度入力しなおしてください."
+
+type Lang = Text
+translate :: [Lang] -> Message -> Text
+translate ("en":_) = english
+translate ("ja":_) = japanese
+translate (_:rest) = translate rest
+translate [] = english -- The default backup
+
+instance RenderMessage master Message where
+  renderMessage _ = translate
 
 loginR, setpassR :: AuthRoute
 loginR = PluginR "account" ["login"]
@@ -48,20 +104,20 @@ class YesodAuth m => YesodAuthHashDB m where
 authHashDB :: YesodAuthHashDB m => AuthPlugin m
 authHashDB =
     AuthPlugin "account" dispatch $ \tm ->
-        [$hamlet|\
+        [$whamlet|\
 <form method="post" action="@{tm loginR}">
     <table>
         <tr>
-            <th>Account ID
+            <th>_{AccountID}
             <td>
                 <input type="account" name="account">
         <tr>
-            <th>Password
+            <th>_{Password}
             <td>
                 <input type="password" name="password">
         <tr>
             <td colspan="2">
-                <input type="submit" value="Login via account">
+                <input type="submit" value="_{LoginViaAccount}">
 |]
   where
     dispatch "POST" ["login"] = postLoginR >>= sendResponse
@@ -98,50 +154,51 @@ postLoginR = do
 getPasswordR :: YesodAuthHashDB master => GHandler Auth master RepHtml
 getPasswordR = do
     toMaster <- getRouteToMaster
+    msgShow <- getMessageRender
     maid <- maybeAuthId
     case maid of
         Just _ -> return ()
         Nothing -> do
-            setMessage "パスワードを変更するにはログインしてください."
+            setMessage $ preEscapedText $ msgShow IfYouWantToChangePassword
             redirect RedirectTemporary $ toMaster loginR
     defaultLayout $ do
-        setTitle "パスワード変更"
-        addHamlet
-            [$hamlet|\
-<h3>パスワード変更
+        setTitle $ preEscapedText $ msgShow ChangePassword
+        [$whamlet|\
+<h3>_{ChangePassword}
 <form method="post" action="@{toMaster setpassR}">
     <table>
         <tr>
-            <th>新パスワード
+            <th>_{NewPassword}
             <td>
                 <input type="password" name="new">
         <tr>
-            <th>新パスワード(確認)
+            <th>_{NewPassword}(_{Confirm})
             <td>
                 <input type="password" name="confirm">
         <tr>
             <td colspan="2">
-                <input type="submit" value="変更">
+                <input type="submit" value="_{Update}">
 |]
 
 postPasswordR :: YesodAuthHashDB master => GHandler Auth master ()
 postPasswordR = do
+    msgShow <- getMessageRender
     (new, confirm) <- runFormPost' $ (,)
         <$> stringInput "new"
         <*> stringInput "confirm"
     toMaster <- getRouteToMaster
     unless (new == confirm) $ do
-        setMessage "パスワードが合致していません.再度入力しなおしてください."
+        setMessage $ preEscapedText $ msgShow PasswordDoesntMatch +++ msgShow ReEnterAgain
         redirect RedirectTemporary $ toMaster setpassR
     maid <- maybeAuthId
     aid <- case maid of
             Nothing -> do
-                setMessage "パスワードを変更するにはログインしてください."
+                setMessage $ preEscapedText $ msgShow IfYouWantToChangePassword
                 redirect RedirectTemporary $ toMaster loginR
             Just aid -> return aid
     let sha1pass = encrypt new
     setPassword aid sha1pass
-    setMessage "パスワードを更新しました."
+    setMessage $ preEscapedText $ msgShow UpdatedPassword
     y <- getYesod
     redirect RedirectTemporary $ loginDest y
 

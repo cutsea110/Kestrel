@@ -2,20 +2,22 @@
 module Handler.Profile where
 
 import Kestrel
-import Settings (hamletFile, juliusFile)
+import Settings (juliusFile)
 
 import Control.Monad (unless)
+import Text.Hamlet (preEscapedText)
 
 getProfileR :: UserId -> Handler RepHtml
 getProfileR uid = do
   (uid', _) <- requireAuth
+  msgShow <- getMessageRender
   unless (uid' == uid) $ do
-    permissionDenied "他人のプロフィールは見ることができません."
+    permissionDenied $ msgShow MsgCouldntAccessAnotherUserProfile
   u <- runDB $ get404 uid
   defaultLayout $ do
     setTitle "Profile"
     addJulius $(juliusFile "profile")
-    addHamlet $(hamletFile "viewProfile")
+    addWidget $(whamletFile "hamlet/viewProfile.hamlet")
 
 postProfileR :: UserId -> Handler ()
 postProfileR uid = do
@@ -27,9 +29,10 @@ postProfileR uid = do
 putProfileR :: UserId -> Handler ()
 putProfileR uid = do
   (uid', _) <- requireAuth
+  msgShow <- getMessageRender
   unless (uid' == uid) $ do
-    permissionDenied "You couldn't access another user profile."
+    permissionDenied $ msgShow MsgCouldntAccessAnotherUserProfile
   nn <- runFormPost' $ stringInput "nickname"
   runDB $ update uid [UserNickname $ Just nn]
-  setMessage "プロフィールを更新しました."
+  setMessage $ preEscapedText $ msgShow MsgUpdatedProfile
   redirect RedirectTemporary $ ProfileR uid
