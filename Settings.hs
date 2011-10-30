@@ -15,6 +15,7 @@ module Settings
     , ConnectionPool
     , withConnectionPool
     , runConnectionPool
+    , PersistConfig
     , approot
     , rootbase
     , staticroot
@@ -44,6 +45,9 @@ import Data.Monoid (mempty)
 import System.Directory (doesFileExist)
 import Data.Text (Text)
 
+-- | Which Persistent backend this site is using.
+type PersistConfig = PostgresConf
+
 -- | The base URL for your application. This will usually be different for
 -- development and production. Yesod automatically constructs URLs for you,
 -- so this value must be accurate to create valid links.
@@ -53,13 +57,13 @@ approot :: Text
 -- you would probably want it to be:
 -- > approot = "http://www.yesod.com"
 -- Please note that there is no trailing slash.
-approot = "research.timedia.co.jp"
+approot = "localhost:3000"
 #else
-approot = "research.timedia.co.jp"
+approot = "localhost:3000"
 #endif
 
 rootbase :: Text
-rootbase = "/kestrel"
+rootbase = "" -- "/kestrel"
 
 -- | The location of static files on your system. This is a file system
 -- path. The default value works properly with your scaffolded site.
@@ -118,9 +122,9 @@ addThisUser = Just "cutsea110"
 -- specific.
 connStr :: Text
 #ifdef PRODUCTION
-connStr = "user=cutsea110 password=ilovescheme host=localhost port=5432 dbname=kestrel"
+connStr = "user=cutsea110 password=cutsea110 host=localhost port=5432 dbname=kestrel"
 #else
-connStr = "user=cutsea110 password=ilovescheme host=localhost port=5432 dbname=kestrel"
+connStr = "user=cutsea110 password=cutsea110 host=localhost port=5432 dbname=kestrel"
 #endif
 
 -- | Your application will keep a connection pool and take connections from

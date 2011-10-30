@@ -5,7 +5,7 @@ import Kestrel
 import Settings (juliusFile)
 
 import Control.Monad (unless)
-import Text.Hamlet (preEscapedText)
+import Text.Blaze (preEscapedText)
 
 getProfileR :: UserId -> Handler RepHtml
 getProfileR uid = do
@@ -32,7 +32,7 @@ putProfileR uid = do
   msgShow <- getMessageRender
   unless (uid' == uid) $ do
     permissionDenied $ msgShow MsgCouldntAccessAnotherUserProfile
-  nn <- runFormPost' $ stringInput "nickname"
-  runDB $ update uid [UserNickname $ Just nn]
+  nn <- runInputPost $ ireq textField "nickname"
+  runDB $ update uid [UserNickname =. Just nn]
   setMessage $ preEscapedText $ msgShow MsgUpdatedProfile
   redirect RedirectTemporary $ ProfileR uid

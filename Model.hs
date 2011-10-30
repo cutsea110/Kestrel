@@ -1,10 +1,11 @@
 {-# LANGUAGE QuasiQuotes, TypeFamilies, GeneralizedNewtypeDeriving, TemplateHaskell #-}
 {-# LANGUAGE CPP #-}
 {-# LANGUAGE OverloadedStrings #-}
+{-# LANGUAGE GADTs #-}
 module Model where
 
 import Yesod
-import Yesod.Helpers.Crud
+-- import Yesod.Helpers.Crud
 import Data.Time
 import Data.Int
 import Data.Maybe (fromMaybe)
@@ -19,7 +20,7 @@ type Version = Int
 -- You can define all of your database entities here. You can find more
 -- information on persistent and how to declare entities at:
 -- http://docs.yesodweb.com/book/persistent/
-share2 mkPersist (mkMigrate "migrateAll") [$persist|
+share [mkPersist sqlSettings, mkMigrate "migrateAll"] [persist|
 User
     ident Text Asc
     password Text Maybe Update
@@ -63,8 +64,9 @@ FileHeader
     created UTCTime Desc
 |]
 
-instance Item User where
-  itemTitle = userInfoOneline
+-- FIXME Crud
+-- instance Item User where
+--  itemTitle = userInfoOneline
 
 userDisplayName :: User -> Text
 userDisplayName (User _ _ (Just x) _) = x

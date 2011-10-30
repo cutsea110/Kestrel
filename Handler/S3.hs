@@ -1,5 +1,6 @@
 {-# LANGUAGE TemplateHaskell, OverloadedStrings #-}
 {-# LANGUAGE QuasiQuotes, CPP #-}
+{-# LANGUAGE GADTs #-}
 module Handler.S3 
        ( getUploadR
        , postUploadR
@@ -11,7 +12,6 @@ module Handler.S3
        ) where
 
 import Kestrel
-import Control.Monad.IO.Class
 import Data.Time
 import Data.Int
 import qualified Data.ByteString.Lazy as L
@@ -22,7 +22,7 @@ import Web.Encodings (encodeUrl)
 import Data.Text (Text)
 import qualified Data.Text as T
 import qualified Settings (s3dir, rootbase)
-import Settings (widgetFile, cassiusFile)
+import Settings (cassiusFile)
 
 getUploadR :: Handler RepHtml
 getUploadR = do
@@ -30,18 +30,18 @@ getUploadR = do
   msg <- getMessageRender
   defaultLayout $ do
     addCassius $(cassiusFile "s3/s3")
-    addWidget $(widgetFile "s3/upload")
+    addWidget $(whamletFile "hamlet/s3/upload.hamlet")
 
-upload :: (PersistBackend m, Control.Monad.IO.Class.MonadIO m) =>
-          Key User -> FileInfo -> m (Maybe (Key FileHeader, Text, Text, Int64, UTCTime))
-upload uid@(UserId uid') fi = do
+upload :: PersistBackend b m =>
+          Key backend User -> FileInfo -> b m (Maybe (Key b (FileHeaderGeneric backend), Text, Text, Int64, UTCTime))
+upload uid fi = do
   if fileName fi /= "" && L.length (fileContent fi) > 0
     then do
     now <- liftIO getCurrentTime
     let (name, ext) = splitExtension $ T.unpack $ fileName fi
         efname = encodeUrl $ fileName fi
         fsize = L.length $ fileContent fi
-    fid@(FileHeaderId fid') <- 
+    fid <-
       insert FileHeader { fileHeaderFullname=fileName fi
                         , fileHeaderEfname=efname
                         , fileHeaderContentType=fileContentType fi
@@ -51,8 +51,8 @@ upload uid@(UserId uid') fi = do
                         , fileHeaderCreator=uid
                         , fileHeaderCreated=now
                         }
-    let s3dir = Settings.s3dir </> show uid'
-        s3fp = s3dir </> show fid'
+    let s3dir = Settings.s3dir </> show uid
+        s3fp = s3dir </> show fid
     liftIO $ do
       createDirectoryIfMissing True s3dir
       L.writeFile s3fp (fileContent fi)
@@ -75,7 +75,7 @@ postUploadR = do
           cacheSeconds 10 -- FIXME
           let rf = Settings.rootbase +++ (dropPrefix (approot y) $ r $ FileR uid fid)
           fmap RepXml $ hamletToContent
-                      [$xhamlet|\
+                      [xhamlet|\
 <file>
   <fhid>#{show fid}
   <name>#{name}
@@ -99,10 +99,10 @@ putUploadR = do
 
 
 getFileR :: UserId -> FileHeaderId -> Handler RepHtml
-getFileR (UserId uid') fid@(FileHeaderId fid') = do
+getFileR uid fid = do
   h <- runDB $ get404 fid
-  let s3dir = Settings.s3dir </> show uid'
-      s3fp = s3dir </> show fid'
+  let s3dir = Settings.s3dir </> show uid
+      s3fp = s3dir </> show fid
   setHeader "Content-Type" $ pack $ T.unpack $ fileHeaderContentType h
   setHeader "Content-Disposition" $ pack $ T.unpack $ "attachment; filename=" +++ fileHeaderEfname h
   return $ RepHtml $ ContentFile s3fp Nothing
@@ -116,7 +116,7 @@ postFileR uid fid = do
     _ -> invalidArgs ["The possible values of '_method' are delete."]
 
 deleteFileR :: UserId -> FileHeaderId -> Handler RepXml
-deleteFileR uid@(UserId uid') fid@(FileHeaderId fid') = do
+deleteFileR uid fid = do
   (uid'', _) <- requireAuth
   y <- getYesod
   if uid/=uid''
@@ -125,12 +125,12 @@ deleteFileR uid@(UserId uid') fid@(FileHeaderId fid') = do
     else do
     r <- getUrlRender
     runDB $ delete fid
-    let s3dir = Settings.s3dir </> show uid'
-        s3fp = s3dir </> show fid'
+    let s3dir = Settings.s3dir </> show uid
+        s3fp = s3dir </> show fid
         rf = Settings.rootbase +++ (dropPrefix (approot y) $ r $ FileR uid fid)
     liftIO $ removeFile s3fp
     fmap RepXml $ hamletToContent
-                  [$xhamlet|\
+                  [xhamlet|\
 <deleted>
   <uri>#{rf}
 |]
@@ -140,7 +140,7 @@ getFileListR uid = do
   _ <- requireAuth
   y <- getYesod
   render <- getUrlRender
-  files <- runDB $ selectList [FileHeaderCreatorEq uid] [FileHeaderCreatedDesc] 0 0
+  files <- runDB $ selectList [FileHeaderCreator ==. uid] [Desc FileHeaderCreated]
   cacheSeconds 10 -- FIXME
   jsonToRepJson $ jsonMap [("files", jsonList $ map (go y render) files)]
   where

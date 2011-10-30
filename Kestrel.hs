@@ -7,6 +7,7 @@
 module Kestrel
     ( Kestrel (..)
     , KestrelRoute (..)
+    , KestrelMessage (..)
     , resourcesKestrel
     , Handler
     , Widget
@@ -39,28 +40,27 @@ module Kestrel
     , WriterOptions(..)
     , dropPrefix
       --
-    , UserCrud
-    , userCrud
+--    , UserCrud -- FIXME Crud
+--    , userCrud -- FIXME Crud
     , (+++)
-    , KestrelMessage (..)
     ) where
 
 import Yesod
-import Yesod.Helpers.Static
-import Yesod.Helpers.AtomFeed
-import Yesod.Helpers.Auth
+import Yesod.Static
+import Yesod.AtomFeed
+import Yesod.Auth
 import Kestrel.Helpers.Auth.HashDB
-import Yesod.Helpers.Auth.OpenId
-import Yesod.Helpers.Auth.Facebook
--- import Yesod.Helpers.Auth.OAuth
-import Yesod.Helpers.Crud
+import Yesod.Auth.OpenId
+import Yesod.Auth.Facebook
+-- import Yesod.Auth.OAuth
+-- import Yesod.Crud
 import Yesod.Form.Jquery
 import System.Directory
 import qualified Data.ByteString.Lazy as L
 import Database.Persist.GenericSql
+import qualified Database.Persist.Base
 import Control.Monad (unless, mplus, mzero, MonadPlus)
-import Control.Monad.Trans.Class (MonadTrans)
-import Control.Applicative ((<$>),(<*>))
+import Control.Applicative ((<*>))
 import Text.Jasmine (minifym)
 import Text.Pandoc
 import Text.Pandoc.Shared
@@ -75,8 +75,8 @@ import Data.Char (toLower)
 import Data.Text (Text)
 import Data.Time.Clock (UTCTime(..))
 import qualified Data.Text as T
-import Text.Hamlet (preEscapedText)
-import Text.Hamlet.NonPoly (ihamletFile)
+import Text.Blaze (preEscapedText, preEscapedString)
+import Text.Hamlet (ihamletFile)
 
 import Model
 import StaticFiles
@@ -97,14 +97,6 @@ data Kestrel = Kestrel
     , isHTTPS :: Bool
     }
 
--- | A useful synonym; most of the handler functions in your application
--- will need to be of this type.
-type Handler = GHandler Kestrel Kestrel
-
--- | A useful synonym; most of the widgets functions in your application
--- will need to be of this type.
-type Widget = GWidget Kestrel Kestrel
-
 -- This is where we define all of the routes in our application. For a full
 -- explanation of the syntax, please see:
 -- http://docs.yesodweb.com/book/web-routes-quasi/
@@ -124,7 +116,7 @@ type Widget = GWidget Kestrel Kestrel
 -- for our application to be in scope. However, the handler functions
 -- usually require access to the KestrelRoute datatype. Therefore, we
 -- split these actions into two functions and place them in separate files.
-mkYesodData "Kestrel" [$parseRoutes|
+mkYesodData "Kestrel" [parseRoutes|
 /static StaticR Static getStatic
 /auth   AuthR   Auth   getAuth
 /auth-status AuthStatusR GET
@@ -140,8 +132,6 @@ mkYesodData "Kestrel" [$parseRoutes|
 
 / RootR GET
 
-/admin AdminR UserCrud userCrud
-
 /wiki/*WikiPage WikiR GET POST PUT DELETE
 /new NewR GET POST
 /histories/*WikiPage HistoriesR GET
@@ -154,6 +144,8 @@ mkYesodData "Kestrel" [$parseRoutes|
 /s3/user/#UserId/file/#FileHeaderId FileR GET POST DELETE
 /s3/user/#UserId/list.json FileListR GET
 |]
+-- FIXME Crud route
+-- /admin AdminR UserCrud userCrud
 
 newtype WikiPage = WikiPage { unWikiPage :: [Text] } deriving (Eq, Show, Read)
 instance MultiPiece WikiPage where
@@ -255,15 +247,16 @@ instance Yesod Kestrel where
 
 -- How to run database actions.
 instance YesodPersist Kestrel where
-    type YesodDB Kestrel = SqlPersist
-    runDB db = liftIOHandler
-               $ fmap connPool getYesod >>= Settings.runConnectionPool db
+    type YesodPersistBackend Kestrel = SqlPersist
+    runDB f = liftIOHandler
+              $ fmap connPool getYesod >>= Database.Persist.Base.runPool (undefined::Settings.PersistConfig) f
     
 instance YesodJquery Kestrel where
   urlJqueryJs _ = Left $ StaticR js_jquery_1_4_4_min_js
   urlJqueryUiJs _ = Left $ StaticR js_jquery_ui_1_8_9_custom_min_js
   urlJqueryUiCss _ = Left $ StaticR css_jquery_ui_1_8_9_custom_css
-    
+
+{-- FIXME Crud
 type UserCrud = Crud Kestrel User
 
 instance ToForm User Kestrel where
@@ -298,6 +291,10 @@ userCrud = const Crud
                 _ <- requireAuth
                 runDB $ delete k
            }
+--}
+
+instance RenderMessage Kestrel FormMessage where
+    renderMessage _ _ = defaultFormMessage
 
 instance YesodAuth Kestrel where
     type AuthId Kestrel = UserId
@@ -345,7 +342,7 @@ instance YesodAuthHashDB Kestrel where
       case ma of
         Nothing -> return Nothing
         Just u -> return $ userPassword u
-    setPassword uid encripted = runDB $ update uid [UserPassword $ Just encripted]
+    setPassword uid encripted = runDB $ update uid [UserPassword =. Just encripted]
     getHashDBCreds account = runDB $ do
         ma <- getBy $ UniqueUser account
         case ma of
@@ -357,27 +354,22 @@ instance YesodAuthHashDB Kestrel where
     getHashDB = runDB . fmap (fmap userIdent) . get
 
 {- markdown utility -}
-markdownToWikiHtml :: (Route master ~ KestrelRoute,
-                       PersistBackend (t (GGHandler sub master m)),
-                       Monad m,
-                       Control.Monad.Trans.Class.MonadTrans t) =>
-                      WriterOptions -> Text -> t (GGHandler sub master m) Html
+markdownToWikiHtml :: forall (m :: * -> *) sub master.
+                      (Route master ~ KestrelRoute, MonadControlIO m) =>
+                      WriterOptions -> Text -> SqlPersist (GGHandler sub master m) Html
 markdownToWikiHtml opt raw = do
   render <- lift getUrlRenderParams
-  pages <- selectList [] [WikiPathAsc, WikiUpdatedDesc] 0 0
+  pages <- selectList [] [Asc WikiPath, Desc WikiUpdated]
   let pandoc = readDoc raw
   let pdict = mkWikiDictionary pages
   return $ preEscapedString $ writeHtmlStr opt render pdict $ pandoc
 
-markdownsToWikiHtmls
-  :: (Route master ~ KestrelRoute,
-      PersistBackend (t (GGHandler sub master m)),
-      Monad m,
-      MonadTrans t) =>
-     WriterOptions -> [Text] -> t (GGHandler sub master m) [Html]
+markdownsToWikiHtmls :: forall (m :: * -> *) sub master.
+                     (Route master ~ KestrelRoute, MonadControlIO m) =>
+                     WriterOptions -> [Text] -> SqlPersist (GGHandler sub master m) [Html]
 markdownsToWikiHtmls opt raws = do
   render <- lift getUrlRenderParams
-  pages <- selectList [] [WikiPathAsc, WikiUpdatedDesc] 0 0
+  pages <- selectList [] [Asc WikiPath, Desc WikiUpdated]
   let pandocs = map readDoc raws
   let pdict = mkWikiDictionary pages
   return $ map (preEscapedString . writeHtmlStr opt render pdict) pandocs

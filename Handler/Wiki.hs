@@ -13,9 +13,9 @@ import Data.Algorithm.Diff
 import Data.List (groupBy)
 import Data.Text (Text)
 import qualified Data.Text as T
-import Text.Hamlet (preEscapedText)
+import Text.Blaze (preEscapedText)
 
-import Settings (topTitle, hamletFile, cassiusFile, juliusFile, widgetFile)
+import Settings (topTitle, cassiusFile, juliusFile)
 import StaticFiles
 
 
@@ -50,7 +50,7 @@ getWikiListR = do
             addCassius $(cassiusFile "wiki")
             addJulius $(juliusFile "wikilist")
             addStylesheet $ StaticR css_hk_kate_css
-            addWidget $(widgetFile "searchWiki")
+            addWidget $(whamletFile "hamlet/searchWiki.hamlet")
 
 getWikiR :: WikiPage -> Handler RepHtml
 getWikiR wp = do
@@ -119,7 +119,7 @@ getWikiR wp = do
                 [] -> True
                 _  -> False
           hamletToRepHtml
-             [$hamlet|\
+             [hamlet|\
 $if not (isNull blocks)
   <fieldset .blocks>
     <legend>
@@ -131,7 +131,7 @@ $if not (isNull blocks)
     simpleViewWiki :: Handler RepHtml
     simpleViewWiki = do
       (_, _, content, _, _, _, _) <- getwiki sidePaneWriterOption
-      hamletToRepHtml [$hamlet|\#{content}
+      hamletToRepHtml [hamlet|\#{content}
 |]
     
     viewWiki :: Handler RepHtml
@@ -154,7 +154,7 @@ $if not (isNull blocks)
       (path, raw, content, upd, ver, _, isTop) <- getwiki (wikiWriterOption msgShow)
       let editMe = (WikiR wp, [("mode", "e")])
           deleteMe = (WikiR wp, [("mode", "d")])
-          markdown = $(hamletFile "markdown-ja")
+          markdown = $(whamletFile "hamlet/markdown-ja.hamlet")
       defaultLayout $ do
         setTitle $ preEscapedText path
         addCassius $(cassiusFile "wiki")
@@ -193,14 +193,14 @@ postWikiR wp = do
       msgShow <- getMessageRender
       let path = pathOf wp
           isTop = wp == topPage
-      (raw, com, ver) <- runFormPost' $ (,,)
-                         <$> stringInput "content"
-                         <*> maybeStringInput "comment"
-                         <*> (intInput "version" :: FormInput sub master Int)
+      (raw, com, ver) <- runInputPost $ (,,)
+                         <$> ireq textField "content"
+                         <*> iopt textField "comment"
+                         <*> ireq intField "version"
       content <- runDB $ markdownToWikiHtml (wikiWriterOption msgShow) raw
       let editMe = (WikiR wp, [("mode", "e")])
           deleteMe = (WikiR wp, [("mode", "d")])
-          markdown = $(hamletFile "markdown-ja")
+          markdown = $(whamletFile "hamlet/markdown-ja.hamlet")
       defaultLayout $ do
         setTitle $ preEscapedText path
         addCassius $(cassiusFile "wiki")
@@ -214,10 +214,10 @@ putWikiR wp = do
   msgShow <- getMessageRender
   let path = pathOf wp
   now <- liftIO getCurrentTime
-  (raw, com, ver) <- runFormPost' $ (,,)
-                     <$> stringInput "content"
-                     <*> maybeStringInput "comment"
-                     <*> intInput "version"
+  (raw, com, ver) <- runInputPost $ (,,)
+                     <$> ireq textField "content"
+                     <*> iopt textField "comment"
+                     <*> ireq intField "version"
   runDB $ do
     (pid, page) <- getBy404 $ UniqueWiki path
     if wikiVersion page == ver
@@ -230,11 +230,11 @@ putWikiR wp = do
                          , wikiHistoryEditor=uid
                          , wikiHistoryComment=com
                          }
-      update pid [ WikiContent raw
-                 , WikiUpdated now
-                 , WikiVersionAdd 1
-                 , WikiEditor uid
-                 , WikiComment com]
+      update pid [ WikiContent =. raw
+                 , WikiUpdated =. now
+                 , WikiVersion +=. 1
+                 , WikiEditor =. uid
+                 , WikiComment =. com]
       return pid
       else do
       -- FIXME Conflict?
@@ -248,7 +248,7 @@ deleteWikiR wp = do
   let path = pathOf wp
   runDB $ do
     (pid, _) <- getBy404 $ UniqueWiki path
-    deleteWhere [WikiHistoryWikiEq pid]
+    deleteWhere [WikiHistoryWiki ==. pid]
     delete pid
     return pid
   redirectParams RedirectSeeOther NewR [("path", encodeUrl path),("mode", "v")]
@@ -292,7 +292,7 @@ getNewR = do
               isTop = path==Settings.topTitle
               viewMe = (NewR, [("path", path'), ("mode", "v")])
               editMe = (NewR, [("path", path'), ("mode", "e")])
-              markdown = $(hamletFile "markdown-ja")
+              markdown = $(whamletFile "hamlet/markdown-ja.hamlet")
           defaultLayout $ do
             setTitle $ preEscapedText path
             addCassius $(cassiusFile "wiki")
@@ -313,15 +313,15 @@ postNewR = do
     previewWiki = do
       (uid, _) <- requireAuth
       msgShow <- getMessageRender
-      (path', raw, com) <- runFormPost' $ (,,)
-                           <$> stringInput "path"
-                           <*> stringInput "content"
-                           <*> maybeStringInput "comment"
+      (path', raw, com) <- runInputPost $ (,,)
+                           <$> ireq textField "path"
+                           <*> ireq textField "content"
+                           <*> iopt textField "comment"
       let path = decodeUrl path'
           isTop = path == Settings.topTitle
           viewMe = (NewR, [("path", path'), ("mode", "v")])
           editMe = (NewR, [("path", path'), ("mode", "e")])
-          markdown = $(hamletFile "markdown-ja")
+          markdown = $(whamletFile "hamlet/markdown-ja.hamlet")
       content <- runDB $ markdownToWikiHtml (wikiWriterOption msgShow) raw
       defaultLayout $ do
         setTitle $ preEscapedText path
@@ -333,10 +333,10 @@ postNewR = do
     createWiki :: Handler RepHtml
     createWiki = do
       (uid, _) <- requireAuth
-      (path, raw, com) <- runFormPost' $ (,,)
-                          <$> (fmap decodeUrl . stringInput) "path"
-                          <*> stringInput "content"
-                          <*> maybeStringInput "comment"
+      (path, raw, com) <- runInputPost $ (,,)
+                          <$> (fmap decodeUrl . ireq textField) "path"
+                          <*> ireq textField "content"
+                          <*> iopt textField "comment"
       now <- liftIO getCurrentTime
       runDB $ do
         pid <- insert Wiki { 
@@ -372,7 +372,7 @@ getHistoriesR wp = do
       let path = pathOf wp
       runDB $ do
         (pid, _) <- getBy404 $ UniqueWiki path
-        hists' <- selectList [WikiHistoryWikiEq pid] [WikiHistoryVersionDesc] 0 0
+        hists' <- selectList [WikiHistoryWiki ==. pid] [Desc WikiHistoryVersion]
         hists <- forM hists' $ \(_, h) -> do
           Just u <- get $ wikiHistoryEditor h
           return (u, h)
@@ -458,7 +458,7 @@ getHistoryR vsn wp = do
       let path = pathOf wp
       runDB $ do
         (pid, _) <- getBy404 $ UniqueWiki path
-        hists' <- selectList [WikiHistoryWikiEq pid] [WikiHistoryVersionDesc] 0 0
+        hists' <- selectList [WikiHistoryWiki ==. pid] [Desc WikiHistoryVersion]
         hists <- forM hists' $ \(_, h) -> do
           Just u <- get $ wikiHistoryEditor h
           return (u, h)
@@ -500,7 +500,7 @@ getHistoryR vsn wp = do
           deleteMe = (WikiR wp, [("mode", "d")])
           ver = wikiVersion curp
           notCurrent =  v /= ver
-          markdown = $(hamletFile "markdown-ja")
+          markdown = $(whamletFile "hamlet/markdown-ja.hamlet")
       defaultLayout $ do
         setTitle $ preEscapedText path
         addCassius $(cassiusFile "wiki")
@@ -531,8 +531,8 @@ getHistoryR vsn wp = do
       (p, v1, v0) <- runDB $ do
         (pid, p) <- getBy404 $ UniqueWiki path
         [(_, v1),(_, v0)] <- 
-          selectList [WikiHistoryWikiEq pid, WikiHistoryVersionIn (selver p v)]
-                     [WikiHistoryVersionDesc] 2 0
+          selectList [WikiHistoryWiki ==. pid, WikiHistoryVersion <-. (selver p v)]
+                     [Desc WikiHistoryVersion, LimitTo 2]
         return (p, v1, v0)
       let editMe = (WikiR wp, [("mode", "e")])
           deleteMe = (WikiR wp, [("mode", "d")])
@@ -570,16 +570,16 @@ postHistoryR vsn wp = do
       msgShow <- getMessageRender
       let path = pathOf wp
           isTop = wp == topPage
-      (raw, com, ver, v) <- runFormPost' $ (,,,)
-                            <$> stringInput "content"
-                            <*> maybeStringInput "comment"
-                            <*> intInput "version"
-                            <*> intInput "original_version"
+      (raw, com, ver, v) <- runInputPost $ (,,,)
+                            <$> ireq textField "content"
+                            <*> iopt textField "comment"
+                            <*> ireq intField "version"
+                            <*> ireq intField "original_version"
       content <- runDB $ markdownToWikiHtml (wikiWriterOption msgShow) raw
       let editMe = (WikiR wp, [("mode", "e")])
           deleteMe = (WikiR wp, [("mode", "d")])
           notCurrent = v /= ver
-          markdown = $(hamletFile "markdown-ja")
+          markdown = $(whamletFile "hamlet/markdown-ja.hamlet")
       defaultLayout $ do
         setTitle $ preEscapedText path
         addCassius $(cassiusFile "wiki")
@@ -591,13 +591,13 @@ putHistoryR :: Version -> WikiPage -> Handler RepHtml
 putHistoryR v wp = do
   _ <- requireAuth
   let path = pathOf wp
-  com <- runFormPost' $ maybeStringInput "comment"
+  com <- runInputPost $ iopt textField "comment"
   runDB $ do
     (pid, _) <- getBy404 $ UniqueWiki path
     (hid, _) <- getBy404 $ UniqueWikiHistory pid v
-    update hid [ WikiHistoryComment com ]
+    update hid [ WikiHistoryComment =. com ]
   hamletToRepHtml
-    [$hamlet|\
+    [hamlet|\
 $maybe c <- com
   <span>#{c}
 $nothing
