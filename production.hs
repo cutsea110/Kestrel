@@ -1,4 +1,4 @@
-import Controller (withKestrel)
+import Application (withKestrel)
 import Network.Wai.Handler.Warp (run)
 
 main :: IO ()

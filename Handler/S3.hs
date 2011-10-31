@@ -11,7 +11,7 @@ module Handler.S3
        , getFileListR
        ) where
 
-import Kestrel
+import Foundation
 import Data.Time
 import Data.Int
 import qualified Data.ByteString.Lazy as L

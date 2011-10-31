@@ -1,4 +1,4 @@
-import Controller (withKestrel)
+import Application (withKestrel)
 import System.IO (hPutStrLn, stderr)
 import Network.Wai.Middleware.Debug (debug)
 import Network.Wai.Handler.Warp (run)

@@ -2,12 +2,12 @@
 {-# LANGUAGE MultiParamTypeClasses #-}
 {-# LANGUAGE OverloadedStrings #-}
 {-# OPTIONS_GHC -fno-warn-orphans #-}
-module Controller
+module Application
     ( withKestrel
     , withDevelApp
     ) where
 
-import Kestrel
+import Foundation
 import Settings
 import Yesod.Static
 import Yesod.Auth

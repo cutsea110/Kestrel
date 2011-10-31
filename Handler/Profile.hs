@@ -1,7 +1,7 @@
 {-# LANGUAGE TemplateHaskell, OverloadedStrings #-}
 module Handler.Profile where
 
-import Kestrel
+import Foundation
 import Settings (juliusFile)
 
 import Control.Monad (unless)

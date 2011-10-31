@@ -1,7 +1,7 @@
 {-# LANGUAGE TemplateHaskell, QuasiQuotes, OverloadedStrings #-}
 module Handler.Root where
 
-import Kestrel
+import Foundation
 import Yesod.AtomFeed
 import Yesod.Sitemap
 import Data.Time

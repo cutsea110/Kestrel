@@ -4,7 +4,7 @@
 {-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE FlexibleInstances #-}
 {-# LANGUAGE Rank2Types #-}
-module Kestrel
+module Foundation
     ( Kestrel (..)
     , KestrelRoute (..)
     , KestrelMessage (..)
@@ -79,7 +79,7 @@ import Text.Blaze (preEscapedText, preEscapedString)
 import Text.Hamlet (ihamletFile)
 
 import Model
-import StaticFiles
+import Settings.StaticFiles
 import qualified Settings
 
 (+++) :: Text -> Text -> Text
@@ -108,7 +108,7 @@ data Kestrel = Kestrel
 -- * Creates the associated type:
 --       type instance Route Kestrel = KestrelRoute
 -- * Creates the value resourcesKestrel which contains information on the
---   resources declared below. This is used in Controller.hs by the call to
+--   resources declared below. This is used in Application.hs by the call to
 --   mkYesodDispatch
 --
 -- What this function does *not* do is create a YesodSite instance for

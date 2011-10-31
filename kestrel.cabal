@@ -24,13 +24,13 @@ Library
          Buildable: True
      else
          Buildable: False
-     exposed-modules: Controller
+     exposed-modules: Application
      hs-souce-dirs: .
 
-     other-modules: Kestrel
+     other-modules: Foundation
                     Model
                     Settings
-                    StaticFiles
+                    Settings.StaticFiles
                     Handler.Root
                     Handler.Profile
                     Handler.Wiki

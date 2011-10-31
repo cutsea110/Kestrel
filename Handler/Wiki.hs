@@ -2,7 +2,7 @@
 {-# LANGUAGE CPP #-}
 module Handler.Wiki where
 
-import Kestrel
+import Foundation
 
 import Control.Monad
 import Data.Time
@@ -16,7 +16,7 @@ import qualified Data.Text as T
 import Text.Blaze (preEscapedText)
 
 import Settings (topTitle, cassiusFile, juliusFile)
-import StaticFiles
+import Settings.StaticFiles
 
 
 getEitherWikiNewR :: WikiPage -> Handler RepHtml
