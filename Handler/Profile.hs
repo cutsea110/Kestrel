@@ -2,7 +2,7 @@
 module Handler.Profile where
 
 import Foundation
-import Settings (juliusFile)
+import Text.Julius (juliusFile)
 
 import Control.Monad (unless)
 import Text.Blaze (preEscapedText)
@@ -16,7 +16,7 @@ getProfileR uid = do
   u <- runDB $ get404 uid
   defaultLayout $ do
     setTitle "Profile"
-    addJulius $(juliusFile "profile")
+    addJulius $(juliusFile "julius/profile.julius")
     addWidget $(whamletFile "hamlet/viewProfile.hamlet")
 
 postProfileR :: UserId -> Handler ()

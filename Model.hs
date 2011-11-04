@@ -1,7 +1,9 @@
-{-# LANGUAGE QuasiQuotes, TypeFamilies, GeneralizedNewtypeDeriving, TemplateHaskell #-}
+{-# LANGUAGE QuasiQuotes, TemplateHaskell #-}
+{-# LANGUAGE TypeFamilies, GeneralizedNewtypeDeriving #-}
 {-# LANGUAGE CPP #-}
 {-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE GADTs #-}
+{-# OPTIONS_GHC -fspec-constr-count=100 #-}
 module Model where
 
 import Yesod

@@ -1,19 +1,22 @@
 {-# LANGUAGE TemplateHaskell #-}
 {-# LANGUAGE MultiParamTypeClasses #-}
-{-# LANGUAGE OverloadedStrings #-}
+{-# LANGUAGE CPP #-}
 {-# OPTIONS_GHC -fno-warn-orphans #-}
 module Application
     ( withKestrel
-    , withDevelApp
+    , withDevelAppPort
     ) where
 
 import Foundation
 import Settings
 import Yesod.Static
 import Yesod.Auth
-import Database.Persist.GenericSql
-import Network.Wai
+import Yesod.Default.Config
+import Yesod.Default.Main
+import Yesod.Logger (Logger)
 import Data.Dynamic (Dynamic, toDyn)
+import qualified Database.Persist.Base
+import Database.Persist.GenericSql (runMigration)
 
 -- Import all relevant handler modules here.
 import Handler.Root
@@ -30,15 +33,20 @@ mkYesodDispatch "Kestrel" resourcesKestrel
 -- performs initialization and creates a WAI application. This is also the
 -- place to put your migrate statements to have automatic database
 -- migrations handled by Yesod.
-withKestrel :: (Application -> IO a) -> IO a
-withKestrel f = Settings.withConnectionPool $ \p -> do
-    runConnectionPool (runMigration migrateAll) p
-    s' <- s
-    http <- toWaiApp $ Kestrel s' p False
-    https <- toWaiApp $ Kestrel s' p True
-    f $ \req -> (if isSecure req then https else http) req
-  where
-    s = static Settings.staticdir
+withKestrel :: AppConfig DefaultEnv -> Logger -> (Application -> IO ()) -> IO ()
+withKestrel conf logger f = do
+#ifdef PRODUCTION
+    s <- static Settings.staticdir
+#else
+    s <- staticDevel Settings.staticdir
+#endif
+    dbconf <- withYamlEnvironment "config/postgres.yml" (appEnv conf)
+              $ either error return . Database.Persist.Base.loadConfig
+    Database.Persist.Base.withPool (dbconf :: Settings.PersistConfig) $ \p -> do
+        Database.Persist.Base.runPool dbconf (runMigration migrateAll) p
+        let h = Kestrel conf logger s p
+        defaultRunner f h
 
-withDevelApp :: Dynamic
-withDevelApp = toDyn (withKestrel :: (Application -> IO ()) -> IO ())
+-- for yesod devel
+withDevelAppPort :: Dynamic
+withDevelAppPort = toDyn $ defaultDevelApp withKestrel

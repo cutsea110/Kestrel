@@ -21,15 +21,15 @@ import System.FilePath
 import Web.Encodings (encodeUrl)
 import Data.Text (Text)
 import qualified Data.Text as T
-import qualified Settings (s3dir, rootbase)
-import Settings (cassiusFile)
+import qualified Settings (s3dir)
+import Text.Cassius (cassiusFile)
 
 getUploadR :: Handler RepHtml
 getUploadR = do
   (uid,_) <- requireAuth
   msg <- getMessageRender
   defaultLayout $ do
-    addCassius $(cassiusFile "s3/s3")
+    addCassius $(cassiusFile "cassius/s3/s3.cassius")
     addWidget $(whamletFile "hamlet/s3/upload.hamlet")
 
 upload :: PersistBackend b m =>
@@ -51,10 +51,10 @@ upload uid fi = do
                         , fileHeaderCreator=uid
                         , fileHeaderCreated=now
                         }
-    let s3dir = Settings.s3dir </> show uid
-        s3fp = s3dir </> show fid
+    let s3dir' = Settings.s3dir </> show uid
+        s3fp = s3dir' </> show fid
     liftIO $ do
-      createDirectoryIfMissing True s3dir
+      createDirectoryIfMissing True s3dir'
       L.writeFile s3fp (fileContent fi)
     return $ Just (fid, fileName fi, T.pack ext, fsize, now)
     else return Nothing
@@ -73,7 +73,7 @@ postUploadR = do
         Nothing -> invalidArgs ["upload file is required."]
         Just (fid, name, ext, fsize, cdate) -> do
           cacheSeconds 10 -- FIXME
-          let rf = Settings.rootbase +++ (dropPrefix (approot y) $ r $ FileR uid fid)
+          let rf = (dropPrefix (approot y) $ r $ FileR uid fid)
           fmap RepXml $ hamletToContent
                       [xhamlet|\
 <file>
@@ -101,8 +101,8 @@ putUploadR = do
 getFileR :: UserId -> FileHeaderId -> Handler RepHtml
 getFileR uid fid = do
   h <- runDB $ get404 fid
-  let s3dir = Settings.s3dir </> show uid
-      s3fp = s3dir </> show fid
+  let s3dir' = Settings.s3dir </> show uid
+      s3fp = s3dir' </> show fid
   setHeader "Content-Type" $ pack $ T.unpack $ fileHeaderContentType h
   setHeader "Content-Disposition" $ pack $ T.unpack $ "attachment; filename=" +++ fileHeaderEfname h
   return $ RepHtml $ ContentFile s3fp Nothing
@@ -125,9 +125,9 @@ deleteFileR uid fid = do
     else do
     r <- getUrlRender
     runDB $ delete fid
-    let s3dir = Settings.s3dir </> show uid
-        s3fp = s3dir </> show fid
-        rf = Settings.rootbase +++ (dropPrefix (approot y) $ r $ FileR uid fid)
+    let s3dir' = Settings.s3dir </> show uid
+        s3fp = s3dir' </> show fid
+        rf = (dropPrefix (approot y) $ r $ FileR uid fid)
     liftIO $ removeFile s3fp
     fmap RepXml $ hamletToContent
                   [xhamlet|\
@@ -154,5 +154,5 @@ getFileListR uid = do
               , ("ext" , jsonScalar $ T.unpack ext)
               , ("size", jsonScalar $ show size)
               , ("cdate", jsonScalar $ show cdate)
-              , ("uri", jsonScalar $ T.unpack $ Settings.rootbase +++ (dropPrefix (approot y) $ r $ FileR uid fid))
+              , ("uri", jsonScalar $ T.unpack $ (dropPrefix (approot y) $ r $ FileR uid fid))
               ]

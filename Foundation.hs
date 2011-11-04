@@ -4,6 +4,8 @@
 {-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE FlexibleInstances #-}
 {-# LANGUAGE Rank2Types #-}
+{-# LANGUAGE CPP #-}
+{-# OPTIONS_GHC -fspec-constr-count=100 #-}
 module Foundation
     ( Kestrel (..)
     , KestrelRoute (..)
@@ -54,12 +56,14 @@ import Yesod.Auth.OpenId
 import Yesod.Auth.Facebook
 -- import Yesod.Auth.OAuth
 -- import Yesod.Crud
+import Yesod.Default.Config
+import Yesod.Default.Util (addStaticContentExternal)
+import Yesod.Logger (Logger, logLazyText)
 import Yesod.Form.Jquery
-import System.Directory
 import qualified Data.ByteString.Lazy as L
 import Database.Persist.GenericSql
 import qualified Database.Persist.Base
-import Control.Monad (unless, mplus, mzero, MonadPlus)
+import Control.Monad (mplus, mzero, MonadPlus)
 import Control.Applicative ((<*>))
 import Text.Jasmine (minifym)
 import Text.Pandoc
@@ -68,6 +72,7 @@ import qualified Text.Highlighting.Kate as Kate
 import Text.XHtml.Strict (showHtmlFragment)
 import qualified Text.ParserCombinators.Parsec as P
 import qualified Data.Map as Map (lookup, fromList, Map)
+import Web.ClientSession (getKey)
 import Web.Encodings (encodeUrl)
 import Web.Encodings.StringLike ()
 import Data.List (inits)
@@ -77,10 +82,17 @@ import Data.Time.Clock (UTCTime(..))
 import qualified Data.Text as T
 import Text.Blaze (preEscapedText, preEscapedString)
 import Text.Hamlet (ihamletFile)
+import Text.Cassius (cassiusFile)
+import Text.Julius (juliusFile)
+#if PRODUCTION
+import Network.Mail.Mime (sendmail)
+#else
+import qualified Data.Text.Lazy.Encoding
+#endif
 
 import Model
 import Settings.StaticFiles
-import qualified Settings
+import Settings
 
 (+++) :: Text -> Text -> Text
 (+++) = T.append
@@ -92,9 +104,10 @@ mkMessage "Kestrel" "messages" "en"
 -- starts running, such as database connections. Every handler will have
 -- access to the data present here.
 data Kestrel = Kestrel
-    { getStatic :: Static -- ^ Settings for static file serving.
-    , connPool :: Settings.ConnectionPool -- ^ Database connection pool.
-    , isHTTPS :: Bool
+    { settings :: AppConfig DefaultEnv
+    , getLogger :: Logger
+    , getStatic :: Static -- ^ Settings for static file serving.
+    , connPool :: Database.Persist.Base.PersistConfigPool Settings.PersistConfig -- ^ Database connection pool.
     }
 
 -- This is where we define all of the routes in our application. For a full
@@ -158,7 +171,9 @@ ancestory = map WikiPage . filter (/=[]) . inits . unWikiPage
 -- Please see the documentation for the Yesod typeclass. There are a number
 -- of settings which can be configured by overriding methods here.
 instance Yesod Kestrel where
-    approot app = (if isHTTPS app then "https://" else "http://") +++ Settings.approot +++ Settings.rootbase
+    approot = appRoot . settings
+
+    encryptKey _ = fmap Just $ getKey "config/client_session_key.aes"
     
     defaultLayout widget = do
         y <- getYesod
@@ -183,38 +198,31 @@ instance Yesod Kestrel where
           addScriptEither $ Left $ StaticR plugins_exinplaceeditor_jquery_exinplaceeditor_0_1_3_js
           addStylesheetEither $ Left $ StaticR plugins_exinplaceeditor_exinplaceeditor_css
           addScriptEither $ Left $ StaticR plugins_watermark_jquery_watermark_js
-          addCassius $(Settings.cassiusFile "default-layout")
-          addJulius $(Settings.juliusFile "default-layout")
+          addCassius $(cassiusFile "cassius/default-layout.cassius")
+          addJulius $(juliusFile "julius/default-layout.julius")
           atomLink FeedR $ T.unpack Settings.topTitle
         ihamletToRepHtml $(ihamletFile "hamlet/default-layout.hamlet")
         
     -- This is done to provide an optimization for serving static files from
     -- a separate domain. Please see the staticroot setting in Settings.hs
-    urlRenderOverride a (StaticR s) =
-        Just $ uncurry (joinPath a $ approot a +++ Settings.staticroot) $ renderRoute s
+    urlRenderOverride y (StaticR s) =
+        Just $ uncurry (joinPath y (Settings.staticroot $ settings y)) $ renderRoute s
     urlRenderOverride _ _ = Nothing
 
     -- The page to be redirected to when authentication is required.
     authRoute _ = Just $ AuthR LoginR
 
+    messageLogger y loc level msg =
+      formatLogMessage loc level msg >>= logLazyText (getLogger y)
+
     -- This function creates static content files in the static folder
     -- and names them based on a hash of their content. This allows
     -- expiration dates to be set far in the future without worry of
     -- users receiving stale content.
-    addStaticContent ext' _ content = do
-        let fn = base64md5 content ++ '.' : T.unpack ext'
-        let content' =
-                if ext' == "js"
-                    then case minifym content of
-                            Left _ -> content
-                            Right y -> y
-                    else content
-        let statictmp = Settings.staticdir ++ "/tmp/"
-        liftIO $ createDirectoryIfMissing True statictmp
-        let fn' = statictmp ++ fn
-        exists <- liftIO $ doesFileExist fn'
-        unless exists $ liftIO $ L.writeFile fn' content'
-        return $ Just $ Right (StaticR $ StaticRoute ["tmp", T.pack fn] [], [])
+    addStaticContent = addStaticContentExternal minifym base64md5 Settings.staticdir (StaticR . flip StaticRoute [])
+
+    -- Enable Javascript async loading
+--    yepnopeJs _ = Just $ Right $ StaticR js_modernizr_js
 
 -- How to run database actions.
 instance YesodPersist Kestrel where
@@ -302,7 +310,7 @@ instance YesodAuth Kestrel where
     loginHandler = do
       defaultLayout $ do
         setTitle "Login"
-        addCassius $(Settings.cassiusFile "login")
+        addCassius $(cassiusFile "cassius/login.cassius")
         addWidget $(whamletFile "hamlet/login.hamlet")
 
 instance YesodAuthHashDB Kestrel where
@@ -323,6 +331,15 @@ instance YesodAuthHashDB Kestrel where
                 , hashdbCredsAuthId = Just uid
                 }
     getHashDB = runDB . fmap (fmap userIdent) . get
+
+-- Sends off your mail. Requires sendmail in production!
+deliver :: Kestrel -> L.ByteString -> IO ()
+#ifdef PRODUCTION
+deliver _ = sendmail
+#else
+deliver y = logLazyText (getLogger y) . Data.Text.Lazy.Encoding.decodeUtf8
+#endif
+
 
 {- markdown utility -}
 markdownToWikiHtml :: forall (m :: * -> *) sub master.

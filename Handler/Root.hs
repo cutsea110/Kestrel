@@ -21,7 +21,7 @@ getRootR = do
 -- Some default handlers that ship with the Yesod site template. You will
 -- very rarely need to modify this.
 getFaviconR :: Handler ()
-getFaviconR = sendFile "image/x-icon" "favicon.ico"
+getFaviconR = sendFile "image/x-icon" "config/favicon.ico"
 
 getRobotsR :: Handler RepPlain
 getRobotsR = robots SitemapR -- return $ RepPlain $ toContent "User-agent: *"
