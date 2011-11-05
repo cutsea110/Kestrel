@@ -147,8 +147,7 @@ $if not (isNull blocks)
           deleteMe = (WikiR wp, [("mode", "d")])
       defaultLayout $ do
         setTitle $ preEscapedText path
-        addCassius $(cassiusFile "cassius/wiki.cassius")
-        addJulius $(juliusFile "julius/wiki.julius")
+        addWidget $(widgetFile "wiki")
         addStylesheet $ StaticR css_hk_kate_css
         addWidget $(whamletFile "hamlet/viewWiki.hamlet")
 
@@ -162,8 +161,7 @@ $if not (isNull blocks)
           markdown = $(whamletFile "hamlet/markdown-ja.hamlet")
       defaultLayout $ do
         setTitle $ preEscapedText path
-        addCassius $(cassiusFile "cassius/wiki.cassius")
-        addJulius $(juliusFile "julius/wiki.julius")
+        addWidget $(widgetFile "wiki")
         addStylesheet $ StaticR css_hk_kate_css
         addWidget $(whamletFile "hamlet/editWiki.hamlet")
             
@@ -176,8 +174,7 @@ $if not (isNull blocks)
           deleteMe = (WikiR wp, [("mode", "d")])
       defaultLayout $ do
         setTitle $ preEscapedText path
-        addCassius $(cassiusFile "cassius/wiki.cassius")
-        addJulius $(juliusFile "julius/wiki.julius")
+        addWidget $(widgetFile "wiki")
         addStylesheet $ StaticR css_hk_kate_css
         addWidget $(whamletFile "hamlet/deleteWiki.hamlet")
 
@@ -208,8 +205,7 @@ postWikiR wp = do
           markdown = $(whamletFile "hamlet/markdown-ja.hamlet")
       defaultLayout $ do
         setTitle $ preEscapedText path
-        addCassius $(cassiusFile "cassius/wiki.cassius")
-        addJulius $(juliusFile "julius/wiki.julius")
+        addWidget $(widgetFile "wiki")
         addStylesheet $ StaticR css_hk_kate_css
         addWidget $(whamletFile "hamlet/previewWiki.hamlet")
 
@@ -280,8 +276,7 @@ getNewR = do
               editMe = (NewR, [("path", path'), ("mode", "e")])
           defaultLayout $ do
             setTitle $ preEscapedText path
-            addCassius $(cassiusFile "cassius/wiki.cassius")
-            addJulius $(juliusFile "julius/wiki.julius")
+            addWidget $(widgetFile "wiki")
             addStylesheet $ StaticR css_hk_kate_css
             addWidget $(whamletFile "hamlet/viewNew.hamlet")
     
@@ -300,8 +295,7 @@ getNewR = do
               markdown = $(whamletFile "hamlet/markdown-ja.hamlet")
           defaultLayout $ do
             setTitle $ preEscapedText path
-            addCassius $(cassiusFile "cassius/wiki.cassius")
-            addJulius $(juliusFile "julius/wiki.julius")
+            addWidget $(widgetFile "wiki")
             addStylesheet $ StaticR css_hk_kate_css
             addWidget $(whamletFile "hamlet/editNew.hamlet")
   
@@ -330,8 +324,7 @@ postNewR = do
       content <- runDB $ markdownToWikiHtml (wikiWriterOption msgShow) raw
       defaultLayout $ do
         setTitle $ preEscapedText path
-        addCassius $(cassiusFile "cassius/wiki.cassius")
-        addJulius $(juliusFile "julius/wiki.julius")
+        addWidget $(widgetFile "wiki")
         addStylesheet $ StaticR css_hk_kate_css
         addWidget $(whamletFile "hamlet/previewNew.hamlet")
     
@@ -427,8 +420,7 @@ getHistoriesR wp = do
                   else Nothing
       defaultLayout $ do
         setTitle $ preEscapedText path
-        addCassius $(cassiusFile "cassius/wiki.cassius")
-        addJulius $(juliusFile "julius/wiki.julius")
+        addWidget $(widgetFile "wiki")
         addWidget $(whamletFile "hamlet/listHistories.hamlet")
 
         
@@ -491,8 +483,7 @@ getHistoryR vsn wp = do
           currDiff = (HistoryR v wp, [("mode", "c")])
       defaultLayout $ do
         setTitle $ preEscapedText path
-        addCassius $(cassiusFile "cassius/wiki.cassius")
-        addJulius $(juliusFile "julius/wiki.julius")
+        addWidget $(widgetFile "wiki")
         addStylesheet $ StaticR css_hk_kate_css
         addWidget $(whamletFile "hamlet/viewHistory.hamlet")
 
@@ -508,8 +499,7 @@ getHistoryR vsn wp = do
           markdown = $(whamletFile "hamlet/markdown-ja.hamlet")
       defaultLayout $ do
         setTitle $ preEscapedText path
-        addCassius $(cassiusFile "cassius/wiki.cassius")
-        addJulius $(juliusFile "julius/wiki.julius")
+        addWidget $(widgetFile "wiki")
         addStylesheet $ StaticR css_hk_kate_css
         addWidget $(whamletFile "hamlet/editHistory.hamlet")
     
@@ -524,8 +514,7 @@ getHistoryR vsn wp = do
           notCurrent =  v /= ver
       defaultLayout $ do
         setTitle $ preEscapedText path
-        addCassius $(cassiusFile "cassius/wiki.cassius")
-        addJulius $(juliusFile "julius/wiki.julius")
+        addWidget $(widgetFile "wiki")
         addStylesheet $ StaticR css_hk_kate_css
         addWidget $(whamletFile "hamlet/revertHistory.hamlet")
 
@@ -548,8 +537,7 @@ getHistoryR vsn wp = do
           isTop = wp == topPage
       defaultLayout $ do
         setTitle $ preEscapedText path
-        addCassius $(cassiusFile "cassius/wiki.cassius")
-        addJulius $(juliusFile "julius/wiki.julius")
+        addWidget $(widgetFile "wiki")
         addWidget $(whamletFile "hamlet/diffHistories.hamlet")
     
     diffPrevious :: Version -> Handler RepHtml
@@ -587,8 +575,7 @@ postHistoryR vsn wp = do
           markdown = $(whamletFile "hamlet/markdown-ja.hamlet")
       defaultLayout $ do
         setTitle $ preEscapedText path
-        addCassius $(cassiusFile "cassius/wiki.cassius")
-        addJulius $(juliusFile "julius/wiki.julius")
+        addWidget $(widgetFile "wiki")
         addStylesheet $ StaticR css_hk_kate_css
         addWidget $(whamletFile "hamlet/previewHistory.hamlet")
 
