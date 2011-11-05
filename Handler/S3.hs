@@ -30,7 +30,7 @@ getUploadR = do
   msg <- getMessageRender
   defaultLayout $ do
     addCassius $(cassiusFile "cassius/s3/s3.cassius")
-    addWidget $(whamletFile "hamlet/s3/upload.hamlet")
+    addWidget $(widgetFile "s3/upload")
 
 upload :: PersistBackend b m =>
           Key backend User -> FileInfo -> b m (Maybe (Key b (FileHeaderGeneric backend), Text, Text, Int64, UTCTime))
