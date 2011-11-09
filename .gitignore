@@ -4,5 +4,5 @@ dist/
 log/
 *.o
 *.hi
-client_session_key.aes
 kestrel
+config/client_session_key.aes

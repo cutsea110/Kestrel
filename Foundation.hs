@@ -4,9 +4,12 @@
 {-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE FlexibleInstances #-}
 {-# LANGUAGE Rank2Types #-}
-module Kestrel
+{-# LANGUAGE CPP #-}
+{-# OPTIONS_GHC -fspec-constr-count=100 #-}
+module Foundation
     ( Kestrel (..)
     , KestrelRoute (..)
+    , KestrelMessage (..)
     , resourcesKestrel
     , Handler
     , Widget
@@ -39,28 +42,29 @@ module Kestrel
     , WriterOptions(..)
     , dropPrefix
       --
-    , UserCrud
-    , userCrud
+--    , UserCrud -- FIXME Crud
+--    , userCrud -- FIXME Crud
     , (+++)
-    , KestrelMessage (..)
     ) where
 
 import Yesod
-import Yesod.Helpers.Static
-import Yesod.Helpers.AtomFeed
-import Yesod.Helpers.Auth
+import Yesod.Static
+import Yesod.AtomFeed
+import Yesod.Auth
 import Kestrel.Helpers.Auth.HashDB
-import Yesod.Helpers.Auth.OpenId
-import Yesod.Helpers.Auth.Facebook
--- import Yesod.Helpers.Auth.OAuth
-import Yesod.Helpers.Crud
+import Yesod.Auth.OpenId
+import Yesod.Auth.Facebook
+-- import Yesod.Auth.OAuth
+-- import Yesod.Crud
+import Yesod.Default.Config
+import Yesod.Default.Util (addStaticContentExternal)
+import Yesod.Logger (Logger, logLazyText)
 import Yesod.Form.Jquery
-import System.Directory
 import qualified Data.ByteString.Lazy as L
 import Database.Persist.GenericSql
-import Control.Monad (unless, mplus, mzero, MonadPlus)
-import Control.Monad.Trans.Class (MonadTrans)
-import Control.Applicative ((<$>),(<*>))
+import qualified Database.Persist.Base
+import Control.Monad (mplus, mzero, MonadPlus)
+import Control.Applicative ((<*>))
 import Text.Jasmine (minifym)
 import Text.Pandoc
 import Text.Pandoc.Shared
@@ -68,6 +72,7 @@ import qualified Text.Highlighting.Kate as Kate
 import Text.XHtml.Strict (showHtmlFragment)
 import qualified Text.ParserCombinators.Parsec as P
 import qualified Data.Map as Map (lookup, fromList, Map)
+import Web.ClientSession (getKey)
 import Web.Encodings (encodeUrl)
 import Web.Encodings.StringLike ()
 import Data.List (inits)
@@ -75,12 +80,19 @@ import Data.Char (toLower)
 import Data.Text (Text)
 import Data.Time.Clock (UTCTime(..))
 import qualified Data.Text as T
-import Text.Hamlet (preEscapedText)
-import Text.Hamlet.NonPoly (ihamletFile)
+import Text.Blaze (preEscapedText, preEscapedString)
+import Text.Hamlet (ihamletFile)
+import Text.Cassius (cassiusFile)
+import Text.Julius (juliusFile)
+#if PRODUCTION
+import Network.Mail.Mime (sendmail)
+#else
+import qualified Data.Text.Lazy.Encoding
+#endif
 
 import Model
-import StaticFiles
-import qualified Settings
+import Settings.StaticFiles
+import Settings
 
 (+++) :: Text -> Text -> Text
 (+++) = T.append
@@ -92,18 +104,11 @@ mkMessage "Kestrel" "messages" "en"
 -- starts running, such as database connections. Every handler will have
 -- access to the data present here.
 data Kestrel = Kestrel
-    { getStatic :: Static -- ^ Settings for static file serving.
-    , connPool :: Settings.ConnectionPool -- ^ Database connection pool.
-    , isHTTPS :: Bool
+    { settings :: AppConfig DefaultEnv
+    , getLogger :: Logger
+    , getStatic :: Static -- ^ Settings for static file serving.
+    , connPool :: Database.Persist.Base.PersistConfigPool Settings.PersistConfig -- ^ Database connection pool.
     }
-
--- | A useful synonym; most of the handler functions in your application
--- will need to be of this type.
-type Handler = GHandler Kestrel Kestrel
-
--- | A useful synonym; most of the widgets functions in your application
--- will need to be of this type.
-type Widget = GWidget Kestrel Kestrel
 
 -- This is where we define all of the routes in our application. For a full
 -- explanation of the syntax, please see:
@@ -116,7 +121,7 @@ type Widget = GWidget Kestrel Kestrel
 -- * Creates the associated type:
 --       type instance Route Kestrel = KestrelRoute
 -- * Creates the value resourcesKestrel which contains information on the
---   resources declared below. This is used in Controller.hs by the call to
+--   resources declared below. This is used in Application.hs by the call to
 --   mkYesodDispatch
 --
 -- What this function does *not* do is create a YesodSite instance for
@@ -124,36 +129,7 @@ type Widget = GWidget Kestrel Kestrel
 -- for our application to be in scope. However, the handler functions
 -- usually require access to the KestrelRoute datatype. Therefore, we
 -- split these actions into two functions and place them in separate files.
-mkYesodData "Kestrel" [$parseRoutes|
-/static StaticR Static getStatic
-/auth   AuthR   Auth   getAuth
-/auth-status AuthStatusR GET
-/auth-go AuthToGoR GET
-
-/profile/#UserId ProfileR GET POST PUT
-
-/favicon.ico FaviconR GET
-/robots.txt RobotsR GET
-/sitemap.xml SitemapR GET
-/feed FeedR GET
-/recent-changes.json RecentChangesR GET
-
-/ RootR GET
-
-/admin AdminR UserCrud userCrud
-
-/kestrel/*WikiPage WikiR GET POST PUT DELETE
-/new NewR GET POST
-/histories/*WikiPage HistoriesR GET
-/history/#Version/*WikiPage HistoryR GET POST PUT
-/either/*WikiPage EitherWikiNewR GET
-
-/wikilist WikiListR GET
-
-/s3/upload UploadR GET POST PUT
-/s3/user/#UserId/file/#FileHeaderId FileR GET POST DELETE
-/s3/user/#UserId/list.json FileListR GET
-|]
+mkYesodData "Kestrel" $(parseRoutesFile "config/routes")
 
 newtype WikiPage = WikiPage { unWikiPage :: [Text] } deriving (Eq, Show, Read)
 instance MultiPiece WikiPage where
@@ -195,7 +171,9 @@ ancestory = map WikiPage . filter (/=[]) . inits . unWikiPage
 -- Please see the documentation for the Yesod typeclass. There are a number
 -- of settings which can be configured by overriding methods here.
 instance Yesod Kestrel where
-    approot app = (if isHTTPS app then "https://" else "http://") +++ Settings.approot +++ Settings.rootbase
+    approot = appRoot . settings
+
+    encryptKey _ = fmap Just $ getKey "config/client_session_key.aes"
     
     defaultLayout widget = do
         y <- getYesod
@@ -220,50 +198,44 @@ instance Yesod Kestrel where
           addScriptEither $ Left $ StaticR plugins_exinplaceeditor_jquery_exinplaceeditor_0_1_3_js
           addStylesheetEither $ Left $ StaticR plugins_exinplaceeditor_exinplaceeditor_css
           addScriptEither $ Left $ StaticR plugins_watermark_jquery_watermark_js
-          addCassius $(Settings.cassiusFile "default-layout")
-          addJulius $(Settings.juliusFile "default-layout")
+          addCassius $(cassiusFile "cassius/default-layout.cassius")
+          addJulius $(juliusFile "julius/default-layout.julius")
           atomLink FeedR $ T.unpack Settings.topTitle
         ihamletToRepHtml $(ihamletFile "hamlet/default-layout.hamlet")
         
     -- This is done to provide an optimization for serving static files from
     -- a separate domain. Please see the staticroot setting in Settings.hs
-    urlRenderOverride a (StaticR s) =
-        Just $ uncurry (joinPath a $ approot a +++ Settings.staticroot) $ renderRoute s
+    urlRenderOverride y (StaticR s) =
+        Just $ uncurry (joinPath y (Settings.staticroot $ settings y)) $ renderRoute s
     urlRenderOverride _ _ = Nothing
 
     -- The page to be redirected to when authentication is required.
     authRoute _ = Just $ AuthR LoginR
 
+    messageLogger y loc level msg =
+      formatLogMessage loc level msg >>= logLazyText (getLogger y)
+
     -- This function creates static content files in the static folder
     -- and names them based on a hash of their content. This allows
     -- expiration dates to be set far in the future without worry of
     -- users receiving stale content.
-    addStaticContent ext' _ content = do
-        let fn = base64md5 content ++ '.' : T.unpack ext'
-        let content' =
-                if ext' == "js"
-                    then case minifym content of
-                            Left _ -> content
-                            Right y -> y
-                    else content
-        let statictmp = Settings.staticdir ++ "/tmp/"
-        liftIO $ createDirectoryIfMissing True statictmp
-        let fn' = statictmp ++ fn
-        exists <- liftIO $ doesFileExist fn'
-        unless exists $ liftIO $ L.writeFile fn' content'
-        return $ Just $ Right (StaticR $ StaticRoute ["tmp", T.pack fn] [], [])
+    addStaticContent = addStaticContentExternal minifym base64md5 Settings.staticdir (StaticR . flip StaticRoute [])
+
+    -- Enable Javascript async loading
+--    yepnopeJs _ = Just $ Right $ StaticR js_modernizr_js
 
 -- How to run database actions.
 instance YesodPersist Kestrel where
-    type YesodDB Kestrel = SqlPersist
-    runDB db = liftIOHandler
-               $ fmap connPool getYesod >>= Settings.runConnectionPool db
+    type YesodPersistBackend Kestrel = SqlPersist
+    runDB f = liftIOHandler
+              $ fmap connPool getYesod >>= Database.Persist.Base.runPool (undefined::Settings.PersistConfig) f
     
 instance YesodJquery Kestrel where
   urlJqueryJs _ = Left $ StaticR js_jquery_1_4_4_min_js
   urlJqueryUiJs _ = Left $ StaticR js_jquery_ui_1_8_9_custom_min_js
   urlJqueryUiCss _ = Left $ StaticR css_jquery_ui_1_8_9_custom_css
-    
+
+{-- FIXME Crud
 type UserCrud = Crud Kestrel User
 
 instance ToForm User Kestrel where
@@ -298,6 +270,10 @@ userCrud = const Crud
                 _ <- requireAuth
                 runDB $ delete k
            }
+--}
+
+instance RenderMessage Kestrel FormMessage where
+    renderMessage _ _ = defaultFormMessage
 
 instance YesodAuth Kestrel where
     type AuthId Kestrel = UserId
@@ -334,7 +310,7 @@ instance YesodAuth Kestrel where
     loginHandler = do
       defaultLayout $ do
         setTitle "Login"
-        addCassius $(Settings.cassiusFile "login")
+        addCassius $(cassiusFile "cassius/login.cassius")
         addWidget $(whamletFile "hamlet/login.hamlet")
 
 instance YesodAuthHashDB Kestrel where
@@ -345,7 +321,7 @@ instance YesodAuthHashDB Kestrel where
       case ma of
         Nothing -> return Nothing
         Just u -> return $ userPassword u
-    setPassword uid encripted = runDB $ update uid [UserPassword $ Just encripted]
+    setPassword uid encripted = runDB $ update uid [UserPassword =. Just encripted]
     getHashDBCreds account = runDB $ do
         ma <- getBy $ UniqueUser account
         case ma of
@@ -356,28 +332,32 @@ instance YesodAuthHashDB Kestrel where
                 }
     getHashDB = runDB . fmap (fmap userIdent) . get
 
+-- Sends off your mail. Requires sendmail in production!
+deliver :: Kestrel -> L.ByteString -> IO ()
+#ifdef PRODUCTION
+deliver _ = sendmail
+#else
+deliver y = logLazyText (getLogger y) . Data.Text.Lazy.Encoding.decodeUtf8
+#endif
+
+
 {- markdown utility -}
-markdownToWikiHtml :: (Route master ~ KestrelRoute,
-                       PersistBackend (t (GGHandler sub master m)),
-                       Monad m,
-                       Control.Monad.Trans.Class.MonadTrans t) =>
-                      WriterOptions -> Text -> t (GGHandler sub master m) Html
+markdownToWikiHtml :: forall (m :: * -> *) sub master.
+                      (Route master ~ KestrelRoute, MonadControlIO m) =>
+                      WriterOptions -> Text -> SqlPersist (GGHandler sub master m) Html
 markdownToWikiHtml opt raw = do
   render <- lift getUrlRenderParams
-  pages <- selectList [] [WikiPathAsc, WikiUpdatedDesc] 0 0
+  pages <- selectList [] [Asc WikiPath, Desc WikiUpdated]
   let pandoc = readDoc raw
   let pdict = mkWikiDictionary pages
   return $ preEscapedString $ writeHtmlStr opt render pdict $ pandoc
 
-markdownsToWikiHtmls
-  :: (Route master ~ KestrelRoute,
-      PersistBackend (t (GGHandler sub master m)),
-      Monad m,
-      MonadTrans t) =>
-     WriterOptions -> [Text] -> t (GGHandler sub master m) [Html]
+markdownsToWikiHtmls :: forall (m :: * -> *) sub master.
+                     (Route master ~ KestrelRoute, MonadControlIO m) =>
+                     WriterOptions -> [Text] -> SqlPersist (GGHandler sub master m) [Html]
 markdownsToWikiHtmls opt raws = do
   render <- lift getUrlRenderParams
-  pages <- selectList [] [WikiPathAsc, WikiUpdatedDesc] 0 0
+  pages <- selectList [] [Asc WikiPath, Desc WikiUpdated]
   let pandocs = map readDoc raws
   let pdict = mkWikiDictionary pages
   return $ map (preEscapedString . writeHtmlStr opt render pdict) pandocs

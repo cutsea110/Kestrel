@@ -18,15 +18,15 @@ module Kestrel.Helpers.Auth.HashDB
     , setpassR
     ) where
 
-import Yesod
-import Yesod.Helpers.Auth
+import Yesod hiding (Update)
+import Yesod.Auth
 import Control.Monad (unless)
 import Control.Applicative ((<$>), (<*>))
 import Data.ByteString.Lazy.Char8  (pack)
 import Data.Digest.Pure.SHA        (sha1, showDigest)
 import Data.Text (Text)
 import qualified Data.Text as T
-import Text.Hamlet (preEscapedText)
+import Text.Blaze (preEscapedText)
 
 (+++) :: Text -> Text -> Text
 (+++) = T.append
@@ -104,7 +104,7 @@ class YesodAuth m => YesodAuthHashDB m where
 authHashDB :: YesodAuthHashDB m => AuthPlugin m
 authHashDB =
     AuthPlugin "account" dispatch $ \tm ->
-        [$whamlet|\
+        [whamlet|\
 <form method="post" action="@{tm loginR}">
     <table>
         <tr>
@@ -127,9 +127,9 @@ authHashDB =
 
 postLoginR :: YesodAuthHashDB master => GHandler Auth master ()
 postLoginR = do
-    (account, pass) <- runFormPost' $ (,)
-        <$> stringInput "account"
-        <*> stringInput "password"
+    (account, pass) <- runInputPost $ (,)
+        <$> ireq textField "account"
+        <*> ireq textField "password"
     macreds <- getHashDBCreds account
     maid <-
         case (macreds >>= hashdbCredsAuthId) of
@@ -163,7 +163,7 @@ getPasswordR = do
             redirect RedirectTemporary $ toMaster loginR
     defaultLayout $ do
         setTitle $ preEscapedText $ msgShow ChangePassword
-        [$whamlet|\
+        [whamlet|\
 <h3>_{ChangePassword}
 <form method="post" action="@{toMaster setpassR}">
     <table>
@@ -183,9 +183,9 @@ getPasswordR = do
 postPasswordR :: YesodAuthHashDB master => GHandler Auth master ()
 postPasswordR = do
     msgShow <- getMessageRender
-    (new, confirm) <- runFormPost' $ (,)
-        <$> stringInput "new"
-        <*> stringInput "confirm"
+    (new, confirm) <- runInputPost $ (,)
+        <$> ireq textField "new"
+        <*> ireq textField "confirm"
     toMaster <- getRouteToMaster
     unless (new == confirm) $ do
         setMessage $ preEscapedText $ msgShow PasswordDoesntMatch +++ msgShow ReEnterAgain

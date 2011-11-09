@@ -1,9 +1,9 @@
 {-# LANGUAGE TemplateHaskell, QuasiQuotes, OverloadedStrings #-}
 module Handler.Root where
 
-import Kestrel
-import Yesod.Helpers.AtomFeed
-import Yesod.Helpers.Sitemap
+import Foundation
+import Yesod.AtomFeed
+import Yesod.Sitemap
 import Data.Time
 import qualified Data.Text as T
 
@@ -21,14 +21,14 @@ getRootR = do
 -- Some default handlers that ship with the Yesod site template. You will
 -- very rarely need to modify this.
 getFaviconR :: Handler ()
-getFaviconR = sendFile "image/x-icon" "favicon.ico"
+getFaviconR = sendFile "image/x-icon" "config/favicon.ico"
 
 getRobotsR :: Handler RepPlain
 getRobotsR = robots SitemapR -- return $ RepPlain $ toContent "User-agent: *"
 
 getSitemapR :: Handler RepXml
 getSitemapR = do
-  pages <- runDB $ selectList [] [WikiPathAsc] 0 0
+  pages <- runDB $ selectList [] [Asc WikiPath]
   sitemap $ map go pages
   where
     go (_, p) = SitemapUrl (WikiR $ fromWiki p) (wikiUpdated p) Daily 0.9
@@ -36,7 +36,7 @@ getSitemapR = do
 getFeedR :: Handler RepAtom
 getFeedR = runDB $ do
   msgShow <- lift $ getMessageRender
-  tops <- selectList [] [WikiUpdatedDesc] 10 0
+  tops <- selectList [] [Desc WikiUpdated, LimitTo 10]
   entries <- markdownsToWikiHtmls (noToc msgShow) $ map (wikiContent . snd) tops
   let uday = (wikiUpdated . snd . head) tops
   lift $ atomFeed Feed
@@ -62,7 +62,7 @@ getFeedR = runDB $ do
 getRecentChangesR :: Handler RepJson
 getRecentChangesR = do 
   render <- getUrlRender
-  entries <- runDB $ selectList [] [WikiUpdatedDesc] Settings.numOfRecentChanges 0
+  entries <- runDB $ selectList [] [Desc WikiUpdated, LimitTo Settings.numOfRecentChanges]
   cacheSeconds 10 -- FIXME
   now <- liftIO getCurrentTime
   jsonToRepJson $ jsonMap [("entries", jsonList $ map (go now render) entries)]

@@ -1,11 +1,11 @@
 {-# LANGUAGE TemplateHaskell, OverloadedStrings #-}
 module Handler.Profile where
 
-import Kestrel
-import Settings (juliusFile)
+import Foundation
+import Text.Julius (juliusFile)
 
 import Control.Monad (unless)
-import Text.Hamlet (preEscapedText)
+import Text.Blaze (preEscapedText)
 
 getProfileR :: UserId -> Handler RepHtml
 getProfileR uid = do
@@ -16,7 +16,7 @@ getProfileR uid = do
   u <- runDB $ get404 uid
   defaultLayout $ do
     setTitle "Profile"
-    addJulius $(juliusFile "profile")
+    addJulius $(juliusFile "julius/profile.julius")
     addWidget $(whamletFile "hamlet/viewProfile.hamlet")
 
 postProfileR :: UserId -> Handler ()
@@ -32,7 +32,7 @@ putProfileR uid = do
   msgShow <- getMessageRender
   unless (uid' == uid) $ do
     permissionDenied $ msgShow MsgCouldntAccessAnotherUserProfile
-  nn <- runFormPost' $ stringInput "nickname"
-  runDB $ update uid [UserNickname $ Just nn]
+  nn <- runInputPost $ ireq textField "nickname"
+  runDB $ update uid [UserNickname =. Just nn]
   setMessage $ preEscapedText $ msgShow MsgUpdatedProfile
   redirect RedirectTemporary $ ProfileR uid

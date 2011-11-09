@@ -1,10 +1,13 @@
-{-# LANGUAGE QuasiQuotes, TypeFamilies, GeneralizedNewtypeDeriving, TemplateHaskell #-}
+{-# LANGUAGE QuasiQuotes, TemplateHaskell #-}
+{-# LANGUAGE TypeFamilies, GeneralizedNewtypeDeriving #-}
 {-# LANGUAGE CPP #-}
 {-# LANGUAGE OverloadedStrings #-}
+{-# LANGUAGE GADTs #-}
+{-# OPTIONS_GHC -fspec-constr-count=100 #-}
 module Model where
 
 import Yesod
-import Yesod.Helpers.Crud
+-- import Yesod.Helpers.Crud
 import Data.Time
 import Data.Int
 import Data.Maybe (fromMaybe)
@@ -19,52 +22,11 @@ type Version = Int
 -- You can define all of your database entities here. You can find more
 -- information on persistent and how to declare entities at:
 -- http://docs.yesodweb.com/book/persistent/
-share2 mkPersist (mkMigrate "migrateAll") [$persist|
-User
-    ident Text Asc
-    password Text Maybe Update
-    nickname Text Maybe Update
-    active Bool Eq default=true
-    UniqueUser ident
-    
-Email
-    email Text
-    user UserId Maybe Update
-    verkey Text Maybe Update
-    UniqueEmail email
+share [mkPersist sqlSettings, mkMigrate "migrateAll"] $(persistFile "config/models")
 
-Wiki
-    path Text Asc
-    content Text Update
-    updated UTCTime Update Desc
-    version Version default=0 Add
-    editor UserId Update
-    comment Text Maybe Update
-    UniqueWiki path
-
-WikiHistory
-    wiki WikiId Eq
-    path Text Asc Eq
-    content Text
-    updated UTCTime Desc
-    version Version Eq In Desc
-    editor UserId
-    comment Text Maybe Update
-    UniqueWikiHistory wiki version
-
-FileHeader
-    fullname Text Eq
-    efname Text
-    name Text Eq
-    extension Text Eq
-    contentType Text
-    fileSize Int64
-    creator UserId Eq
-    created UTCTime Desc
-|]
-
-instance Item User where
-  itemTitle = userInfoOneline
+-- FIXME Crud
+-- instance Item User where
+--  itemTitle = userInfoOneline
 
 userDisplayName :: User -> Text
 userDisplayName (User _ _ (Just x) _) = x

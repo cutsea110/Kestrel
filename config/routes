@@ -1,0 +1,27 @@
+/static StaticR Static getStatic
+/auth   AuthR   Auth   getAuth
+/auth-status AuthStatusR GET
+/auth-go AuthToGoR GET
+
+/profile/#UserId ProfileR GET POST PUT
+
+/favicon.ico FaviconR GET
+/robots.txt RobotsR GET
+/sitemap.xml SitemapR GET
+/feed FeedR GET
+/recent-changes.json RecentChangesR GET
+
+/ RootR GET
+
+/kestrel/*WikiPage WikiR GET POST PUT DELETE
+/new NewR GET POST
+/histories/*WikiPage HistoriesR GET
+/history/#Version/*WikiPage HistoryR GET POST PUT
+/either/*WikiPage EitherWikiNewR GET
+
+/wikilist WikiListR GET
+
+/s3/upload UploadR GET POST PUT
+/s3/user/#UserId/file/#FileHeaderId FileR GET POST DELETE
+/s3/user/#UserId/list.json FileListR GET
+-- /admin AdminR UserCrud userCrud -- FIXME
