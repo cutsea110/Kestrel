@@ -389,7 +389,7 @@ writeHtmlStr opt render pages =
   writeHtmlString opt . transformDoc render pages
 
 transformDoc :: (KestrelRoute -> [(Text, Text)] -> Text) -> Map.Map Text Wiki -> Pandoc -> Pandoc
-transformDoc render pages = processWith codeHighlighting . processWith (wikiLink render pages)
+transformDoc render pages = bottomUp codeHighlighting . bottomUp (wikiLink render pages)
 
 -- Wiki Link Sign of WikiName is written as [WikiName]().
 wikiLink :: (KestrelRoute -> [(Text, Text)] -> Text) -> Map.Map Text Wiki -> Inline -> Inline
@@ -411,8 +411,8 @@ codeHighlighting b@(CodeBlock (_, attr, _) src) =
   case marry ls langs of
     l:_ ->
       case Kate.highlightAs l src of
-        Right result -> RawHtml $ showHtmlFragment $ Kate.formatAsXHtml opts l result
-        Left  err    -> RawHtml $ "Could not parse code: " ++ err
+        Right result -> RawBlock "html" $ showHtmlFragment $ Kate.formatAsXHtml opts l result
+        Left  err    -> RawBlock "html" $ "Could not parse code: " ++ err
     _   -> b
   where
     opts = [Kate.OptNumberLines] `mplus` (findRight (P.parse lineNo "") attr)
@@ -442,6 +442,7 @@ findRight p (a:as) = case p a of
 mkWikiDictionary :: [(WikiId, Wiki)] -> Map.Map Text Wiki
 mkWikiDictionary = Map.fromList . map (((,).wikiPath.snd) <*> snd)
 
+-- Network.Gitit.ContentTransformer
 inlinesToString :: [Inline] -> String
 inlinesToString = concatMap go
   where go x = case x of
@@ -455,7 +456,7 @@ inlinesToString = concatMap go
           Quoted DoubleQuote xs   -> '"' : (concatMap go xs ++ "\"")
           Quoted SingleQuote xs   -> '\'' : (concatMap go xs ++ "'")
           Cite _ xs               -> concatMap go xs
-          Code s                  -> s
+          Code _ s                -> s
           Space                   -> " "
           EmDash                  -> "---"
           EnDash                  -> "--"
@@ -464,8 +465,8 @@ inlinesToString = concatMap go
           LineBreak               -> " "
           Math DisplayMath s      -> "$$" ++ s ++ "$$"
           Math InlineMath s       -> "$" ++ s ++ "$"
-          TeX s                   -> s
-          HtmlInline _            -> ""
+          RawInline "tex" s       -> s
+          RawInline _ _           -> ""
           Link xs _               -> concatMap go xs
           Image xs _              -> concatMap go xs
           Note _                  -> ""
