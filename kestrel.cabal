@@ -74,7 +74,8 @@ Executable kestrel
                   , hjsmin       >= 0.0.12  && < 0.1
                   , web-encodings == 0.3.0.7
                   , highlighting-kate
-                  , pandoc       == 1.6.0.1
+                  , pandoc       >= 1.8.2
+                  , pandoc-types >= 1.8.2
                   , utility-ht
                   , Diff
                   , transformers
