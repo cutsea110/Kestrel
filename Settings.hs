@@ -12,6 +12,7 @@ module Settings
     , staticroot
     , staticdir
     , s3dir
+    , s3ThumbnailDir
     , topTitle
     , sidePaneTitle
     , newDays
@@ -71,6 +72,9 @@ widgetFile = Yesod.Default.Util.widgetFileDebug
 
 s3dir :: FilePath
 s3dir = "s3"
+
+s3ThumbnailDir :: FilePath
+s3ThumbnailDir = "s3/_thumbnail"
 
 topTitle :: Text
 topTitle = "Kestrel"

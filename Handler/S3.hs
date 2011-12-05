@@ -21,8 +21,9 @@ import System.FilePath
 import Web.Encodings (encodeUrl)
 import Data.Text (Text)
 import qualified Data.Text as T
-import qualified Settings (s3dir)
+import qualified Settings (s3dir, s3ThumbnailDir)
 import Text.Cassius (cassiusFile)
+import Graphics.Thumbnail
 
 getUploadR :: Handler RepHtml
 getUploadR = do
@@ -52,9 +53,17 @@ upload uid fi = do
                         }
     let s3dir' = Settings.s3dir </> show uid
         s3fp = s3dir' </> show fid
+        thumbDir = Settings.s3ThumbnailDir </> show uid
+        thumbfp = thumbDir </> show fid
     liftIO $ do
       createDirectoryIfMissing True s3dir'
       L.writeFile s3fp (fileContent fi)
+      -- follow thumbnail
+      thumb <- mkThumbnail (fileContent fi)
+      case thumb of
+        Right t -> do createDirectoryIfMissing True thumbDir
+                      L.writeFile thumbfp $ lbs t
+        Left _ -> return ()
     return $ Just (fid, fileName fi, T.pack ext, fsize, now)
     else return Nothing
 
