@@ -41,13 +41,18 @@ upload uid fi = do
     let (name, ext) = splitExtension $ T.unpack $ fileName fi
         efname = encodeUrl $ fileName fi
         fsize = L.length $ fileContent fi
+    (et, width, height) <- liftIO $ do
+      et <- mkThumbnail (fileContent fi)
+      case et of
+        Right t -> return (et, Just (fst (orgSZ t)), Just (snd (orgSZ t)))
+        Left _  -> return (et, Nothing, Nothing)
     fid <-
       insert FileHeader { fileHeaderFullname=fileName fi
                         , fileHeaderEfname=efname
                         , fileHeaderContentType=fileContentType fi
                         , fileHeaderFileSize=fsize
-                        , fileHeaderWidth=Nothing
-                        , fileHeaderHeight=Nothing
+                        , fileHeaderWidth=width
+                        , fileHeaderHeight=height
                         , fileHeaderName=T.pack name
                         , fileHeaderExtension=T.pack ext
                         , fileHeaderCreator=uid
@@ -57,20 +62,14 @@ upload uid fi = do
         s3fp = s3dir' </> show fid
         thumbDir = Settings.s3ThumbnailDir </> show uid
         thumbfp = thumbDir </> show fid
-    mt <- liftIO $ do
+    liftIO $ do
       createDirectoryIfMissing True s3dir'
       L.writeFile s3fp (fileContent fi)
       -- follow thumbnail
-      thumb <- mkThumbnail (fileContent fi)
-      case thumb of
+      case et of
         Right t -> do createDirectoryIfMissing True thumbDir
                       L.writeFile thumbfp $ lbs t
-                      return $ Just t
-        Left _ -> return Nothing
-    case mt of
-      Just t -> update fid [ FileHeaderWidth =. Just (fst (orgSZ t))
-                           , FileHeaderHeight =. Just (snd (orgSZ t))]
-      Nothing -> return ()
+        Left _ -> return ()
     return $ Just (fid, fileName fi, T.pack ext, fsize, now)
     else return Nothing
 

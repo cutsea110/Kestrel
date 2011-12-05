@@ -37,7 +37,7 @@ FileHeader
     extension Text Eq
     contentType Text
     fileSize Int64
-    width Int Maybe Update
-    height Int Maybe Update
+    width Int Maybe
+    height Int Maybe
     creator UserId Eq
     created UTCTime Desc
