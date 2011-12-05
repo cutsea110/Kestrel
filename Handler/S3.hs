@@ -46,6 +46,8 @@ upload uid fi = do
                         , fileHeaderEfname=efname
                         , fileHeaderContentType=fileContentType fi
                         , fileHeaderFileSize=fsize
+                        , fileHeaderWidth=Nothing
+                        , fileHeaderHeight=Nothing
                         , fileHeaderName=T.pack name
                         , fileHeaderExtension=T.pack ext
                         , fileHeaderCreator=uid
@@ -55,7 +57,7 @@ upload uid fi = do
         s3fp = s3dir' </> show fid
         thumbDir = Settings.s3ThumbnailDir </> show uid
         thumbfp = thumbDir </> show fid
-    liftIO $ do
+    mt <- liftIO $ do
       createDirectoryIfMissing True s3dir'
       L.writeFile s3fp (fileContent fi)
       -- follow thumbnail
@@ -63,7 +65,12 @@ upload uid fi = do
       case thumb of
         Right t -> do createDirectoryIfMissing True thumbDir
                       L.writeFile thumbfp $ lbs t
-        Left _ -> return ()
+                      return $ Just t
+        Left _ -> return Nothing
+    case mt of
+      Just t -> update fid [ FileHeaderWidth =. Just (fst (orgSZ t))
+                           , FileHeaderHeight =. Just (snd (orgSZ t))]
+      Nothing -> return ()
     return $ Just (fid, fileName fi, T.pack ext, fsize, now)
     else return Nothing
 
