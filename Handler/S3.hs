@@ -141,8 +141,14 @@ deleteFileR uid fid = do
     runDB $ delete fid
     let s3dir' = Settings.s3dir </> show uid
         s3fp = s3dir' </> show fid
+        thumbDir = Settings.s3ThumbnailDir </> show uid
+        thumbfp = thumbDir </> show fid
         rf = (dropPrefix (approot y) $ r $ FileR uid fid)
-    liftIO $ removeFile s3fp
+    liftIO $ do
+      exist <- doesFileExist s3fp
+      if exist then removeFile s3fp else return ()
+      exist' <- doesFileExist thumbfp
+      if exist' then removeFile thumbfp else return ()
     fmap RepXml $ hamletToContent
                   [xhamlet|\
 <deleted>
