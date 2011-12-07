@@ -116,10 +116,13 @@ $(document).ready(function(){
          function(res) {
            var file = $(res).find('file'),
                uri = file.find('uri').text(),
+               thumbnail_uri = file.find('thumbnail_uri').text(),
                name = file.find('name').text(),
                ext = file.find('ext').text(),
                size = file.find('size').text(),
-               g = makeImageLink(uri, name, ext, size, pos);
+               wd = file.find('width').text(),
+               ht = file.find('height').text(),
+               g = makeImageLink(uri, thumbnail_uri, name, ext, size, pos, wd, ht);
                g.prependTo("#selectable_images");
                $('#upload_file').val('');
                $('#upload_file').change();
@@ -150,7 +153,7 @@ $(document).ready(function(){
       function(data){
         $.each(data.files,
           function(i,item){
-            var g = makeImageLink(item.uri, item.name, item.ext, item.size, pos);
+            var g = makeImageLink(item.uri, item.thumbnail_uri, item.name, item.ext, item.size, pos, item.width, item.height);
             g.appendTo("#selectable_images");
         });
       });
@@ -184,19 +187,10 @@ $(document).ready(function(){
 
 });
 
-function thumbnailUri(ext) {
-  extLow = ext.toLowerCase();
-  if (extLow=='.gif'||extLow=='.jpg'||extLow=='.jpeg'||extLow=='.png') {
-    return '';
-  }else{
-    return "@{StaticR img_file_icon_png}";
-  }
-}
-
-function makeImageLink(uri,name,ext,size,pos){
+function makeImageLink(uri,thumburi,name,ext,size,pos,wd,ht){
   var uncache = jQuery.browser.msie ? "?uncache="+(new Date).getTime() : "",
-      thumbnail = thumbnailUri(ext),
-      imgP = !thumbnail,
+      thumbnail = thumburi || "@{StaticR img_file_icon_png}",
+      imgP = thumburi,
       iconsrc = thumbnail || uri,
       img = $("<img/>").attr({src:iconsrc+uncache}),
       anc = $("<a/>").attr({href:"#"}),
@@ -209,7 +203,7 @@ function makeImageLink(uri,name,ext,size,pos){
         oh = $(this).height(),
         nh = 36,
         nw = ow*36/oh,
-        altstr = imgP ? name + ' [' + oh + 'x' + ow + ']' : name + ' [' + addFigure(size) + ']';
+        altstr = imgP ? name + ' [' + ht + 'x' + wd + ']' : name + ' [' + addFigure(size) + ']';
     $(this).attr({height: nh, width: nw, uri: uri, alt: altstr, fname: name})
            .bubbleup({tooltip:true, scale: 64})
            .closest('li').css({width: nw, height: nh});
