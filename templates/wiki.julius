@@ -1,18 +1,18 @@
 $(document).ready(function(){
   var hideTOC = true;
 
-  $("#pandoc-TOC-toggle").text(hideTOC ? '_{MsgShowTOC}' : '_{MsgHideTOC}');
+  $("#pandoc-TOC-toggle").text(hideTOC ? '#{msgShow MsgShowTOC}' : '#{msgShow MsgHideTOC}');
   $("#pandoc-TOC-Title,#pandoc-TOC").toggleClass("hidden", hideTOC);
 
   $("#pandoc-TOC-toggle").click(function(){
     hideTOC = !hideTOC;
-    $(this).text(hideTOC ? '_{MsgShowTOC}' : '_{MsgHideTOC}');
+    $(this).text(hideTOC ? '#{msgShow MsgShowTOC}' : '#{msgShow MsgHideTOC}');
     $("#pandoc-TOC-Title,#pandoc-TOC").toggleClass("hidden", hideTOC);
     return false;
   });
 
   $(".inplaceedit").exInPlaceEditor({
-    nulltext: "_{MsgNullText}",
+    nulltext: "#{msgShow MsgNullText}",
     onsave: function(api) {
       var text = api.getEditor(),
           data = '_method=modify&'+text.attr('name')+'='+api.getValue();

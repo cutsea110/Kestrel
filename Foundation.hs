@@ -5,8 +5,8 @@
 {-# LANGUAGE FlexibleInstances #-}
 {-# LANGUAGE Rank2Types #-}
 {-# LANGUAGE CPP #-}
-{-# OPTIONS_GHC -fno-warn-missing-signatures #-}
 {-# OPTIONS_GHC -fspec-constr-count=100 #-}
+{-# OPTIONS_GHC -fno-warn-missing-signatures #-}
 module Foundation
     ( Kestrel (..)
     , KestrelRoute (..)
@@ -186,9 +186,9 @@ instance Yesod Kestrel where
         let mgaUA = Settings.googleAnalyticsUA
             maTUser = Settings.addThisUser
             googleInurl = dropSchema $ approot y
-            ga = $(ihamletFile "hamlet/ga.hamlet")
-            header = $(ihamletFile "hamlet/header.hamlet")
-            footer = $(ihamletFile "hamlet/footer.hamlet")
+            ga = $(ihamletFile "templates/ga.hamlet")
+            header = $(ihamletFile "templates/header.hamlet")
+            footer = $(ihamletFile "templates/footer.hamlet")
         pc <- widgetToPageContent $ do
           widget
           addScriptEither $ urlJqueryJs y
@@ -199,10 +199,10 @@ instance Yesod Kestrel where
           addScriptEither $ Left $ StaticR plugins_exinplaceeditor_jquery_exinplaceeditor_0_1_3_js
           addStylesheetEither $ Left $ StaticR plugins_exinplaceeditor_exinplaceeditor_css
           addScriptEither $ Left $ StaticR plugins_watermark_jquery_watermark_js
-          addCassius $(cassiusFile "cassius/default-layout.cassius")
-          addJulius $(juliusFile "julius/default-layout.julius")
+          addCassius $(cassiusFile "templates/default-layout.cassius")
+          addJulius $(juliusFile "templates/default-layout.julius")
           atomLink FeedR $ T.unpack Settings.topTitle
-        ihamletToRepHtml $(ihamletFile "hamlet/default-layout.hamlet")
+        ihamletToRepHtml $(ihamletFile "templates/default-layout.hamlet")
         
     -- This is done to provide an optimization for serving static files from
     -- a separate domain. Please see the staticroot setting in Settings.hs
@@ -311,8 +311,8 @@ instance YesodAuth Kestrel where
     loginHandler = do
       defaultLayout $ do
         setTitle "Login"
-        addCassius $(cassiusFile "cassius/login.cassius")
-        addWidget $(whamletFile "hamlet/login.hamlet")
+        addCassius $(cassiusFile "templates/login.cassius")
+        addWidget $(whamletFile "templates/login.hamlet")
 
 instance YesodAuthHashDB Kestrel where
     type AuthHashDBId Kestrel = UserId
