@@ -212,6 +212,9 @@ instance Yesod Kestrel where
 
     -- The page to be redirected to when authentication is required.
     authRoute _ = Just $ AuthR LoginR
+    
+    -- Maximum allowed length of the request body, in bytes.
+    maximumContentLength _ _ = 20 * 1024 * 1024 -- 20 megabytes
 
     messageLogger y loc level msg =
       formatLogMessage loc level msg >>= logLazyText (getLogger y)
