@@ -6,6 +6,7 @@
 {-# LANGUAGE Rank2Types #-}
 {-# LANGUAGE CPP #-}
 {-# OPTIONS_GHC -fspec-constr-count=100 #-}
+{-# OPTIONS_GHC -fno-warn-missing-signatures #-}
 module Foundation
     ( Kestrel (..)
     , KestrelRoute (..)
@@ -342,9 +343,6 @@ deliver y = logLazyText (getLogger y) . Data.Text.Lazy.Encoding.decodeUtf8
 
 
 {- markdown utility -}
-markdownToWikiHtml :: forall (m :: * -> *) sub master.
-                      (Route master ~ KestrelRoute, MonadControlIO m) =>
-                      WriterOptions -> Text -> SqlPersist (GGHandler sub master m) Html
 markdownToWikiHtml opt raw = do
   render <- lift getUrlRenderParams
   pages <- selectList [] [Asc WikiPath, Desc WikiUpdated]
@@ -352,9 +350,6 @@ markdownToWikiHtml opt raw = do
   let pdict = mkWikiDictionary pages
   return $ preEscapedString $ writeHtmlStr opt render pdict $ pandoc
 
-markdownsToWikiHtmls :: forall (m :: * -> *) sub master.
-                     (Route master ~ KestrelRoute, MonadControlIO m) =>
-                     WriterOptions -> [Text] -> SqlPersist (GGHandler sub master m) [Html]
 markdownsToWikiHtmls opt raws = do
   render <- lift getUrlRenderParams
   pages <- selectList [] [Asc WikiPath, Desc WikiUpdated]
