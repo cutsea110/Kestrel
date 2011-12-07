@@ -1,5 +1,5 @@
-<h3>_{MsgSimpleFileUploader}
+<h3>#{msg MsgSimpleFileUploader}
 \
 <form method="post" enctype="multipart/form-data" action="@{UploadR}">
   <input id="upload_file" type="file" name="upfile">
-  <button id="go_upload" type="submit" name="_method" value="upload">_{MsgFileGallery}
+  <button id="go_upload" type="submit" name="_method" value="upload">#{msg MsgFileGallery}
