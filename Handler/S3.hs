@@ -28,7 +28,7 @@ getUploadR :: Handler RepHtml
 getUploadR = do
   (uid,_) <- requireAuth
   defaultLayout $ do
-    addCassius $(cassiusFile "cassius/s3/s3.cassius")
+    addCassius $(cassiusFile "templates/s3/s3.cassius")
     addWidget $(widgetFile "s3/upload")
 
 upload :: PersistBackend b m =>
