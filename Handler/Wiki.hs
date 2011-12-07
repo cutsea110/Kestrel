@@ -265,7 +265,6 @@ getNewR = do
   where
     viewNew :: Handler RepHtml
     viewNew = do
-      msgShow <- getMessageRender
       path'' <- lookupGetParam "path"
       case path'' of
         Nothing -> invalidArgs ["'path' query paramerter is required."]
@@ -283,7 +282,6 @@ getNewR = do
     editNew :: Handler RepHtml
     editNew = do
       (uid, _) <- requireAuth
-      msgShow <- getMessageRender
       path'' <- lookupGetParam "path"
       case path'' of
         Nothing -> invalidArgs ["'path' query paramerter is required."]
@@ -392,7 +390,6 @@ getHistoriesR wp = do
     historyList :: Version -> Handler RepHtml
     historyList ver = do
       mu <- maybeAuth
-      msgShow <- getMessageRender
       let path = pathOf wp
           isTop = wp == topPage
           isNull = (""==)
@@ -473,7 +470,6 @@ getHistoryR vsn wp = do
     -- pages
     viewHistory :: Version -> Handler RepHtml
     viewHistory v = do
-      msgShow <- getMessageRender
       (path, raw, content, upd, _, me, isTop, curp) <- getHistory v
       let editMe = (WikiR wp, [("mode", "e")])
           deleteMe = (WikiR wp, [("mode", "d")])
@@ -490,7 +486,6 @@ getHistoryR vsn wp = do
     editHistory :: Version -> Handler RepHtml
     editHistory v = do
       (uid, _) <- requireAuth
-      msgShow <- getMessageRender
       (path, raw, content, upd, _, me, isTop, curp) <- getHistory v
       let editMe = (WikiR wp, [("mode", "e")])
           deleteMe = (WikiR wp, [("mode", "d")])
@@ -506,7 +501,6 @@ getHistoryR vsn wp = do
     revertHistory :: Version -> Handler RepHtml
     revertHistory v = do
       (uid, _) <- requireAuth
-      msgShow <- getMessageRender
       (path, raw, content, upd, _, me, isTop, curp) <- getHistory v
       let editMe = (WikiR wp, [("mode", "e")])
           deleteMe = (WikiR wp, [("mode", "d")])
