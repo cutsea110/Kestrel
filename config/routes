@@ -25,4 +25,6 @@
 /s3/user/#UserId/file/#FileHeaderId FileR GET POST DELETE
 /s3/user/#UserId/list.json FileListR GET
 /s3/user/#UserId/thumbnail/#FileHeaderId ThumbnailR GET
+
+/system-batch SystemBatchR GET POST
 -- /admin AdminR UserCrud userCrud -- FIXME

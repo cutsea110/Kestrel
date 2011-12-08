@@ -6,6 +6,11 @@ import Yesod.AtomFeed
 import Yesod.Sitemap
 import Data.Time
 import qualified Data.Text as T
+import Control.Monad (forM_)
+import System.FilePath ((</>))
+import System.Directory (createDirectoryIfMissing)
+import qualified Data.ByteString.Lazy as L
+import Graphics.Thumbnail
 
 import qualified Settings
 
@@ -89,3 +94,44 @@ getAuthToGoR = do
     Just r -> do
       _ <- requireAuth
       redirectText RedirectTemporary r
+
+getSystemBatchR :: Handler RepHtml
+getSystemBatchR = do
+  (_, self) <- requireAuth
+  defaultLayout $ do
+    setTitle "システムバッチ"
+    addWidget $(widgetFile "systembatch")
+
+postSystemBatchR :: Handler RepHtml
+postSystemBatchR = do
+  _ <- requireAuth
+  method <- lookupPostParam "_method"
+  case method of
+    Just "thumbnail_update" -> thumbnailUpdate
+    _ -> invalidArgs ["The possible value of '_method' is thumbnail_update."]
+  where
+    thumbnailUpdate :: Handler RepHtml
+    thumbnailUpdate = do
+      runDB $ do
+        files <- selectList [] []
+        files' <- liftIO $ mapM upgradeThumbnail files
+        forM_ files' $ \(fid, w, h, imgp) -> do
+          update fid [ FileHeaderWidth =. w 
+                     , FileHeaderHeight =. h
+                     , FileHeaderThumbnail =. imgp ]
+      redirect RedirectTemporary SystemBatchR
+    upgradeThumbnail :: (FileHeaderId, FileHeader) -> IO (FileHeaderId, Maybe Int, Maybe Int, Bool)
+    upgradeThumbnail (fid, fh) = do
+      let uid = fileHeaderCreator fh 
+          s3dir' = Settings.s3dir </> show uid
+          s3fp = s3dir' </> show fid
+          thumbDir = Settings.s3ThumbnailDir </> show uid
+          thumbfp = thumbDir </> show fid
+      bs <- L.readFile s3fp
+      et <- mkThumbnail bs
+      case et of
+        Right t -> do
+          createDirectoryIfMissing True thumbDir
+          saveFile t thumbfp
+          return (fid, Just (fst (orgSZ t)), Just (snd (orgSZ t)), True)
+        Left _ -> return (fid, Nothing, Nothing, False)
