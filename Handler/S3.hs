@@ -9,6 +9,7 @@ module Handler.S3
        , postFileR
        , deleteFileR
        , getFileListR
+       , getThumbnailR
        ) where
 
 import Foundation
@@ -21,8 +22,9 @@ import System.FilePath
 import Web.Encodings (encodeUrl)
 import Data.Text (Text)
 import qualified Data.Text as T
-import qualified Settings (s3dir)
+import qualified Settings (s3dir, s3ThumbnailDir)
 import Text.Cassius (cassiusFile)
+import Graphics.Thumbnail
 
 getUploadR :: Handler RepHtml
 getUploadR = do
@@ -33,7 +35,7 @@ getUploadR = do
     addWidget $(widgetFile "s3/upload")
 
 upload :: PersistBackend b m =>
-          Key backend User -> FileInfo -> b m (Maybe (Key b (FileHeaderGeneric backend), Text, Text, Int64, UTCTime))
+          Key backend User -> FileInfo -> b m (Maybe (Key b (FileHeaderGeneric backend), Text, Text, Int64, UTCTime, Bool, Maybe Int, Maybe Int))
 upload uid fi = do
   if fileName fi /= "" && L.length (fileContent fi) > 0
     then do
@@ -41,11 +43,19 @@ upload uid fi = do
     let (name, ext) = splitExtension $ T.unpack $ fileName fi
         efname = encodeUrl $ fileName fi
         fsize = L.length $ fileContent fi
+    (et, width, height, imagep) <- liftIO $ do
+      et <- mkThumbnail (fileContent fi)
+      case et of
+        Right t -> return (et, Just (fst (orgSZ t)), Just (snd (orgSZ t)), True)
+        Left _  -> return (et, Nothing, Nothing, False)
     fid <-
       insert FileHeader { fileHeaderFullname=fileName fi
                         , fileHeaderEfname=efname
                         , fileHeaderContentType=fileContentType fi
                         , fileHeaderFileSize=fsize
+                        , fileHeaderWidth=width
+                        , fileHeaderHeight=height
+                        , fileHeaderThumbnail=imagep
                         , fileHeaderName=T.pack name
                         , fileHeaderExtension=T.pack ext
                         , fileHeaderCreator=uid
@@ -53,10 +63,17 @@ upload uid fi = do
                         }
     let s3dir' = Settings.s3dir </> show uid
         s3fp = s3dir' </> show fid
+        thumbDir = Settings.s3ThumbnailDir </> show uid
+        thumbfp = thumbDir </> show fid
     liftIO $ do
       createDirectoryIfMissing True s3dir'
       L.writeFile s3fp (fileContent fi)
-    return $ Just (fid, fileName fi, T.pack ext, fsize, now)
+      -- follow thumbnail
+      case et of
+        Right t -> do createDirectoryIfMissing True thumbDir
+                      saveFile t thumbfp
+        Left _ -> return ()
+    return $ Just (fid, fileName fi, T.pack ext, fsize, now, imagep, width, height)
     else return Nothing
 
 postUploadR :: Handler RepXml
@@ -71,9 +88,10 @@ postUploadR = do
       mf <- runDB $ upload uid fi
       case mf of
         Nothing -> invalidArgs ["upload file is required."]
-        Just (fid, name, ext, fsize, cdate) -> do
+        Just (fid, name, ext, fsize, cdate, imgp, wd, ht) -> do
           cacheSeconds 10 -- FIXME
           let rf = (dropPrefix (approot y) $ r $ FileR uid fid)
+              trf = (dropPrefix (approot y) $ r $ ThumbnailR uid fid) 
           fmap RepXml $ hamletToContent
                       [xhamlet|\
 <file>
@@ -83,6 +101,18 @@ postUploadR = do
   <size>#{show fsize}
   <cdate>#{show cdate}
   <uri>#{rf}
+  $if imgp
+    <thumbnail_uri>#{trf}
+  $else
+    <thumbnail_uri>
+  $maybe w <- wd
+    <width>#{w}
+  $nothing
+    <width>
+  $maybe h <- ht
+    <height>#{h}
+  $nothing
+    <height>
 |]
 
 putUploadR :: Handler RepHtml
@@ -95,7 +125,7 @@ putUploadR = do
       mf <- runDB $ upload uid fi
       case mf of
         Nothing -> invalidArgs ["upload file is required."]
-        Just (fid, _, _, _, _) -> sendResponseCreated $ FileR uid fid
+        Just (fid, _, _, _, _, _, _, _) -> sendResponseCreated $ FileR uid fid
 
 
 getFileR :: UserId -> FileHeaderId -> Handler RepHtml
@@ -127,8 +157,14 @@ deleteFileR uid fid = do
     runDB $ delete fid
     let s3dir' = Settings.s3dir </> show uid
         s3fp = s3dir' </> show fid
+        thumbDir = Settings.s3ThumbnailDir </> show uid
+        thumbfp = thumbDir </> show fid
         rf = (dropPrefix (approot y) $ r $ FileR uid fid)
-    liftIO $ removeFile s3fp
+    liftIO $ do
+      exist <- doesFileExist s3fp
+      if exist then removeFile s3fp else return ()
+      exist' <- doesFileExist thumbfp
+      if exist' then removeFile thumbfp else return ()
     fmap RepXml $ hamletToContent
                   [xhamlet|\
 <deleted>
@@ -147,7 +183,10 @@ getFileListR uid = do
     go y r (fid, FileHeader
                { fileHeaderFullname = name
                , fileHeaderExtension = ext
+               , fileHeaderThumbnail = imgp
                , fileHeaderFileSize = size
+               , fileHeaderWidth = width
+               , fileHeaderHeight = height
                , fileHeaderCreated = cdate
                }) = 
       jsonMap [ ("name", jsonScalar $ T.unpack name)
@@ -155,4 +194,26 @@ getFileListR uid = do
               , ("size", jsonScalar $ show size)
               , ("cdate", jsonScalar $ show cdate)
               , ("uri", jsonScalar $ T.unpack $ (dropPrefix (approot y) $ r $ FileR uid fid))
+              , ("thumbnail_uri", thumbnailUri)
+              , ("width", jsonScalar $ show w)
+              , ("height", jsonScalar $ show h)
               ]
+      where
+        thumbnailUri = if imgp                                  
+                       then jsonScalar $ T.unpack $ (dropPrefix (approot y) $ r $ ThumbnailR uid fid)
+                       else jsonScalar ""
+        w = case width of
+          Just x -> x
+          Nothing -> 0
+        h = case height of
+          Just x -> x
+          Nothing -> 0
+
+getThumbnailR :: UserId -> FileHeaderId -> Handler RepHtml
+getThumbnailR uid fid = do
+  h <- runDB $ get404 fid
+  let thumbDir = Settings.s3ThumbnailDir </> show uid
+      thumbfp = thumbDir </> show fid
+  setHeader "Content-Type" $ pack $ T.unpack $ fileHeaderContentType h
+  setHeader "Content-Disposition" $ pack $ T.unpack $ "attachment; filename=" +++ fileHeaderEfname h
+  return $ RepHtml $ ContentFile thumbfp Nothing

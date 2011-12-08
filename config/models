@@ -37,5 +37,8 @@ FileHeader
     extension Text Eq
     contentType Text
     fileSize Int64
+    width Int Maybe
+    height Int Maybe
+    thumbnail Bool default=False
     creator UserId Eq
     created UTCTime Desc
