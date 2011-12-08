@@ -113,3 +113,8 @@ RewindToThePreviousVerOfTheConfirmationDisplayOf path@Text: `#{path}' の表示�
 Rewind v@Int: 第 #{show v} 版に巻き戻し.
 ConfirmRewindLastChance: この旧版に巻き戻しをしますか?
 RewindToThisEdition: この版に巻き戻す.
+
+# systemBatch
+SystemBatch: システムバッチ
+RebuildThumbnailHeader: サムネイル画像再構築
+RebuildThumbnail: サムネイル画像を再構築する.
