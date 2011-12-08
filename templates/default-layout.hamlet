@@ -38,6 +38,7 @@
            <div id="photo-gallery" .scroll>
              <ul id="selectable_images" .inline>
            <hr>
+           <div id="upload_error" .errors.hide>_{MsgFailToUploadFile}
            <form id="upload_form" method="post" enctype="multipart/form-data" action="@{UploadR}">
              <div id="fields" .inline>
                <input id="upload_file" type="file" name="upfile">

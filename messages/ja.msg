@@ -17,6 +17,7 @@ Go: Go
 SearchPlaceholder: Search...
 UploadFile: ファイルをアップロードする
 Login: ログイン
+FailToUploadFile: ファイルのアップロードに失敗しました
 
 # default-layout.julius
 RecentChanges: 最近の更新

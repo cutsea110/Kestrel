@@ -17,6 +17,7 @@ Go: Go
 SearchPlaceholder: Search...
 UploadFile: Upload file
 Login: Login
+FailToUploadFile: Fail to upload file
 
 # default-layout.julius
 RecentChanges: Recent Changes

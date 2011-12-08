@@ -13,6 +13,8 @@ $(document).ready(function(){
     });
   }
 
+  $(".hide").hide();
+
   $("#message").fadeOut(3000, function(){$(this).remove();});
 
   $("form.validate").submit(function(){
@@ -108,21 +110,27 @@ $(document).ready(function(){
 
   var pos;
 
+
   $("#go_upload")
   .attr('disabled','disabled')
   .click(function(){
     $("#fields")
     .upload($("#upload_form").attr('action'),
          function(res) {
-           var file = $(res).find('file'),
-               uri = file.find('uri').text(),
-               name = file.find('name').text(),
-               ext = file.find('ext').text(),
-               size = file.find('size').text(),
-               g = makeImageLink(uri, name, ext, size, pos);
-               g.prependTo("#selectable_images");
-               $('#upload_file').val('');
-               $('#upload_file').change();
+           if (res['readyState'] == 'complete') {
+             var file = $(res).find('file'),
+                 uri = file.find('uri').text(),
+                 name = file.find('name').text(),
+                 ext = file.find('ext').text(),
+                 size = file.find('size').text(),
+                 g = makeImageLink(uri, name, ext, size, pos);
+             g.prependTo("#selectable_images");
+             $("#upload_error").hide();
+           } else {
+             $("#upload_error").show();
+           }
+           $('#upload_file').val('');
+           $('#upload_file').change();
          }, 'xml');
     return false;
   });
