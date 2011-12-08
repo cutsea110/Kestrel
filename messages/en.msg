@@ -113,3 +113,8 @@ RewindToThePreviousVerOfTheConfirmationDisplayOf path@Text: Rewind to the previo
 Rewind v@Int: Rewind Ver.#{show v}.
 ConfirmRewindLastChance: Do you want to rewind to a previous version of this?
 RewindToThisEdition: Rewind to this edition.
+
+# systemBatch
+SystemBatch: System Batch
+RebuildThumbnailHeader: Rebuild Thumbnail image from all uploaded images
+RebuildThumbnail: Rebuild Thumbnail.
