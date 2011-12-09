@@ -214,7 +214,9 @@ instance Yesod Kestrel where
     authRoute _ = Just $ AuthR LoginR
     
     -- Maximum allowed length of the request body, in bytes.
-    maximumContentLength _ _ = 20 * 1024 * 1024 -- 20 megabytes
+    maximumContentLength _ (Just UploadR)     = 20 * 1024 * 1024 -- 20 megabytes
+    maximumContentLength _ (Just (FileR _ _)) = 20 * 1024 * 1024 -- 20 megabytes
+    maximumContentLength _ _                  =  2 * 1024 * 1024 --  2 megabytes for default
 
     messageLogger y loc level msg =
       formatLogMessage loc level msg >>= logLazyText (getLogger y)
