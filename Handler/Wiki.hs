@@ -15,6 +15,7 @@ import Data.Tuple.HT
 import Data.Algorithm.Diff
 import Data.List (groupBy)
 import Data.Text (Text)
+import Data.String (IsString)
 import qualified Data.Text as T
 import Text.Blaze (preEscapedText)
 import Text.Cassius (cassiusFile)
@@ -23,6 +24,11 @@ import Text.Julius (juliusFile)
 import Settings (topTitle)
 import Settings.StaticFiles
 
+getDoc :: (IsString t, Monad m, Eq t) => [t] -> GGWidget master m ()
+getDoc [] = $(whamletFile "templates/markdown-help-en.hamlet")
+getDoc ("en":_) = $(whamletFile "templates/markdown-help-en.hamlet")
+getDoc ("ja":_) = $(whamletFile "templates/markdown-help-ja.hamlet")
+getDoc (_:ds) = getDoc ds
 
 getEitherWikiNewR :: WikiPage -> Handler RepHtml
 getEitherWikiNewR wp = do
@@ -156,9 +162,10 @@ $if not (isNull blocks)
       (uid, _) <- requireAuth
       msgShow <- getMessageRender
       (path, raw, content, upd, ver, _, isTop) <- getwiki (wikiWriterOption msgShow)
+      langs <- languages
       let editMe = (WikiR wp, [("mode", "e")])
           deleteMe = (WikiR wp, [("mode", "d")])
-          markdown = $(whamletFile "templates/markdown-ja.hamlet")
+          markdown = getDoc langs
       defaultLayout $ do
         setTitle $ preEscapedText path
         addWidget $(widgetFile "wiki")
@@ -200,9 +207,10 @@ postWikiR wp = do
                          <*> iopt textField "comment"
                          <*> ireq intField "version"
       content <- runDB $ markdownToWikiHtml (wikiWriterOption msgShow) raw
+      langs <- languages
       let editMe = (WikiR wp, [("mode", "e")])
           deleteMe = (WikiR wp, [("mode", "d")])
-          markdown = $(whamletFile "templates/markdown-ja.hamlet")
+          markdown = getDoc langs
       defaultLayout $ do
         setTitle $ preEscapedText path
         addWidget $(widgetFile "wiki")
@@ -288,11 +296,12 @@ getNewR = do
       case path'' of
         Nothing -> invalidArgs ["'path' query paramerter is required."]
         Just path' -> do
+          langs <- languages
           let path = decodeUrl path'
               isTop = path==Settings.topTitle
               viewMe = (NewR, [("path", path'), ("mode", "v")])
               editMe = (NewR, [("path", path'), ("mode", "e")])
-              markdown = $(whamletFile "templates/markdown-ja.hamlet")
+              markdown = getDoc langs
           defaultLayout $ do
             setTitle $ preEscapedText path
             addWidget $(widgetFile "wiki")
@@ -316,11 +325,12 @@ postNewR = do
                            <$> ireq textField "path"
                            <*> ireq textField "content"
                            <*> iopt textField "comment"
+      langs <- languages
       let path = decodeUrl path'
           isTop = path == Settings.topTitle
           viewMe = (NewR, [("path", path'), ("mode", "v")])
           editMe = (NewR, [("path", path'), ("mode", "e")])
-          markdown = $(whamletFile "templates/markdown-ja.hamlet")
+          markdown = getDoc langs
       content <- runDB $ markdownToWikiHtml (wikiWriterOption msgShow) raw
       defaultLayout $ do
         setTitle $ preEscapedText path
@@ -492,11 +502,12 @@ getHistoryR vsn wp = do
       (uid, _) <- requireAuth
       msgShow <- getMessageRender
       (path, raw, content, upd, _, me, isTop, curp) <- getHistory v
+      langs <- languages
       let editMe = (WikiR wp, [("mode", "e")])
           deleteMe = (WikiR wp, [("mode", "d")])
           ver = wikiVersion curp
           notCurrent =  v /= ver
-          markdown = $(whamletFile "templates/markdown-ja.hamlet")
+          markdown = getDoc langs
       defaultLayout $ do
         setTitle $ preEscapedText path
         addWidget $(widgetFile "wiki")
@@ -569,10 +580,11 @@ postHistoryR vsn wp = do
                             <*> ireq intField "version"
                             <*> ireq intField "original_version"
       content <- runDB $ markdownToWikiHtml (wikiWriterOption msgShow) raw
+      langs <- languages
       let editMe = (WikiR wp, [("mode", "e")])
           deleteMe = (WikiR wp, [("mode", "d")])
           notCurrent = v /= ver
-          markdown = $(whamletFile "templates/markdown-ja.hamlet")
+          markdown = getDoc langs
       defaultLayout $ do
         setTitle $ preEscapedText path
         addWidget $(widgetFile "wiki")
