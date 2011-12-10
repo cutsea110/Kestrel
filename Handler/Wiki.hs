@@ -167,7 +167,7 @@ $if not (isNull blocks)
           deleteMe = (WikiR wp, [("mode", "d")])
           markdown = getDoc langs
           toBool = maybe False (const True)
-          donttouch = Nothing
+          donttouch = if isSidePane path then Just undefined else Nothing
       defaultLayout $ do
         setTitle $ preEscapedText path
         addWidget $(widgetFile "wiki")
@@ -312,7 +312,7 @@ getNewR = do
               editMe = (NewR, [("path", path'), ("mode", "e")])
               markdown = getDoc langs
               toBool = maybe False (const True)
-              donttouch = Nothing
+              donttouch = if isSidePane path then Just undefined else Nothing
           defaultLayout $ do
             setTitle $ preEscapedText path
             addWidget $(widgetFile "wiki")

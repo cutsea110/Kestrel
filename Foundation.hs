@@ -29,6 +29,7 @@ module Foundation
     , sidePane
     , sidePaneNew
     , simpleSidePane
+    , isSidePane
     , lastNameOf
     , pathOf
     , fromPath
@@ -150,9 +151,10 @@ sidePaneView :: KestrelRoute
 sidePaneView = WikiR sidePane
 sidePaneNew :: (KestrelRoute, [(Text, Text)])
 sidePaneNew = (NewR, [("path", encodeUrl Settings.sidePaneTitle), ("mode", "e")])
-
 simpleSidePane :: (KestrelRoute, [(Text, Text)])
 simpleSidePane = (WikiR sidePane, [("mode", "s")])
+isSidePane :: Text -> Bool
+isSidePane p = Settings.sidePaneTitle == p
 
 pathOf :: WikiPage -> Text
 pathOf = T.intercalate ":" . unWikiPage
