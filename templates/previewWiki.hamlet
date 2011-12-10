@@ -23,6 +23,8 @@
     <input type="hidden" name="version" value="#{show ver}">
     <button type="submit" name="_method" value="preview">_{MsgMorePreview}
     <button type="submit" name="_method" value="commit">_{MsgUpdate}
+    <input type="checkbox" name="donttouch" :toBool donttouch:checked="checked" />
+    <label for="donttouch">_{MsgDontRegisterRecentChanges}
     \
     <div .preview>#{content}
     <br>

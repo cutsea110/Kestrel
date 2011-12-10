@@ -15,6 +15,7 @@ Wiki
     path Text Asc
     content Text Update
     updated UTCTime Update Desc
+    touched UTCTime Maybe Update Desc
     version Version default=0 Add
     editor UserId Update
     comment Text Maybe Update
@@ -25,6 +26,7 @@ WikiHistory
     path Text Asc Eq
     content Text
     updated UTCTime Desc
+    touched UTCTime Maybe Update Desc
     version Version Eq In Desc
     editor UserId
     comment Text Maybe Update
