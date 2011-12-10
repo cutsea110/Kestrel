@@ -22,6 +22,8 @@
   <form method="post" action="@{WikiR wp}" .validate>
     <button type="submit" name="_method" value="preview">_{MsgPreview}
     <button type="submit" name="_method" value="commit">_{MsgUpdate}
+    <input type="checkbox" name="donttouch" :toBool donttouch:checked="checked" />
+    <label for="donttouch">_{MsgDontRegisterRecentChanges}
     <br>
     <input type="hidden" name="version" value="#{show ver}">
     <textarea id="content" name="content" .required .content>#{raw}

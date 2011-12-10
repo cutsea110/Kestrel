@@ -166,6 +166,8 @@ $if not (isNull blocks)
       let editMe = (WikiR wp, [("mode", "e")])
           deleteMe = (WikiR wp, [("mode", "d")])
           markdown = getDoc langs
+          toBool = maybe False (const True)
+          donttouch = Nothing
       defaultLayout $ do
         setTitle $ preEscapedText path
         addWidget $(widgetFile "wiki")
@@ -202,15 +204,17 @@ postWikiR wp = do
       msgShow <- getMessageRender
       let path = pathOf wp
           isTop = wp == topPage
-      (raw, com, ver) <- runInputPost $ (,,)
-                         <$> ireq textField "content"
-                         <*> iopt textField "comment"
-                         <*> ireq intField "version"
+      (raw, com, ver, donttouch) <- runInputPost $ (,,,)
+                                    <$> ireq textField "content"
+                                    <*> iopt textField "comment"
+                                    <*> ireq intField "version"
+                                    <*> iopt textField "donttouch"
       content <- runDB $ markdownToWikiHtml (wikiWriterOption msgShow) raw
       langs <- languages
       let editMe = (WikiR wp, [("mode", "e")])
           deleteMe = (WikiR wp, [("mode", "d")])
           markdown = getDoc langs
+          toBool = maybe False (const True)
       defaultLayout $ do
         setTitle $ preEscapedText path
         addWidget $(widgetFile "wiki")
@@ -223,24 +227,29 @@ putWikiR wp = do
   msgShow <- getMessageRender
   let path = pathOf wp
   now <- liftIO getCurrentTime
-  (raw, com, ver) <- runInputPost $ (,,)
-                     <$> ireq textField "content"
-                     <*> iopt textField "comment"
-                     <*> ireq intField "version"
+  (raw, com, ver, donttouch) <- runInputPost $ (,,,)
+                                <$> ireq textField "content"
+                                <*> iopt textField "comment"
+                                <*> ireq intField "version"
+                                <*> iopt textField "donttouch"
   runDB $ do
     (pid, page) <- getBy404 $ UniqueWiki path
+    let updated = Just $ wikiUpdated page
+        touched = maybe (Just now) (const updated) donttouch
     if wikiVersion page == ver
       then do
       insert WikiHistory { wikiHistoryWiki=pid
                          , wikiHistoryPath=path
                          , wikiHistoryContent=raw
                          , wikiHistoryUpdated=now
+                         , wikiHistoryTouched=touched
                          , wikiHistoryVersion=ver+1
                          , wikiHistoryEditor=uid
                          , wikiHistoryComment=com
                          }
       update pid [ WikiContent =. raw
                  , WikiUpdated =. now
+                 , WikiTouched =. touched
                  , WikiVersion +=. 1
                  , WikiEditor =. uid
                  , WikiComment =. com]
@@ -302,6 +311,8 @@ getNewR = do
               viewMe = (NewR, [("path", path'), ("mode", "v")])
               editMe = (NewR, [("path", path'), ("mode", "e")])
               markdown = getDoc langs
+              toBool = maybe False (const True)
+              donttouch = Nothing
           defaultLayout $ do
             setTitle $ preEscapedText path
             addWidget $(widgetFile "wiki")
@@ -321,16 +332,18 @@ postNewR = do
     previewWiki = do
       (uid, _) <- requireAuth
       msgShow <- getMessageRender
-      (path', raw, com) <- runInputPost $ (,,)
-                           <$> ireq textField "path"
-                           <*> ireq textField "content"
-                           <*> iopt textField "comment"
+      (path', raw, com, donttouch) <- runInputPost $ (,,,)
+                                      <$> ireq textField "path"
+                                      <*> ireq textField "content"
+                                      <*> iopt textField "comment"
+                                      <*> iopt textField "donttouch"
       langs <- languages
       let path = decodeUrl path'
           isTop = path == Settings.topTitle
           viewMe = (NewR, [("path", path'), ("mode", "v")])
           editMe = (NewR, [("path", path'), ("mode", "e")])
           markdown = getDoc langs
+          toBool = maybe False (const True)
       content <- runDB $ markdownToWikiHtml (wikiWriterOption msgShow) raw
       defaultLayout $ do
         setTitle $ preEscapedText path
@@ -341,16 +354,19 @@ postNewR = do
     createWiki :: Handler RepHtml
     createWiki = do
       (uid, _) <- requireAuth
-      (path, raw, com) <- runInputPost $ (,,)
-                          <$> (fmap decodeUrl . ireq textField) "path"
-                          <*> ireq textField "content"
-                          <*> iopt textField "comment"
+      (path, raw, com, donttouch) <- runInputPost $ (,,,)
+                                     <$> (fmap decodeUrl . ireq textField) "path"
+                                     <*> ireq textField "content"
+                                     <*> iopt textField "comment"
+                                     <*> iopt textField "donttouch"
       now <- liftIO getCurrentTime
       runDB $ do
+        let touched = maybe (Just now) (const Nothing) donttouch
         pid <- insert Wiki { 
           wikiPath=path
         , wikiContent=raw
         , wikiUpdated=now
+        , wikiTouched=touched
         , wikiVersion=0
         , wikiEditor=uid
         , wikiComment=com
@@ -360,6 +376,7 @@ postNewR = do
         , wikiHistoryPath=path
         , wikiHistoryContent=raw
         , wikiHistoryUpdated=now
+        , wikiHistoryTouched=touched
         , wikiHistoryVersion=0
         , wikiHistoryEditor=uid
         , wikiHistoryComment=com

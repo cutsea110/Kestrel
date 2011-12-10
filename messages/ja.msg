@@ -64,6 +64,7 @@ REVERT: 巻き戻し
 ChangeLog: 変更メモ
 ChangeLogDescription: 編集履歴で確認しやすいように簡単なメモを書いてください.
 Warning: 警告!
+DontRegisterRecentChanges: 「最近の更新」に登録しない.
 
 # deleteWiki
 ConfirmRemove path@Text: `#{path}' の削除確認.
