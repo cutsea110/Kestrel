@@ -1,46 +1,46 @@
 User
-    ident Text Asc
-    password Text Maybe Update
-    nickname Text Maybe Update
+    ident Text
+    password Text Maybe
+    nickname Text Maybe
     active Bool Eq default=true
     UniqueUser ident
     
 Email
     email Text
-    user UserId Maybe Update
-    verkey Text Maybe Update
+    user UserId Maybe
+    verkey Text Maybe
     UniqueEmail email
 
 Wiki
-    path Text Asc
-    content Text Update
-    updated UTCTime Update Desc
-    touched UTCTime Maybe Update Desc
-    version Version default=0 Add
-    editor UserId Update
-    comment Text Maybe Update
+    path Text
+    content Text
+    updated UTCTime
+    touched UTCTime Maybe
+    version Version default=0
+    editor UserId
+    comment Text Maybe
     UniqueWiki path
 
 WikiHistory
-    wiki WikiId Eq
-    path Text Asc Eq
+    wiki WikiId
+    path Text
     content Text
-    updated UTCTime Desc
-    touched UTCTime Maybe Update Desc
-    version Version Eq In Desc
+    updated UTCTime
+    touched UTCTime Maybe
+    version Version
     editor UserId
-    comment Text Maybe Update
+    comment Text Maybe
     UniqueWikiHistory wiki version
 
 FileHeader
-    fullname Text Eq
+    fullname Text
     efname Text
-    name Text Eq
-    extension Text Eq
+    name Text
+    extension Text
     contentType Text
     fileSize Int64
     width Int Maybe
     height Int Maybe
     thumbnail Bool default=false
-    creator UserId Eq
-    created UTCTime Desc
+    creator UserId
+    created UTCTime
