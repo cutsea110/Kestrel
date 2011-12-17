@@ -15,6 +15,7 @@ import Data.Tuple.HT
 import Data.Algorithm.Diff
 import Data.List (groupBy)
 import Data.Text (Text)
+import Data.String (IsString)
 import qualified Data.Text as T
 import Text.Blaze (preEscapedText)
 import Text.Cassius (cassiusFile)
@@ -23,6 +24,11 @@ import Text.Julius (juliusFile)
 import Settings (topTitle)
 import Settings.StaticFiles
 
+getDoc :: (IsString t, Monad m, Eq t) => [t] -> GGWidget master m ()
+getDoc [] = $(whamletFile "templates/markdown-help-en.hamlet")
+getDoc ("en":_) = $(whamletFile "templates/markdown-help-en.hamlet")
+getDoc ("ja":_) = $(whamletFile "templates/markdown-help-ja.hamlet")
+getDoc (_:ds) = getDoc ds
 
 getEitherWikiNewR :: WikiPage -> Handler RepHtml
 getEitherWikiNewR wp = do
@@ -52,10 +58,10 @@ getWikiListR = do
           1 -> invalidArgs ["Search term must be given two or more characters."]
           _ -> defaultLayout $ do
             setTitle $ preEscapedText "Search Result"
-            addCassius $(cassiusFile "cassius/wiki.cassius")
-            addJulius $(juliusFile "julius/wikilist.julius")
+            addCassius $(cassiusFile "templates/wiki.cassius")
+            addJulius $(juliusFile "templates/wikilist.julius")
             addStylesheet $ StaticR css_hk_kate_css
-            addWidget $(whamletFile "hamlet/searchWiki.hamlet")
+            addWidget $(whamletFile "templates/searchWiki.hamlet")
 
 getWikiR :: WikiPage -> Handler RepHtml
 getWikiR wp = do
@@ -149,21 +155,24 @@ $if not (isNull blocks)
         setTitle $ preEscapedText path
         addWidget $(widgetFile "wiki")
         addStylesheet $ StaticR css_hk_kate_css
-        addWidget $(whamletFile "hamlet/viewWiki.hamlet")
+        addWidget $(whamletFile "templates/viewWiki.hamlet")
 
     editWiki :: Handler RepHtml
     editWiki = do
       (uid, _) <- requireAuth
       msgShow <- getMessageRender
       (path, raw, content, upd, ver, _, isTop) <- getwiki (wikiWriterOption msgShow)
+      langs <- languages
       let editMe = (WikiR wp, [("mode", "e")])
           deleteMe = (WikiR wp, [("mode", "d")])
-          markdown = $(whamletFile "hamlet/markdown-ja.hamlet")
+          markdown = getDoc langs
+          toBool = maybe False (const True)
+          donttouch = Nothing
       defaultLayout $ do
         setTitle $ preEscapedText path
         addWidget $(widgetFile "wiki")
         addStylesheet $ StaticR css_hk_kate_css
-        addWidget $(whamletFile "hamlet/editWiki.hamlet")
+        addWidget $(whamletFile "templates/editWiki.hamlet")
             
     deleteWiki :: Handler RepHtml
     deleteWiki = do
@@ -176,7 +185,7 @@ $if not (isNull blocks)
         setTitle $ preEscapedText path
         addWidget $(widgetFile "wiki")
         addStylesheet $ StaticR css_hk_kate_css
-        addWidget $(whamletFile "hamlet/deleteWiki.hamlet")
+        addWidget $(whamletFile "templates/deleteWiki.hamlet")
 
 
 postWikiR :: WikiPage -> Handler RepHtml
@@ -195,19 +204,22 @@ postWikiR wp = do
       msgShow <- getMessageRender
       let path = pathOf wp
           isTop = wp == topPage
-      (raw, com, ver) <- runInputPost $ (,,)
-                         <$> ireq textField "content"
-                         <*> iopt textField "comment"
-                         <*> ireq intField "version"
+      (raw, com, ver, donttouch) <- runInputPost $ (,,,)
+                                    <$> ireq textField "content"
+                                    <*> iopt textField "comment"
+                                    <*> ireq intField "version"
+                                    <*> iopt textField "donttouch"
       content <- runDB $ markdownToWikiHtml (wikiWriterOption msgShow) raw
+      langs <- languages
       let editMe = (WikiR wp, [("mode", "e")])
           deleteMe = (WikiR wp, [("mode", "d")])
-          markdown = $(whamletFile "hamlet/markdown-ja.hamlet")
+          markdown = getDoc langs
+          toBool = maybe False (const True)
       defaultLayout $ do
         setTitle $ preEscapedText path
         addWidget $(widgetFile "wiki")
         addStylesheet $ StaticR css_hk_kate_css
-        addWidget $(whamletFile "hamlet/previewWiki.hamlet")
+        addWidget $(whamletFile "templates/previewWiki.hamlet")
 
 putWikiR :: WikiPage -> Handler RepHtml
 putWikiR wp = do
@@ -215,24 +227,29 @@ putWikiR wp = do
   msgShow <- getMessageRender
   let path = pathOf wp
   now <- liftIO getCurrentTime
-  (raw, com, ver) <- runInputPost $ (,,)
-                     <$> ireq textField "content"
-                     <*> iopt textField "comment"
-                     <*> ireq intField "version"
+  (raw, com, ver, donttouch) <- runInputPost $ (,,,)
+                                <$> ireq textField "content"
+                                <*> iopt textField "comment"
+                                <*> ireq intField "version"
+                                <*> iopt textField "donttouch"
   runDB $ do
     (pid, page) <- getBy404 $ UniqueWiki path
+    let updated = Just $ wikiUpdated page
+        touched = maybe (Just now) (const updated) donttouch
     if wikiVersion page == ver
       then do
       insert WikiHistory { wikiHistoryWiki=pid
                          , wikiHistoryPath=path
                          , wikiHistoryContent=raw
                          , wikiHistoryUpdated=now
+                         , wikiHistoryTouched=touched
                          , wikiHistoryVersion=ver+1
                          , wikiHistoryEditor=uid
                          , wikiHistoryComment=com
                          }
       update pid [ WikiContent =. raw
                  , WikiUpdated =. now
+                 , WikiTouched =. touched
                  , WikiVersion +=. 1
                  , WikiEditor =. uid
                  , WikiComment =. com]
@@ -278,7 +295,7 @@ getNewR = do
             setTitle $ preEscapedText path
             addWidget $(widgetFile "wiki")
             addStylesheet $ StaticR css_hk_kate_css
-            addWidget $(whamletFile "hamlet/viewNew.hamlet")
+            addWidget $(whamletFile "templates/viewNew.hamlet")
     
     editNew :: Handler RepHtml
     editNew = do
@@ -288,16 +305,19 @@ getNewR = do
       case path'' of
         Nothing -> invalidArgs ["'path' query paramerter is required."]
         Just path' -> do
+          langs <- languages
           let path = decodeUrl path'
               isTop = path==Settings.topTitle
               viewMe = (NewR, [("path", path'), ("mode", "v")])
               editMe = (NewR, [("path", path'), ("mode", "e")])
-              markdown = $(whamletFile "hamlet/markdown-ja.hamlet")
+              markdown = getDoc langs
+              toBool = maybe False (const True)
+              donttouch = Nothing
           defaultLayout $ do
             setTitle $ preEscapedText path
             addWidget $(widgetFile "wiki")
             addStylesheet $ StaticR css_hk_kate_css
-            addWidget $(whamletFile "hamlet/editNew.hamlet")
+            addWidget $(whamletFile "templates/editNew.hamlet")
   
 postNewR :: Handler RepHtml
 postNewR = do
@@ -312,35 +332,41 @@ postNewR = do
     previewWiki = do
       (uid, _) <- requireAuth
       msgShow <- getMessageRender
-      (path', raw, com) <- runInputPost $ (,,)
-                           <$> ireq textField "path"
-                           <*> ireq textField "content"
-                           <*> iopt textField "comment"
+      (path', raw, com, donttouch) <- runInputPost $ (,,,)
+                                      <$> ireq textField "path"
+                                      <*> ireq textField "content"
+                                      <*> iopt textField "comment"
+                                      <*> iopt textField "donttouch"
+      langs <- languages
       let path = decodeUrl path'
           isTop = path == Settings.topTitle
           viewMe = (NewR, [("path", path'), ("mode", "v")])
           editMe = (NewR, [("path", path'), ("mode", "e")])
-          markdown = $(whamletFile "hamlet/markdown-ja.hamlet")
+          markdown = getDoc langs
+          toBool = maybe False (const True)
       content <- runDB $ markdownToWikiHtml (wikiWriterOption msgShow) raw
       defaultLayout $ do
         setTitle $ preEscapedText path
         addWidget $(widgetFile "wiki")
         addStylesheet $ StaticR css_hk_kate_css
-        addWidget $(whamletFile "hamlet/previewNew.hamlet")
+        addWidget $(whamletFile "templates/previewNew.hamlet")
     
     createWiki :: Handler RepHtml
     createWiki = do
       (uid, _) <- requireAuth
-      (path, raw, com) <- runInputPost $ (,,)
-                          <$> (fmap decodeUrl . ireq textField) "path"
-                          <*> ireq textField "content"
-                          <*> iopt textField "comment"
+      (path, raw, com, donttouch) <- runInputPost $ (,,,)
+                                     <$> (fmap decodeUrl . ireq textField) "path"
+                                     <*> ireq textField "content"
+                                     <*> iopt textField "comment"
+                                     <*> iopt textField "donttouch"
       now <- liftIO getCurrentTime
       runDB $ do
+        let touched = maybe (Just now) (const Nothing) donttouch
         pid <- insert Wiki { 
           wikiPath=path
         , wikiContent=raw
         , wikiUpdated=now
+        , wikiTouched=touched
         , wikiVersion=0
         , wikiEditor=uid
         , wikiComment=com
@@ -350,6 +376,7 @@ postNewR = do
         , wikiHistoryPath=path
         , wikiHistoryContent=raw
         , wikiHistoryUpdated=now
+        , wikiHistoryTouched=touched
         , wikiHistoryVersion=0
         , wikiHistoryEditor=uid
         , wikiHistoryComment=com
@@ -421,7 +448,7 @@ getHistoriesR wp = do
       defaultLayout $ do
         setTitle $ preEscapedText path
         addWidget $(widgetFile "wiki")
-        addWidget $(whamletFile "hamlet/listHistories.hamlet")
+        addWidget $(whamletFile "templates/listHistories.hamlet")
 
         
 
@@ -485,23 +512,24 @@ getHistoryR vsn wp = do
         setTitle $ preEscapedText path
         addWidget $(widgetFile "wiki")
         addStylesheet $ StaticR css_hk_kate_css
-        addWidget $(whamletFile "hamlet/viewHistory.hamlet")
+        addWidget $(whamletFile "templates/viewHistory.hamlet")
 
     editHistory :: Version -> Handler RepHtml
     editHistory v = do
       (uid, _) <- requireAuth
       msgShow <- getMessageRender
       (path, raw, content, upd, _, me, isTop, curp) <- getHistory v
+      langs <- languages
       let editMe = (WikiR wp, [("mode", "e")])
           deleteMe = (WikiR wp, [("mode", "d")])
           ver = wikiVersion curp
           notCurrent =  v /= ver
-          markdown = $(whamletFile "hamlet/markdown-ja.hamlet")
+          markdown = getDoc langs
       defaultLayout $ do
         setTitle $ preEscapedText path
         addWidget $(widgetFile "wiki")
         addStylesheet $ StaticR css_hk_kate_css
-        addWidget $(whamletFile "hamlet/editHistory.hamlet")
+        addWidget $(whamletFile "templates/editHistory.hamlet")
     
     revertHistory :: Version -> Handler RepHtml
     revertHistory v = do
@@ -516,7 +544,7 @@ getHistoryR vsn wp = do
         setTitle $ preEscapedText path
         addWidget $(widgetFile "wiki")
         addStylesheet $ StaticR css_hk_kate_css
-        addWidget $(whamletFile "hamlet/revertHistory.hamlet")
+        addWidget $(whamletFile "templates/revertHistory.hamlet")
 
     diffVers :: (Wiki -> Version -> [Version]) -> Version -> Handler RepHtml
     diffVers selver v = do
@@ -538,7 +566,7 @@ getHistoryR vsn wp = do
       defaultLayout $ do
         setTitle $ preEscapedText path
         addWidget $(widgetFile "wiki")
-        addWidget $(whamletFile "hamlet/diffHistories.hamlet")
+        addWidget $(whamletFile "templates/diffHistories.hamlet")
     
     diffPrevious :: Version -> Handler RepHtml
     diffPrevious = diffVers $ \_ v -> [v, v-1]
@@ -569,15 +597,16 @@ postHistoryR vsn wp = do
                             <*> ireq intField "version"
                             <*> ireq intField "original_version"
       content <- runDB $ markdownToWikiHtml (wikiWriterOption msgShow) raw
+      langs <- languages
       let editMe = (WikiR wp, [("mode", "e")])
           deleteMe = (WikiR wp, [("mode", "d")])
           notCurrent = v /= ver
-          markdown = $(whamletFile "hamlet/markdown-ja.hamlet")
+          markdown = getDoc langs
       defaultLayout $ do
         setTitle $ preEscapedText path
         addWidget $(widgetFile "wiki")
         addStylesheet $ StaticR css_hk_kate_css
-        addWidget $(whamletFile "hamlet/previewHistory.hamlet")
+        addWidget $(whamletFile "templates/previewHistory.hamlet")
 
 putHistoryR :: Version -> WikiPage -> Handler RepHtml
 putHistoryR v wp = do

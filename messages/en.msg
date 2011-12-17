@@ -17,6 +17,7 @@ Go: Go
 SearchPlaceholder: Search...
 UploadFile: Upload file
 Login: Login
+FailToUploadFile: Fail to upload file
 
 # default-layout.julius
 RecentChanges: Recent Changes
@@ -63,6 +64,7 @@ REVERT: Revert
 ChangeLog: ChangeLog
 ChangeLogDescription: Please write brief notes to help you check the history of changes.
 Warning: Warning!
+DontRegisterRecentChanges: Don't register to `Recent Changes'.
 
 # deleteWiki
 ConfirmRemove path@Text: Confirm removal of `#{path}'.
@@ -112,3 +114,8 @@ RewindToThePreviousVerOfTheConfirmationDisplayOf path@Text: Rewind to the previo
 Rewind v@Int: Rewind Ver.#{show v}.
 ConfirmRewindLastChance: Do you want to rewind to a previous version of this?
 RewindToThisEdition: Rewind to this edition.
+
+# systemBatch
+SystemBatch: System Batch
+RebuildThumbnailHeader: Rebuild Thumbnail image from all uploaded images
+RebuildThumbnail: Rebuild Thumbnail.

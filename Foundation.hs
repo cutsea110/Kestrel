@@ -6,6 +6,7 @@
 {-# LANGUAGE Rank2Types #-}
 {-# LANGUAGE CPP #-}
 {-# OPTIONS_GHC -fspec-constr-count=100 #-}
+{-# OPTIONS_GHC -fno-warn-missing-signatures #-}
 module Foundation
     ( Kestrel (..)
     , KestrelRoute (..)
@@ -185,9 +186,9 @@ instance Yesod Kestrel where
         let mgaUA = Settings.googleAnalyticsUA
             maTUser = Settings.addThisUser
             googleInurl = dropSchema $ approot y
-            ga = $(ihamletFile "hamlet/ga.hamlet")
-            header = $(ihamletFile "hamlet/header.hamlet")
-            footer = $(ihamletFile "hamlet/footer.hamlet")
+            ga = $(ihamletFile "templates/ga.hamlet")
+            header = $(ihamletFile "templates/header.hamlet")
+            footer = $(ihamletFile "templates/footer.hamlet")
         pc <- widgetToPageContent $ do
           widget
           addScriptEither $ urlJqueryJs y
@@ -198,10 +199,10 @@ instance Yesod Kestrel where
           addScriptEither $ Left $ StaticR plugins_exinplaceeditor_jquery_exinplaceeditor_0_1_3_js
           addStylesheetEither $ Left $ StaticR plugins_exinplaceeditor_exinplaceeditor_css
           addScriptEither $ Left $ StaticR plugins_watermark_jquery_watermark_js
-          addCassius $(cassiusFile "cassius/default-layout.cassius")
-          addJulius $(juliusFile "julius/default-layout.julius")
+          addCassius $(cassiusFile "templates/default-layout.cassius")
+          addJulius $(juliusFile "templates/default-layout.julius")
           atomLink FeedR $ T.unpack Settings.topTitle
-        ihamletToRepHtml $(ihamletFile "hamlet/default-layout.hamlet")
+        ihamletToRepHtml $(ihamletFile "templates/default-layout.hamlet")
         
     -- This is done to provide an optimization for serving static files from
     -- a separate domain. Please see the staticroot setting in Settings.hs
@@ -211,6 +212,11 @@ instance Yesod Kestrel where
 
     -- The page to be redirected to when authentication is required.
     authRoute _ = Just $ AuthR LoginR
+    
+    -- Maximum allowed length of the request body, in bytes.
+    maximumContentLength _ (Just UploadR)     = 20 * 1024 * 1024 -- 20 megabytes
+    maximumContentLength _ (Just (FileR _ _)) = 20 * 1024 * 1024 -- 20 megabytes
+    maximumContentLength _ _                  =  2 * 1024 * 1024 --  2 megabytes for default
 
     messageLogger y loc level msg =
       formatLogMessage loc level msg >>= logLazyText (getLogger y)
@@ -310,8 +316,8 @@ instance YesodAuth Kestrel where
     loginHandler = do
       defaultLayout $ do
         setTitle "Login"
-        addCassius $(cassiusFile "cassius/login.cassius")
-        addWidget $(whamletFile "hamlet/login.hamlet")
+        addCassius $(cassiusFile "templates/login.cassius")
+        addWidget $(whamletFile "templates/login.hamlet")
 
 instance YesodAuthHashDB Kestrel where
     type AuthHashDBId Kestrel = UserId
@@ -342,9 +348,6 @@ deliver y = logLazyText (getLogger y) . Data.Text.Lazy.Encoding.decodeUtf8
 
 
 {- markdown utility -}
-markdownToWikiHtml :: forall (m :: * -> *) sub master.
-                      (Route master ~ KestrelRoute, MonadControlIO m) =>
-                      WriterOptions -> Text -> SqlPersist (GGHandler sub master m) Html
 markdownToWikiHtml opt raw = do
   render <- lift getUrlRenderParams
   pages <- selectList [] [Asc WikiPath, Desc WikiUpdated]
@@ -352,9 +355,6 @@ markdownToWikiHtml opt raw = do
   let pdict = mkWikiDictionary pages
   return $ preEscapedString $ writeHtmlStr opt render pdict $ pandoc
 
-markdownsToWikiHtmls :: forall (m :: * -> *) sub master.
-                     (Route master ~ KestrelRoute, MonadControlIO m) =>
-                     WriterOptions -> [Text] -> SqlPersist (GGHandler sub master m) [Html]
 markdownsToWikiHtmls opt raws = do
   render <- lift getUrlRenderParams
   pages <- selectList [] [Asc WikiPath, Desc WikiUpdated]

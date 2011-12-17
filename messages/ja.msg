@@ -17,6 +17,7 @@ Go: Go
 SearchPlaceholder: Search...
 UploadFile: ファイルをアップロードする
 Login: ログイン
+FailToUploadFile: ファイルのアップロードに失敗しました
 
 # default-layout.julius
 RecentChanges: 最近の更新
@@ -63,6 +64,7 @@ REVERT: 巻き戻し
 ChangeLog: 変更メモ
 ChangeLogDescription: 編集履歴で確認しやすいように簡単なメモを書いてください.
 Warning: 警告!
+DontRegisterRecentChanges: 「最近の更新」に登録しない.
 
 # deleteWiki
 ConfirmRemove path@Text: `#{path}' の削除確認.
@@ -112,3 +114,8 @@ RewindToThePreviousVerOfTheConfirmationDisplayOf path@Text: `#{path}' の表示�
 Rewind v@Int: 第 #{show v} 版に巻き戻し.
 ConfirmRewindLastChance: この旧版に巻き戻しをしますか?
 RewindToThisEdition: この版に巻き戻す.
+
+# systemBatch
+SystemBatch: システムバッチ
+RebuildThumbnailHeader: サムネイル画像再構築
+RebuildThumbnail: サムネイル画像を再構築する.

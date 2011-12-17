@@ -72,7 +72,7 @@ Executable kestrel
                   , template-haskell
                   , hamlet
                   , hjsmin       >= 0.0.12  && < 0.1
-                  , web-encodings == 0.3.0.7
+                  , web-encodings >= 0.3 && < 0.4
                   , highlighting-kate
                   , pandoc       >= 1.8.2
                   , pandoc-types >= 1.8.2
@@ -81,6 +81,7 @@ Executable kestrel
                   , transformers
                   , warp
                   , filepath
+                  , thumbnail    >= 0.4 && < 0.5
                   , time         >= 1.1     && < 2.0
                   , old-locale
                   , containers   >= 0.4     && < 0.5

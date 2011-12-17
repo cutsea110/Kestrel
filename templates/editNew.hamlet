@@ -18,6 +18,8 @@
   <form method="post" action="@{NewR}" .validate>
     <button type="submit" name="_method" value="preview">_{MsgPreview}
     <button type="submit" name="_method" value="commit">_{MsgCreateNew}
+    <input type="checkbox" name="donttouch" :toBool donttouch:checked="checked" />
+    <label for="donttouch">_{MsgDontRegisterRecentChanges}
     <br>
     <input type="hidden" name="path" value="#{path'}">
     <textarea id="content" name="content" .required .content>

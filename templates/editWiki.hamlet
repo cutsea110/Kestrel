@@ -1,0 +1,37 @@
+<div .right>
+  <ul .breadcrumbs>
+    $forall a <- ancestory wp
+      <li>
+        <a href="@{WikiR a}">#{lastNameOf a}
+<ul .tabs>
+  <li>
+    <a href="@{WikiR wp}">_{MsgVIEW}
+  <li .selected>
+    <a href="@?{editMe}">_{MsgEDIT}
+  <li>
+    <a href="@?{deleteMe}">_{MsgDELETE}
+  <li>
+    <a href="@{HistoriesR wp}">_{MsgHISTORY}
+  $if not isTop
+    <li>
+      <a href="@?{topView}">_{MsgTOP}
+\
+<div id="main-content">
+  <h3 .metatitle> _{MsgEditingHistory path}
+  \
+  <form method="post" action="@{WikiR wp}" .validate>
+    <button type="submit" name="_method" value="preview">_{MsgPreview}
+    <button type="submit" name="_method" value="commit">_{MsgUpdate}
+    <input type="checkbox" name="donttouch" :toBool donttouch:checked="checked" />
+    <label for="donttouch">_{MsgDontRegisterRecentChanges}
+    <br>
+    <input type="hidden" name="version" value="#{show ver}">
+    <textarea id="content" name="content" .required .content>#{raw}
+    <div .description>_{MsgChangeLog} (_{MsgChangeLogDescription}):
+    <textarea name="comment" .comment>
+    <br>
+    <button type="submit" name="_method" value="preview">_{MsgPreview}
+    <button type="submit" name="_method" value="commit">_{MsgUpdate}
+  \
+  <div id="help">
+    \^{markdown}

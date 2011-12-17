@@ -1,17 +1,13 @@
 <div .right>
   <ul .breadcrumbs>
-    $forall a <- ancestory wp
+    $forall a <- ancestory (fromPath path)
       <li>
         <a href="@{WikiR a}">#{lastNameOf a}
 <ul .tabs>
   <li>
-    <a href="@{WikiR wp}">_{MsgVIEW}
+    <a href="@?{viewMe}">_{MsgVIEW}
   <li .selected>
     <a href="@?{editMe}">_{MsgEDIT}
-  <li>
-    <a href="@?{deleteMe}">_{MsgDELETE}
-  <li>
-    <a href="@{HistoriesR wp}">_{MsgHISTORY}
   $if not isTop
     <li>
       <a href="@?{topView}">_{MsgTOP}
@@ -19,10 +15,12 @@
 <div id="main-content">
   <h3 .metatitle> _{MsgPreviewOfThe path}
   \
-  <form method="post" action="@{WikiR wp}" .validate>
-    <input type="hidden" name="version" value="#{show ver}">
+  <form method="post" action="@{NewR}" .validate>
+    <input type="hidden" name="path" value="#{path'}">
     <button type="submit" name="_method" value="preview">_{MsgMorePreview}
-    <button type="submit" name="_method" value="commit">_{MsgUpdate}
+    <button type="submit" name="_method" value="commit">_{MsgCreateNew}
+    <input type="checkbox" name="donttouch" :toBool donttouch:checked="checked" />
+    <label for="donttouch">_{MsgDontRegisterRecentChanges}
     \
     <div .preview>#{content}
     <br>
@@ -30,10 +28,10 @@
     <div .description>_{MsgChangeLog} (_{MsgChangeLogDescription}):
     <textarea name="comment" .comment>
       $maybe c <- com
-         \#{c}
+        \#{c}
     <br>
     <button type="submit" name="_method" value="preview">_{MsgMorePreview}
-    <button type="submit" name="_method" value="commit">_{MsgUpdate}
+    <button type="submit" name="_method" value="commit">_{MsgCreateNew}
   \
   <div id="help">
     \^{markdown}
