@@ -41,7 +41,7 @@ getSitemapR = do
 getFeedR :: Handler RepAtom
 getFeedR = runDB $ do
   msgShow <- lift $ getMessageRender
-  tops <- selectList [] [Desc WikiUpdated, LimitTo 10]
+  tops <- selectList  [WikiTouched !=. Nothing] [Desc WikiTouched, LimitTo 10]
   entries <- markdownsToWikiHtmls (noToc msgShow) $ map (wikiContent . snd) tops
   let uday = (wikiUpdated . snd . head) tops
   lift $ atomFeed Feed
