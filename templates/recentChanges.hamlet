@@ -1,5 +1,5 @@
 <div id="main-content">
-  <h3 .metatitle>Recent Changes
+  <h3 .metatitle>_{MsgRecentChanges}
   \
   <div id="result">
     <ul

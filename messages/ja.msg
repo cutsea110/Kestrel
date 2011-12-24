@@ -119,3 +119,6 @@ RewindToThisEdition: この版に巻き戻す.
 SystemBatch: システムバッチ
 RebuildThumbnailHeader: サムネイル画像再構築
 RebuildThumbnail: サムネイル画像を再構築する.
+
+# search
+SearchResultFor key@Text: `#{key}' の検索結果
