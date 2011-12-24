@@ -119,3 +119,11 @@ RewindToThisEdition: Rewind to this edition.
 SystemBatch: System Batch
 RebuildThumbnailHeader: Rebuild Thumbnail image from all uploaded images
 RebuildThumbnail: Rebuild Thumbnail.
+
+# recentChanges
+SecAgo sec@Integer: #{show sec} sec ago
+MinAgo min@Integer: #{show min} minute ago
+HourAgo hr@Integer: #{show hr} hour ago
+DayAgo day@Integer: #{show day} day ago
+MonthAgo month@Integer: #{show month} month ago
+YearAgo year@Integer: #{show year} year ago

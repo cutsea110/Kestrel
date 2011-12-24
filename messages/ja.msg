@@ -119,3 +119,11 @@ RewindToThisEdition: この版に巻き戻す.
 SystemBatch: システムバッチ
 RebuildThumbnailHeader: サムネイル画像再構築
 RebuildThumbnail: サムネイル画像を再構築する.
+
+# recentChanges
+SecAgo sec@Integer: #{show sec} 秒前
+MinAgo min@Integer: #{show min} 分前
+HourAgo hr@Integer: #{show hr} 時間前
+DayAgo day@Integer: #{show day} 日前
+MonthAgo month@Integer: #{show month} ヶ月前
+YearAgo year@Integer: #{show year} 年前
