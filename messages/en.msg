@@ -119,3 +119,6 @@ RewindToThisEdition: Rewind to this edition.
 SystemBatch: System Batch
 RebuildThumbnailHeader: Rebuild Thumbnail image from all uploaded images
 RebuildThumbnail: Rebuild Thumbnail.
+
+# search
+SearchResultFor key@Text: Search Result for `#{key}'
