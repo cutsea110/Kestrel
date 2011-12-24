@@ -369,7 +369,7 @@ wikiWriterOption :: (KestrelMessage -> Text) -> WriterOptions
 wikiWriterOption msgShow =
   defaultWriterOptions{
           writerStandalone = True
-        , writerTemplate = "$if(toc)$\n<a id='pandoc-TOC-toggle' href=''></a><div id='pandoc-TOC-Title'>" ++ T.unpack (msgShow MsgTOC) ++ "</div>\n$toc$\n$endif$\n$body$"
+        , writerTemplate = "$if(toc)$\n<a id='pandoc-TOC-toggle' href=''></a><div id='pandoc-TOC-Title'>" ++ T.unpack (msgShow MsgTOC) ++ "$toc$</div>\n$endif$\n$body$"
         , writerTableOfContents = True
         , writerNumberSections = False
         , writerIdentifierPrefix = "pandoc-"
