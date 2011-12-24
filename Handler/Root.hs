@@ -1,9 +1,11 @@
 {-# LANGUAGE TemplateHaskell, QuasiQuotes, OverloadedStrings #-}
+{-# OPTIONS_GHC -fno-warn-type-defaults #-}
 module Handler.Root where
 
 import Foundation
 import Yesod.AtomFeed
 import Yesod.Sitemap
+import Data.Maybe (fromJust)
 import Data.Time
 import qualified Data.Text as T
 import Control.Monad (forM_)
@@ -73,6 +75,8 @@ getRecentChangesR = do
       json = jsonMap [("entries", jsonList $ map (go now render) entries)]
   defaultLayoutJson widget json
   where
+    (sec,minute,hour,day,month,year) = (1,60*sec,60*minute,24*hour,30*day,365*day)
+    fromSec d s = ceiling $ d / s
     go now r (_, w) = 
       jsonMap [ ("title", jsonScalar $ T.unpack (wikiPath w))
               , ("uri", jsonScalar $ T.unpack $ r $ WikiR $ fromPath (wikiPath w))
