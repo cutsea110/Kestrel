@@ -64,13 +64,14 @@ getFeedR = runDB $ do
       { writerTableOfContents = False
       }
 
-getRecentChangesR :: Handler RepJson
+getRecentChangesR :: Handler RepHtmlJson
 getRecentChangesR = do 
   render <- getUrlRender
   entries <- runDB $ selectList [WikiTouched !=. Nothing] [Desc WikiTouched, LimitTo Settings.numOfRecentChanges]
-  cacheSeconds 10 -- FIXME
   now <- liftIO getCurrentTime
-  jsonToRepJson $ jsonMap [("entries", jsonList $ map (go now render) entries)]
+  let widget = $(widgetFile "recentChanges")
+      json = jsonMap [("entries", jsonList $ map (go now render) entries)]
+  defaultLayoutJson widget json
   where
     go now r (_, w) = 
       jsonMap [ ("title", jsonScalar $ T.unpack (wikiPath w))

@@ -9,7 +9,7 @@
 /robots.txt RobotsR GET
 /sitemap.xml SitemapR GET
 /feed FeedR GET
-/recent-changes.json RecentChangesR GET
+/recent-changes RecentChangesR GET
 
 / RootR GET
 
