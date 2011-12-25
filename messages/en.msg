@@ -130,3 +130,6 @@ HourAgo hr@Integer: #{show hr} hour ago
 DayAgo day@Integer: #{show day} day ago
 MonthAgo month@Integer: #{show month} month ago
 YearAgo year@Integer: #{show year} year ago
+
+# all pages
+AllPages: All Pages
