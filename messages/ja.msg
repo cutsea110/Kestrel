@@ -130,3 +130,6 @@ HourAgo hr@Integer: #{show hr} 時間前
 DayAgo day@Integer: #{show day} 日前
 MonthAgo month@Integer: #{show month} ヶ月前
 YearAgo year@Integer: #{show year} 年前
+
+# all pages
+AllPages: ページ一覧

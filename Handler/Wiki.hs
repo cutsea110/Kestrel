@@ -63,6 +63,21 @@ getWikiListR = do
             addStylesheet $ StaticR css_hk_kate_css
             addWidget $(whamletFile "templates/searchWiki.hamlet")
 
+getAllPagesR :: Handler RepHtmlJson
+getAllPagesR = do
+  render <- getUrlRender
+  entries <- runDB $ selectList [] [Asc WikiPath]
+  let widget = $(widgetFile "allPages")
+      json = jsonMap [("entries", jsonList $ map (go render) entries)]
+  defaultLayoutJson widget json
+  where
+    go r (_, w) =
+      jsonMap [ ("title", jsonScalar $ T.unpack (wikiPath w))
+              , ("uri", jsonScalar $ T.unpack $ r $ WikiR $ fromPath (wikiPath w))
+              , ("uday", jsonScalar $ show (wikiUpdated w))
+              ]
+
+
 getWikiR :: WikiPage -> Handler RepHtml
 getWikiR wp = do
   mode <- lookupGetParam "mode"
