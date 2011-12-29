@@ -48,8 +48,10 @@ module Foundation
     , (+++)
     ) where
 
-import Yesod
-import Yesod.Static
+import Prelude
+import Yesod hiding (Form, AppConfig (..), withYamlEnvironment)
+import Yesod.Static (Static, base64md5, StaticRoute(..))
+import Settings.StaticFiles
 import Yesod.AtomFeed
 import Yesod.Auth
 import Kestrel.Helpers.Auth.HashDB
@@ -59,21 +61,30 @@ import Yesod.Auth.Facebook
 -- import Yesod.Crud
 import Yesod.Default.Config
 import Yesod.Default.Util (addStaticContentExternal)
-import Yesod.Logger (Logger, logLazyText)
-import Yesod.Form.Jquery
+import Yesod.Logger (Logger, logMsg, formatLogText)
+#ifdef DEVELOPMENT
+import Yesod.Logger (logLazyText)
+#endif
+import qualified Settings
 import qualified Data.ByteString.Lazy as L
-import Database.Persist.GenericSql
 import qualified Database.Persist.Base
+import Database.Persist.GenericSql
+import Settings (widgetFile)
+import Model
+import Text.Jasmine (minifym)
+import Web.ClientSession (getKey)
+import Text.Hamlet (ihamletFile)
+import Text.Cassius (cassiusFile)
+import Text.Julius (juliusFile)
+import Yesod.Form.Jquery
 import Control.Monad (mplus, mzero, MonadPlus)
 import Control.Applicative ((<*>))
-import Text.Jasmine (minifym)
 import Text.Pandoc
 import Text.Pandoc.Shared
 import qualified Text.Highlighting.Kate as Kate
 import Text.XHtml.Strict (showHtmlFragment)
 import qualified Text.ParserCombinators.Parsec as P
 import qualified Data.Map as Map (lookup, fromList, Map)
-import Web.ClientSession (getKey)
 import Web.Encodings (encodeUrl)
 import Web.Encodings.StringLike ()
 import Data.List (inits)
@@ -82,34 +93,27 @@ import Data.Text (Text)
 import Data.Time.Clock (UTCTime(..))
 import qualified Data.Text as T
 import Text.Blaze (preEscapedText, preEscapedString)
-import Text.Hamlet (ihamletFile)
-import Text.Cassius (cassiusFile)
-import Text.Julius (juliusFile)
-#if PRODUCTION
-import Network.Mail.Mime (sendmail)
-#else
+#if DEVELOPMENT
 import qualified Data.Text.Lazy.Encoding
+#else
+import Network.Mail.Mime (sendmail)
 #endif
-
-import Model
-import Settings.StaticFiles
-import Settings
 
 (+++) :: Text -> Text -> Text
 (+++) = T.append
-
-mkMessage "Kestrel" "messages" "en"
 
 -- | The site argument for your application. This can be a good place to
 -- keep settings and values requiring initialization before your application
 -- starts running, such as database connections. Every handler will have
 -- access to the data present here.
 data Kestrel = Kestrel
-    { settings :: AppConfig DefaultEnv
+    { settings :: AppConfig DefaultEnv ()
     , getLogger :: Logger
     , getStatic :: Static -- ^ Settings for static file serving.
     , connPool :: Database.Persist.Base.PersistConfigPool Settings.PersistConfig -- ^ Database connection pool.
     }
+
+mkMessage "Kestrel" "messages" "en"
 
 -- This is where we define all of the routes in our application. For a full
 -- explanation of the syntax, please see:
@@ -131,6 +135,8 @@ data Kestrel = Kestrel
 -- usually require access to the KestrelRoute datatype. Therefore, we
 -- split these actions into two functions and place them in separate files.
 mkYesodData "Kestrel" $(parseRoutesFile "config/routes")
+
+type Form x = Html -> MForm Kestrel Kestrel (FormResult x, Widget)
 
 newtype WikiPage = WikiPage { unWikiPage :: [Text] } deriving (Eq, Show, Read)
 instance MultiPiece WikiPage where
@@ -207,7 +213,7 @@ instance Yesod Kestrel where
     -- This is done to provide an optimization for serving static files from
     -- a separate domain. Please see the staticroot setting in Settings.hs
     urlRenderOverride y (StaticR s) =
-        Just $ uncurry (joinPath y (Settings.staticroot $ settings y)) $ renderRoute s
+        Just $ uncurry (joinPath y (Settings.staticRoot $ settings y)) $ renderRoute s
     urlRenderOverride _ _ = Nothing
 
     -- The page to be redirected to when authentication is required.
@@ -218,14 +224,11 @@ instance Yesod Kestrel where
     maximumContentLength _ (Just (FileR _ _)) = 20 * 1024 * 1024 -- 20 megabytes
     maximumContentLength _ _                  =  2 * 1024 * 1024 --  2 megabytes for default
 
-    messageLogger y loc level msg =
-      formatLogMessage loc level msg >>= logLazyText (getLogger y)
-
     -- This function creates static content files in the static folder
     -- and names them based on a hash of their content. This allows
     -- expiration dates to be set far in the future without worry of
     -- users receiving stale content.
-    addStaticContent = addStaticContentExternal minifym base64md5 Settings.staticdir (StaticR . flip StaticRoute [])
+    addStaticContent = addStaticContentExternal minifym base64md5 Settings.staticDir (StaticR . flip StaticRoute [])
 
     -- Enable Javascript async loading
 --    yepnopeJs _ = Just $ Right $ StaticR js_modernizr_js
@@ -340,10 +343,10 @@ instance YesodAuthHashDB Kestrel where
 
 -- Sends off your mail. Requires sendmail in production!
 deliver :: Kestrel -> L.ByteString -> IO ()
-#ifdef PRODUCTION
-deliver _ = sendmail
-#else
+#ifdef DEVELOPMENT
 deliver y = logLazyText (getLogger y) . Data.Text.Lazy.Encoding.decodeUtf8
+#else
+deliver _ = sendmail
 #endif
 
 

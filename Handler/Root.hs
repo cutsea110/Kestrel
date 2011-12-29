@@ -22,8 +22,8 @@ getRootR = do
     let path = pathOf topPage
     top <- getBy $ UniqueWiki path
     case top of
-      Nothing -> lift $ uncurry (redirectParams RedirectTemporary) topNew
-      Just _ -> lift $ uncurry (redirectParams RedirectTemporary) topView
+      Nothing -> lift $ uncurry (redirectParams RedirectSeeOther) topNew
+      Just _ -> lift $ uncurry (redirectParams RedirectSeeOther) topView
 
 -- Some default handlers that ship with the Yesod site template. You will
 -- very rarely need to modify this.
@@ -95,10 +95,10 @@ getAuthToGoR :: Handler ()
 getAuthToGoR = do
   go <- lookupGetParam "go"
   case go of
-    Nothing -> uncurry (redirectParams RedirectTemporary) topView
+    Nothing -> uncurry (redirectParams RedirectSeeOther) topView
     Just r -> do
       _ <- requireAuth
-      redirectText RedirectTemporary r
+      redirectText RedirectSeeOther r
 
 getSystemBatchR :: Handler RepHtml
 getSystemBatchR = do
@@ -124,7 +124,7 @@ postSystemBatchR = do
           update fid [ FileHeaderWidth =. w 
                      , FileHeaderHeight =. h
                      , FileHeaderThumbnail =. imgp ]
-      redirect RedirectTemporary SystemBatchR
+      redirect RedirectSeeOther SystemBatchR
     upgradeThumbnail :: (FileHeaderId, FileHeader) -> IO (FileHeaderId, Maybe Int, Maybe Int, Bool)
     upgradeThumbnail (fid, fh) = do
       let uid = fileHeaderCreator fh 

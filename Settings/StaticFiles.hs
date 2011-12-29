@@ -1,10 +1,19 @@
 {-# LANGUAGE QuasiQuotes, TemplateHaskell, TypeFamilies #-}
+{-# LANGUAGE CPP #-}
 module Settings.StaticFiles where
 
+import Prelude (IO)
 import Yesod.Static (staticFiles, StaticRoute (StaticRoute))
+import qualified Yesod.Static as Static
+import Settings (staticDir)
 
--- | This generates easy references to files in the static directory at compile time.
---   The upside to this is that you have compile-time verification that referenced files
---   exist. However, any files added to your static directory during run-time can't be
---   accessed this way. You'll have to use their FilePath or URL to access them.
-$(staticFiles "static")
+-- | use this to create your static file serving site
+staticSite :: IO Static.Static
+staticSite =
+#if DEVELOPMENT
+  Static.staticDevel staticDir
+#else
+  Static.static staticDir
+#endif
+
+$(staticFiles Settings.staticDir)

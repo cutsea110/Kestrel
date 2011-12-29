@@ -36,9 +36,9 @@ getEitherWikiNewR wp = do
   mwiki <- runDB $ getBy $ UniqueWiki path
   case mwiki of
     Nothing -> 
-      redirectParams RedirectTemporary NewR [("path", encodeUrl path), ("mode", "v")]
+      redirectParams RedirectSeeOther NewR [("path", encodeUrl path), ("mode", "v")]
     Just _ ->
-      redirect RedirectTemporary $ WikiR wp
+      redirect RedirectSeeOther $ WikiR wp
 
 getWikiListR :: Handler RepHtml
 getWikiListR = do
