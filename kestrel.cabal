@@ -12,16 +12,16 @@ Cabal-version:       >=1.6
 Build-type:          Simple
 Homepage:            https://github.com/cutsea110/Kestrel
 
-Flag production
-     Description:   Build the production executable.
-     Default:       False
-
-Flag devel
+Flag dev
      Description:   Build for use with "yesod devel"
      Default:       False
 
-Library
-     if flag(devel)
+Flag library-only
+     Description:   Build the production executable.
+     Default:       False
+
+library
+     if flag(library-only)
          Buildable: True
      else
          Buildable: False
@@ -36,21 +36,23 @@ Library
                     Handler.Wiki
                     Handler.S3
                     Kestrel.Helpers.Auth.HashDB
-     ghc-options:   -Wall -threaded -O0
 
-Executable kestrel
-     if flag(devel)
+     ghc-options:   -Wall -threaded -O0
+     cpp-options:   -DDEVELOPMENT
+
+executable kestrel
+     if flag(library-only)
          Buildable: False
 
-     if flag(production)
-         cpp-options: -DPRODUCTION
-         ghc-options: -Wall -threaded -O2
+     if flag(dev)
+         cpp-options: -DDEVELOPMENT
+         ghc-options: -Wall -threaded -O0
      else
          ghc-options: -Wall -threaded -O0
 
-     Main-is: main.hs
+     main-is: main.hs
     
-     Build-depends: base         >= 4       && < 5
+     build-depends: base         >= 4       && < 5
                   , yesod        >= 0.9     && < 1.0
                   , yesod-auth
                   , yesod-core
