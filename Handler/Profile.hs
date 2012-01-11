@@ -35,4 +35,4 @@ putProfileR uid = do
   nn <- runInputPost $ ireq textField "nickname"
   runDB $ update uid [UserNickname =. Just nn]
   setMessage $ preEscapedText $ msgShow MsgUpdatedProfile
-  redirect RedirectTemporary $ ProfileR uid
+  redirect RedirectSeeOther $ ProfileR uid

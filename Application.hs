@@ -9,12 +9,18 @@ module Application
 
 import Foundation
 import Settings
-import Yesod.Static
+import Settings.StaticFiles (staticSite)
 import Yesod.Auth
 import Yesod.Default.Config
 import Yesod.Default.Main
-import Yesod.Logger (Logger)
 import Data.Dynamic (Dynamic, toDyn)
+#if DEVELOPMENT
+import Yesod.Logger (Logger, logBS, flushLogger)
+import Network.Wai.Middleware.RequestLogger (logHandleDev)
+#else
+import Yesod.Logger (Logger)
+import Network.Wai.Middleware.RequestLogger (logStdout)
+#endif
 import qualified Database.Persist.Base
 import Database.Persist.GenericSql (runMigration)
 
@@ -33,19 +39,21 @@ mkYesodDispatch "Kestrel" resourcesKestrel
 -- performs initialization and creates a WAI application. This is also the
 -- place to put your migrate statements to have automatic database
 -- migrations handled by Yesod.
-withKestrel :: AppConfig DefaultEnv -> Logger -> (Application -> IO ()) -> IO ()
+withKestrel :: AppConfig DefaultEnv () -> Logger -> (Application -> IO ()) -> IO ()
 withKestrel conf logger f = do
-#ifdef PRODUCTION
-    s <- static Settings.staticdir
-#else
-    s <- staticDevel Settings.staticdir
-#endif
+    s <- staticSite
     dbconf <- withYamlEnvironment "config/postgres.yml" (appEnv conf)
               $ either error return . Database.Persist.Base.loadConfig
     Database.Persist.Base.withPool (dbconf :: Settings.PersistConfig) $ \p -> do
         Database.Persist.Base.runPool dbconf (runMigration migrateAll) p
         let h = Kestrel conf logger s p
-        defaultRunner f h
+        defaultRunner (f . logWare) h
+  where
+#ifdef DEVELOPMENT
+    logWare = logHandleDev (\msg -> logBS logger msg >> flushLogger logger)
+#else
+    logWare = logStdout
+#endif
 
 -- for yesod devel
 withDevelAppPort :: Dynamic

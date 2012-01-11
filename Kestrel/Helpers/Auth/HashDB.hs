@@ -146,10 +146,10 @@ postLoginR = do
         Just _aid -> do
             setCreds False $ Creds "account" account [] -- FIXME aid?
             y <- getYesod
-            redirectUltDest RedirectTemporary $ loginDest y
+            redirectUltDest RedirectSeeOther $ loginDest y
         Nothing -> do
             toMaster <- getRouteToMaster
-            redirect RedirectTemporary $ toMaster LoginR
+            redirect RedirectSeeOther $ toMaster LoginR
 
 getPasswordR :: YesodAuthHashDB master => GHandler Auth master RepHtml
 getPasswordR = do
@@ -160,7 +160,7 @@ getPasswordR = do
         Just _ -> return ()
         Nothing -> do
             setMessage $ preEscapedText $ msgShow IfYouWantToChangePassword
-            redirect RedirectTemporary $ toMaster loginR
+            redirect RedirectSeeOther $ toMaster loginR
     defaultLayout $ do
         setTitle $ preEscapedText $ msgShow ChangePassword
         [whamlet|\
@@ -189,18 +189,18 @@ postPasswordR = do
     toMaster <- getRouteToMaster
     unless (new == confirm) $ do
         setMessage $ preEscapedText $ msgShow PasswordDoesntMatch +++ msgShow ReEnterAgain
-        redirect RedirectTemporary $ toMaster setpassR
+        redirect RedirectSeeOther $ toMaster setpassR
     maid <- maybeAuthId
     aid <- case maid of
             Nothing -> do
                 setMessage $ preEscapedText $ msgShow IfYouWantToChangePassword
-                redirect RedirectTemporary $ toMaster loginR
+                redirect RedirectSeeOther $ toMaster loginR
             Just aid -> return aid
     let sha1pass = encrypt new
     setPassword aid sha1pass
     setMessage $ preEscapedText $ msgShow UpdatedPassword
     y <- getYesod
-    redirect RedirectTemporary $ loginDest y
+    redirect RedirectSeeOther $ loginDest y
 
 encrypt :: Text -> Text
 encrypt = T.pack . showDigest . sha1 . pack . T.unpack

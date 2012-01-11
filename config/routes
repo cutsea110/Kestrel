@@ -9,7 +9,7 @@
 /robots.txt RobotsR GET
 /sitemap.xml SitemapR GET
 /feed FeedR GET
-/recent-changes.json RecentChangesR GET
+/recent-changes RecentChangesR GET
 
 / RootR GET
 
@@ -20,6 +20,7 @@
 /either/*WikiPage EitherWikiNewR GET
 
 /wikilist WikiListR GET
+/all-pages AllPagesR GET
 
 /s3/upload UploadR GET POST PUT
 /s3/user/#UserId/file/#FileHeaderId FileR GET POST DELETE

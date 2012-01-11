@@ -9,8 +9,8 @@
 module Settings
     ( widgetFile
     , PersistConfig
-    , staticroot
-    , staticdir
+    , staticRoot
+    , staticDir
     , s3dir
     , s3ThumbnailDir
     , topTitle
@@ -40,8 +40,8 @@ type PersistConfig = PostgresConf
 
 -- | The location of static files on your system. This is a file system
 -- path. The default value works properly with your scaffolded site.
-staticdir :: FilePath
-staticdir = "static"
+staticDir :: FilePath
+staticDir = "static"
 
 -- | The base URL for your static files. As you can see by the default
 -- value, this can simply be "static" appended to your application root.
@@ -56,18 +56,18 @@ staticdir = "static"
 -- have to make a corresponding change here.
 --
 -- To see how this value is used, see urlRenderOverride in Kestrel.hs
-staticroot :: AppConfig DefaultEnv -> Text
-staticroot conf = [st|#{appRoot conf}/static|]
+staticRoot :: AppConfig DefaultEnv x -> Text
+staticRoot conf = [st|#{appRoot conf}/static|]
 
 -- The rest of this file contains settings which rarely need changing by a
 -- user.
 
 
 widgetFile :: FilePath -> Q Exp
-#if PRODUCTION
-widgetFile = Yesod.Default.Util.widgetFileProduction
+#if DEVELOPMENT
+widgetFile = Yesod.Default.Util.widgetFileReload
 #else
-widgetFile = Yesod.Default.Util.widgetFileDebug
+widgetFile = Yesod.Default.Util.widgetFileNoReload
 #endif
 
 s3dir :: FilePath

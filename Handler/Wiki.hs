@@ -36,9 +36,9 @@ getEitherWikiNewR wp = do
   mwiki <- runDB $ getBy $ UniqueWiki path
   case mwiki of
     Nothing -> 
-      redirectParams RedirectTemporary NewR [("path", encodeUrl path), ("mode", "v")]
+      redirectParams RedirectSeeOther NewR [("path", encodeUrl path), ("mode", "v")]
     Just _ ->
-      redirect RedirectTemporary $ WikiR wp
+      redirect RedirectSeeOther $ WikiR wp
 
 getWikiListR :: Handler RepHtml
 getWikiListR = do
@@ -62,6 +62,21 @@ getWikiListR = do
             addJulius $(juliusFile "templates/wikilist.julius")
             addStylesheet $ StaticR css_hk_kate_css
             addWidget $(whamletFile "templates/searchWiki.hamlet")
+
+getAllPagesR :: Handler RepHtmlJson
+getAllPagesR = do
+  render <- getUrlRender
+  entries <- runDB $ selectList [] [Asc WikiPath]
+  let widget = $(widgetFile "allPages")
+      json = jsonMap [("entries", jsonList $ map (go render) entries)]
+  defaultLayoutJson widget json
+  where
+    go r (_, w) =
+      jsonMap [ ("title", jsonScalar $ T.unpack (wikiPath w))
+              , ("uri", jsonScalar $ T.unpack $ r $ WikiR $ fromPath (wikiPath w))
+              , ("uday", jsonScalar $ show (wikiUpdated w))
+              ]
+
 
 getWikiR :: WikiPage -> Handler RepHtml
 getWikiR wp = do

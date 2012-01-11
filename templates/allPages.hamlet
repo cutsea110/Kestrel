@@ -1,0 +1,8 @@
+<div id="main-content">
+  <h3 .metatitle>_{MsgAllPages}
+  \
+  <div id="result">
+    <ul
+      $forall entry <- entries
+        <li
+          <a href=@{WikiR $ fromWiki $ snd entry}>#{wikiPath $ snd entry}

@@ -1,0 +1,26 @@
+<div id="main-content">
+  <h3 .metatitle>_{MsgRecentChanges}
+  \
+  <div id="result">
+    <table
+      $forall entry <- entries
+        <tr
+          <td
+            #{showDate $ fromJust $ wikiTouched $ snd entry}
+          <td
+            $with diff <- diffUTCTime now (fromJust $ wikiTouched $ snd entry)
+              $if diff < minute
+                (_{MsgSecAgo $ fromSec diff sec})
+              $elseif diff < hour
+                (_{MsgMinAgo $ fromSec diff minute})
+              $elseif diff < day
+                (_{MsgHourAgo $ fromSec diff hour})
+              $elseif diff < month
+                (_{MsgDayAgo $ fromSec diff day})
+              $elseif diff < year
+                (_{MsgMonthAgo $ fromSec diff month})
+              $else
+                (_{MsgYearAgo $ fromSec diff year})
+          <td
+            <a href=@{WikiR $ fromWiki $ snd entry}>#{wikiPath $ snd entry}
+

@@ -1,9 +1,11 @@
 {-# LANGUAGE TemplateHaskell, QuasiQuotes, OverloadedStrings #-}
+{-# OPTIONS_GHC -fno-warn-type-defaults #-}
 module Handler.Root where
 
 import Foundation
 import Yesod.AtomFeed
 import Yesod.Sitemap
+import Data.Maybe (fromJust)
 import Data.Time
 import qualified Data.Text as T
 import Control.Monad (forM_)
@@ -20,8 +22,8 @@ getRootR = do
     let path = pathOf topPage
     top <- getBy $ UniqueWiki path
     case top of
-      Nothing -> lift $ uncurry (redirectParams RedirectTemporary) topNew
-      Just _ -> lift $ uncurry (redirectParams RedirectTemporary) topView
+      Nothing -> lift $ uncurry (redirectParams RedirectSeeOther) topNew
+      Just _ -> lift $ uncurry (redirectParams RedirectSeeOther) topView
 
 -- Some default handlers that ship with the Yesod site template. You will
 -- very rarely need to modify this.
@@ -41,7 +43,7 @@ getSitemapR = do
 getFeedR :: Handler RepAtom
 getFeedR = runDB $ do
   msgShow <- lift $ getMessageRender
-  tops <- selectList [] [Desc WikiUpdated, LimitTo 10]
+  tops <- selectList  [WikiTouched !=. Nothing] [Desc WikiTouched, LimitTo 10]
   entries <- markdownsToWikiHtmls (noToc msgShow) $ map (wikiContent . snd) tops
   let uday = (wikiUpdated . snd . head) tops
   lift $ atomFeed Feed
@@ -64,14 +66,17 @@ getFeedR = runDB $ do
       { writerTableOfContents = False
       }
 
-getRecentChangesR :: Handler RepJson
+getRecentChangesR :: Handler RepHtmlJson
 getRecentChangesR = do 
   render <- getUrlRender
   entries <- runDB $ selectList [WikiTouched !=. Nothing] [Desc WikiTouched, LimitTo Settings.numOfRecentChanges]
-  cacheSeconds 10 -- FIXME
   now <- liftIO getCurrentTime
-  jsonToRepJson $ jsonMap [("entries", jsonList $ map (go now render) entries)]
+  let widget = $(widgetFile "recentChanges")
+      json = jsonMap [("entries", jsonList $ map (go now render) entries)]
+  defaultLayoutJson widget json
   where
+    (sec,minute,hour,day,month,year) = (1,60*sec,60*minute,24*hour,30*day,365*day)
+    fromSec d s = ceiling $ d / s
     go now r (_, w) = 
       jsonMap [ ("title", jsonScalar $ T.unpack (wikiPath w))
               , ("uri", jsonScalar $ T.unpack $ r $ WikiR $ fromPath (wikiPath w))
@@ -90,10 +95,10 @@ getAuthToGoR :: Handler ()
 getAuthToGoR = do
   go <- lookupGetParam "go"
   case go of
-    Nothing -> uncurry (redirectParams RedirectTemporary) topView
+    Nothing -> uncurry (redirectParams RedirectSeeOther) topView
     Just r -> do
       _ <- requireAuth
-      redirectText RedirectTemporary r
+      redirectText RedirectSeeOther r
 
 getSystemBatchR :: Handler RepHtml
 getSystemBatchR = do
@@ -119,7 +124,7 @@ postSystemBatchR = do
           update fid [ FileHeaderWidth =. w 
                      , FileHeaderHeight =. h
                      , FileHeaderThumbnail =. imgp ]
-      redirect RedirectTemporary SystemBatchR
+      redirect RedirectSeeOther SystemBatchR
     upgradeThumbnail :: (FileHeaderId, FileHeader) -> IO (FileHeaderId, Maybe Int, Maybe Int, Bool)
     upgradeThumbnail (fid, fh) = do
       let uid = fileHeaderCreator fh 
