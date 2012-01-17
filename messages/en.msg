@@ -10,6 +10,7 @@ UpdatedProfile: your profile updated.
 ConflictOccurred: Conflict occurred. Your changes couldn't be propagated.
 ChangesSince time@UTCTime: Changes since #{showDate time}.
 ChangesBetween from@UTCTime to@UTCTime: Changes between #{showDate from} and #{showDate to}
+More: (read more...)
 
 # default-layout
 Tools: Tools

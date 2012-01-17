@@ -10,6 +10,7 @@ UpdatedProfile: プロフィールを更新しました.
 ConflictOccurred: 競合が発生しました.あなたの変更は反映できませんでした.
 ChangesSince time@UTCTime: #{showDate time} 以降の変更
 ChangesBetween from@UTCTime to@UTCTime: #{showDate from} から #{showDate to} の変更
+More: (続きを読む...)
 
 # default-layout
 Tools: 検索ツール

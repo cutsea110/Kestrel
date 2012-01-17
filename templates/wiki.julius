@@ -32,4 +32,16 @@ $(document).ready(function(){
       return false;
     }
   });
+  $(".more").hide().each(function(){
+    var more = $(this),
+        a = $("<a/>")
+            .attr({href: '#'})
+            .text('#{msgShow MsgMore}')
+            .click(function() {
+              more.show();
+              $(this).remove();
+              return false;
+            });
+    $(this).after(a);
+  });
 });
