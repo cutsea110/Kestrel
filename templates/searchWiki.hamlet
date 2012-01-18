@@ -1,4 +1,3 @@
-<div id="main-content">
+<div #main-content
   <h3 .metatitle>_{MsgSearchResultFor key}
-  \
-  <div id="result">
+  <div #result

@@ -1,68 +1,66 @@
-<div .right>
-  <ul .breadcrumbs>
+<div .right
+  <ul .breadcrumbs
     $forall a <- ancestory wp
-      <li>
-        <a href="@{WikiR a}">#{lastNameOf a}
-<ul .tabs>
-  <li>
-    <a href="@{WikiR wp}">_{MsgVIEW}
-  <li>
-    <a href="@?{editMe}">_{MsgEDIT}
-  <li>
-    <a href="@?{deleteMe}">_{MsgDELETE}
-  <li .selected>
-    <a href="@{HistoriesR wp}">_{MsgHISTORY}
+      <li
+        <a href=@{WikiR a}>#{lastNameOf a}
+<ul .tabs
+  <li
+    <a href=@{WikiR wp}>_{MsgVIEW}
+  <li
+    <a href=@?{editMe}>_{MsgEDIT}
+  <li
+    <a href=@?{deleteMe}>_{MsgDELETE}
+  <li .selected
+    <a href=@{HistoriesR wp}>_{MsgHISTORY}
   $if not isTop
-    <li>
-      <a href="@?{topView}">_{MsgTOP}
-\
-<div id="main-content">
+    <li
+      <a href=@?{topView}>_{MsgTOP}
+<div #main-content
   <h3 .metatitle>_{MsgChangeHistoryOf path}
-  \
-  <table .history>
-    <thead>
-      <tr>
-        <th rowspan="2">_{MsgVersion}
-        <th rowspan="2">_{MsgUpdatedDate}
+  <table .history
+    <thead
+      <tr
+        <th rowspan=2>_{MsgVersion}
+        <th rowspan=2>_{MsgUpdatedDate}
         <th>_{MsgEditor}
         <th>_{MsgChangeLines}
         <th>_{MsgOperation}
-      <tr>
-        <th colspan="3">_{MsgCommentLog}
-    <tbody>
+      <tr
+        <th colspan=3>_{MsgCommentLog}
+    <tbody
     $forall h <- hs
-      <tr class="#{altClass (snd3 h)}">
-        <td rowspan="2" .number>#{show (wikiHistoryVersion (snd3 h))}
-        <td rowspan="2">#{showDate (wikiHistoryUpdated (snd3 h))}
+      <tr .#{altClass (snd3 h)}
+        <td rowspan=2 .number>#{show (wikiHistoryVersion (snd3 h))}
+        <td rowspan=2>#{showDate (wikiHistoryUpdated (snd3 h))}
         <td>#{userDisplayName (fst3 h)}
         <td>+#{show (fst (thd3 h))},#{show (snd (thd3 h))}
-        <td>
-           \[
-           <a href="@?{viewVer (wikiHistoryVersion (snd3 h))}">_{MsgVIEW}
-           \| _{MsgThisVerOfTheOriginal}
-           <a href="@?{editVer (wikiHistoryVersion (snd3 h))}">_{MsgEDIT}
-           \|
-           <a href="@?{revertVer (wikiHistoryVersion (snd3 h))}">_{MsgREVERT}
-           \]
+        <td
+           [
+           <a href=@?{viewVer (wikiHistoryVersion (snd3 h))}>_{MsgVIEW}
+           | _{MsgThisVerOfTheOriginal}
+           <a href=@?{editVer (wikiHistoryVersion (snd3 h))}>_{MsgEDIT}
+           |
+           <a href=@?{revertVer (wikiHistoryVersion (snd3 h))}>_{MsgREVERT}
+           ]
            $if canDiff (snd3 h)
-             \[_{MsgPreDiffBetween}
+             [_{MsgPreDiffBetween}
              $if notCurrent (snd3 h)
-               <a href="@?{currDiff (wikiHistoryVersion (snd3 h))}">_{MsgLatestVersion}
+               <a href=@?{currDiff (wikiHistoryVersion (snd3 h))}>_{MsgLatestVersion}
              $if canDiff2 (snd3 h)
-               \|
+               |
              $if notEpoch (snd3 h)
-               <a href="@?{prevDiff (wikiHistoryVersion (snd3 h))}">_{MsgPreviousVersion}
-             \_{MsgPostDiffBetween}]
-      <tr class="#{altClass (snd3 h)}">
-        <td colspan="3">
+               <a href=@?{prevDiff (wikiHistoryVersion (snd3 h))}>_{MsgPreviousVersion}
+             _{MsgPostDiffBetween}]
+      <tr .#{altClass (snd3 h)}
+        <td colspan=3
           $maybe _ <- mu
             $maybe com <- wikiHistoryComment (snd3 h)
               $if isNull com
-                <textarea name="comment" uri="@{HistoryR (wikiHistoryVersion (snd3 h)) wp}" .inplaceedit>
+                <textarea name=comment uri=@{HistoryR (wikiHistoryVersion (snd3 h)) wp} .inplaceedit
               $else
-                <textarea name="comment" uri="@{HistoryR (wikiHistoryVersion (snd3 h)) wp}" .inplaceedit>#{com}
+                <textarea name=comment uri=@{HistoryR (wikiHistoryVersion (snd3 h)) wp} .inplaceedit>#{com}
             $nothing
-              <textarea name="comment" uri="@{HistoryR (wikiHistoryVersion (snd3 h)) wp}" .inplaceedit>
+              <textarea name=comment uri=@{HistoryR (wikiHistoryVersion (snd3 h)) wp} .inplaceedit
           $nothing
             $maybe com <- wikiHistoryComment (snd3 h)
               $if isNull com
@@ -72,8 +70,8 @@
             $nothing
               <span>_{MsgNullText}
     $maybe next <- mnext
-      <tr>
-        <td colspan="5">
-          \[
-          <a href="@?{next}">_{MsgForEvenOlderHistory}
-          \]
+      <tr
+        <td colspan=5
+          [
+          <a href=@?{next}>_{MsgForEvenOlderHistory}
+          ]
