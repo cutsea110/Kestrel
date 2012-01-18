@@ -54,6 +54,8 @@ EDIT: 編集
 DELETE: 削除
 HISTORY: 更新履歴
 TOP: トップ
+ALLPAGES: ページ一覧
+RECENTCHANGES: 最近の更新
 LastEditor: 最終更新者
 LastUpdatedDate: 最終更新日時
 Preview: プレビューする
