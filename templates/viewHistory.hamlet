@@ -1,37 +1,34 @@
-<div .right>
-  <ul .breadcrumbs>
+<div .right
+  <ul .breadcrumbs
     $forall a <- ancestory wp
-      <li>
-        <a href="@{WikiR a}">#{lastNameOf a}
-<ul .tabs>
-  <li>
-    <a href="@{WikiR wp}">_{MsgVIEW}
-  <li>
-    <a href="@?{editMe}">_{MsgEDIT}
-  <li>
-    <a href="@?{deleteMe}">_{MsgDELETE}
-  <li .selected>
-    <a href="@{HistoriesR wp}">_{MsgHISTORY}
+      <li
+        <a href=@{WikiR a}>#{lastNameOf a}
+<ul .tabs
+  <li
+    <a href=@{WikiR wp}>_{MsgVIEW}
+  <li
+    <a href=@?{editMe}>_{MsgEDIT}
+  <li
+    <a href=@?{deleteMe}>_{MsgDELETE}
+  <li .selected
+    <a href=@{HistoriesR wp}>_{MsgHISTORY}
   $if not isTop
-    <li>
-      <a href="@?{topView}">_{MsgTOP}
-\
-<div id="main-content">
-  <div align="right">
+    <li
+      <a href=@?{topView}>_{MsgTOP}
+<div #main-content
+  <div align=right
     $if notCurrent
-      <a href="@?{currDiff}">_{MsgDiffWithTheLatestVer}
-      <br>
-    <a href="@?{editVer}">_{MsgBasedOnTheEditingOfThisEdition}
-    <br>
-    <a href="@{HistoriesR wp}">_{MsgBackToTheEditingHistory}
-  \
-  <div .history>
-    \#{content}
-   \
-   <div id="metainfo" align="right">
+      <a href=@?{currDiff}>_{MsgDiffWithTheLatestVer}
+      <br
+    <a href=@?{editVer}>_{MsgBasedOnTheEditingOfThisEdition}
+    <br
+    <a href=@{HistoriesR wp}>_{MsgBackToTheEditingHistory}
+  <div .history
+    #{content}
+   <div #metainfo align=right
      $maybe e <- me
-      \_{MsgLastEditor}: #{userDisplayName e}
+      _{MsgLastEditor}: #{userDisplayName e}
      $nothing
-      \_{MsgLastEditor}: -
-     <br>
-     \_{MsgLastUpdatedDate}: #{showDate upd}
+      _{MsgLastEditor}: -
+     <br
+     _{MsgLastUpdatedDate}: #{showDate upd}

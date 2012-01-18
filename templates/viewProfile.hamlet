@@ -1,14 +1,14 @@
 <h3>_{MsgProfileSettings}
-<form method="post" action="@{ProfileR uid}">
-  <input type="hidden" name="_method" value="modify">
-  <table .nostyle>
-    <tr>
+<form method=post action=@{ProfileR uid}
+  <input type=hidden name=_method value=modify
+  <table .nostyle
+    <tr
       <th>_{MsgAccountID}:
       <td>#{userIdent u}
-    <tr>
+    <tr
       <th>_{MsgNickName}:
-      <td>
+      <td
         $maybe n <- userNickname u
-          <input type="text" name="nickname" uri="@{ProfileR uid}" value="#{n}" .inplaceedit>
+          <input type=text name=nickname uri=@{ProfileR uid} value=#{n} .inplaceedit
         $nothing
-          <input type="text" name="nickname" uri="@{ProfileR uid}" .inplaceedit>
+          <input type=text name=nickname uri=@{ProfileR uid} .inplaceedit

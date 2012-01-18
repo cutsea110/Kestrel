@@ -1,7 +1,6 @@
-<div id="main-content">
+<div #main-content
   <h3 .metatitle>_{MsgRecentChanges}
-  \
-  <div id="result">
+  <div #result
     <table
       $forall entry <- entries
         <tr
@@ -23,4 +22,3 @@
                 (_{MsgYearAgo $ fromSec diff year})
           <td
             <a href=@{WikiR $ fromWiki $ snd entry}>#{wikiPath $ snd entry}
-
