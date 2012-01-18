@@ -5,7 +5,7 @@
         ^{const $ pageHead pc}
         ^{ga}
     <body
-        <div id="doc" .kui-t1 .clearfix
+        <div #doc .kui-t1 .clearfix
           <div #kui-main
             <div #maincol .kui-b
               ^{header}
