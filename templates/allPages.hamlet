@@ -1,3 +1,14 @@
+<div .right
+  <ul .breadcrumbs
+    <li
+      <a href=@{AllPagesR}>_{MsgALLPAGES}
+<ul .tabs
+  <li .selected
+    <a href=@{AllPagesR}>_{MsgALLPAGES}
+  <li
+    <a href=@{RecentChangesR}>_{MsgRECENTCHANGES}
+  <li
+    <a href=@?{topView}>_{MsgTOP}
 <div #main-content
   <h3 .metatitle>_{MsgAllPages}
   <div #result

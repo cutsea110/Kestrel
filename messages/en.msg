@@ -55,6 +55,8 @@ EDIT: Edit
 DELETE: Delete
 HISTORY: History
 TOP: Top
+ALLPAGES: All Pages
+RECENTCHANGES: Recent Changes
 LastEditor: Editor
 LastUpdatedDate: Updated Date
 Preview: preview

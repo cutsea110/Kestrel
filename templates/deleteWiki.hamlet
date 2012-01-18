@@ -12,6 +12,10 @@
     <a href=@?{deleteMe}>_{MsgDELETE}
   <li
     <a href=@{HistoriesR wp}>_{MsgHISTORY}
+  <li
+    <a href=@{AllPagesR}>_{MsgALLPAGES}
+  <li
+    <a href=@{RecentChangesR}>_{MsgRECENTCHANGES}
   $if not isTop
     <li
       <a href=@?{topView}>_{MsgTOP}
