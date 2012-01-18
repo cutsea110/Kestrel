@@ -1,28 +1,25 @@
-<div .right>
-  <ul .breadcrumbs>
+<div .right
+  <ul .breadcrumbs
     $forall a <- ancestory wp
-      <li>
-        <a href="@{WikiR a}">#{lastNameOf a}
-<ul .tabs>
-  <li>
-    <a href="@{WikiR wp}">_{MsgVIEW}
-  <li>
-    <a href="@?{editMe}">_{MsgEDIT}
-  <li .selected>
-    <a href="@?{deleteMe}">_{MsgDELETE}
-  <li>
-    <a href="@{HistoriesR wp}">_{MsgHISTORY}
+      <li
+        <a href=@{WikiR a}>#{lastNameOf a}
+<ul .tabs
+  <li
+    <a href=@{WikiR wp}>_{MsgVIEW}
+  <li
+    <a href=@?{editMe}>_{MsgEDIT}
+  <li .selected
+    <a href=@?{deleteMe}>_{MsgDELETE}
+  <li
+    <a href=@{HistoriesR wp}>_{MsgHISTORY}
   $if not isTop
-    <li>
-      <a href="@?{topView}">_{MsgTOP}
-\
-<div id="main-content">
+    <li
+      <a href=@?{topView}>_{MsgTOP}
+<div #main-content
   <h3 .metatitle> _{MsgConfirmRemove path}
-  \
-  <div .warnings>
+  <div .warnings
     [_{MsgWarning}]: _{MsgWarnForDelete}
-    <br>
+    <br
     _{MsgConfirmDeleteLastChance}
-  \
-  <form method="post" action="@{WikiR wp}">
-    <button type="submit" name="_method" value="delete">_{MsgRemoveAnyway}
+  <form method=post action=@{WikiR wp}
+    <button type=submit name=_method value=delete>_{MsgRemoveAnyway}

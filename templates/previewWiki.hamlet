@@ -1,41 +1,37 @@
-<div .right>
-  <ul .breadcrumbs>
+<div .right
+  <ul .breadcrumbs
     $forall a <- ancestory wp
-      <li>
-        <a href="@{WikiR a}">#{lastNameOf a}
-<ul .tabs>
-  <li>
-    <a href="@{WikiR wp}">_{MsgVIEW}
-  <li .selected>
-    <a href="@?{editMe}">_{MsgEDIT}
-  <li>
-    <a href="@?{deleteMe}">_{MsgDELETE}
-  <li>
-    <a href="@{HistoriesR wp}">_{MsgHISTORY}
+      <li
+        <a href=@{WikiR a}>#{lastNameOf a}
+<ul .tabs
+  <li
+    <a href=@{WikiR wp}>_{MsgVIEW}
+  <li .selected
+    <a href=@?{editMe}>_{MsgEDIT}
+  <li
+    <a href=@?{deleteMe}>_{MsgDELETE}
+  <li
+    <a href=@{HistoriesR wp}>_{MsgHISTORY}
   $if not isTop
-    <li>
-      <a href="@?{topView}">_{MsgTOP}
-\
-<div id="main-content">
+    <li
+      <a href=@?{topView}>_{MsgTOP}
+<div #main-content
   <h3 .metatitle> _{MsgPreviewOfThe path}
-  \
-  <form method="post" action="@{WikiR wp}" .validate>
-    <input type="hidden" name="version" value="#{show ver}">
-    <button type="submit" name="_method" value="preview">_{MsgMorePreview}
-    <button type="submit" name="_method" value="commit">_{MsgUpdate}
-    <input type="checkbox" name="donttouch" :toBool donttouch:checked="checked" />
-    <label for="donttouch">_{MsgDontRegisterRecentChanges}
-    \
+  <form method=post action=@{WikiR wp} .validate
+    <input type=hidden name=version value=#{show ver}
+    <button type=submit name=_method value=preview>_{MsgMorePreview}
+    <button type=submit name=_method value=commit>_{MsgUpdate}
+    <input type=checkbox name=donttouch :toBool donttouch:checked
+    <label for=donttouch>_{MsgDontRegisterRecentChanges}
     <div .preview>#{content}
-    <br>
-    <textarea id="content" name="content" .required .content>#{raw}
+    <br
+    <textarea #content name=content .required .content>#{raw}
     <div .description>_{MsgChangeLog} (_{MsgChangeLogDescription}):
-    <textarea name="comment" .comment>
+    <textarea name=comment .comment
       $maybe c <- com
-         \#{c}
-    <br>
-    <button type="submit" name="_method" value="preview">_{MsgMorePreview}
-    <button type="submit" name="_method" value="commit">_{MsgUpdate}
-  \
-  <div id="help">
-    \^{markdown}
+         #{c}
+    <br
+    <button type=submit name=_method value=preview>_{MsgMorePreview}
+    <button type=submit name=_method value=commit>_{MsgUpdate}
+  <div #help
+    ^{markdown}

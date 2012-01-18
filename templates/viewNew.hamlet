@@ -1,18 +1,17 @@
-<div .right>
-  <ul .breadcrumbs>
+<div .right
+  <ul .breadcrumbs
     $forall a <- ancestory (fromPath path)
-      <li>
-        <a href="@{WikiR a}">#{lastNameOf a}
-<ul .tabs>
-  <li .selected>
-    <a href="@?{viewMe}">_{MsgVIEW}
-  <li>
-    <a href="@?{editMe}">_{MsgEDIT}
+      <li
+        <a href=@{WikiR a}>#{lastNameOf a}
+<ul .tabs
+  <li .selected
+    <a href=@?{viewMe}>_{MsgVIEW}
+  <li
+    <a href=@?{editMe}>_{MsgEDIT}
   $if not isTop
-    <li>
-      <a href="@?{topView}">_{MsgTOP}
-\
-<div id="main-content">
-  \_{MsgNotYetThePage path} _{MsgIfYouWantToCreate}
-  <a href="@?{editMe}">_{MsgClickHere}
-  \.
+    <li
+      <a href=@?{topView}>_{MsgTOP}
+<div #main-content
+  _{MsgNotYetThePage path} _{MsgIfYouWantToCreate}
+  <a href=@?{editMe}>_{MsgClickHere}
+  .
