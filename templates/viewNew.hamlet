@@ -8,6 +8,10 @@
     <a href=@?{viewMe}>_{MsgVIEW}
   <li
     <a href=@?{editMe}>_{MsgEDIT}
+  <li
+    <a href=@{AllPagesR}>_{MsgALLPAGES}
+  <li
+    <a href=@{RecentChangesR}>_{MsgRECENTCHANGES}
   $if not isTop
     <li
       <a href=@?{topView}>_{MsgTOP}
