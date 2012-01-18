@@ -26,6 +26,8 @@
     <input type=hidden name=original_version value=#{show v}
     <button type=submit name=_method value=preview>_{MsgMorePreview}
     <button type=submit name=_method value=commit>_{MsgUpdate}
+    <input type=checkbox name=donttouch :toBool donttouch:checked
+    <label for=donttouch>_{MsgDontRegisterRecentChanges}
     <div .preview>#{content}
     <br
     <textarea #content name=content .required .content>#{raw}

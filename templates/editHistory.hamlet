@@ -24,6 +24,8 @@
   <form method=post action=@{HistoryR v wp} .validate
     <button type=submit name=_method value=preview>_{MsgPreview}
     <button type=submit name=_method value=commit>_{MsgUpdate}
+    <input type=checkbox name=donttouch :toBool donttouch:checked
+    <label for=donttouch>_{MsgDontRegisterRecentChanges}
     <br
     <input type=hidden name=version value=#{show ver}
     <input type=hidden name=original_version value=#{show v}

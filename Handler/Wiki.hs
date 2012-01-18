@@ -540,6 +540,8 @@ getHistoryR vsn wp = do
           ver = wikiVersion curp
           notCurrent =  v /= ver
           markdown = getDoc langs
+          toBool = maybe False (const True)
+          donttouch = if isSidePane path then Just undefined else Nothing
       defaultLayout $ do
         setTitle $ preEscapedText path
         addWidget $(widgetFile "wiki")
@@ -617,6 +619,8 @@ postHistoryR vsn wp = do
           deleteMe = (WikiR wp, [("mode", "d")])
           notCurrent = v /= ver
           markdown = getDoc langs
+          toBool = maybe False (const True)
+          donttouch = if isSidePane path then Just undefined else Nothing
       defaultLayout $ do
         setTitle $ preEscapedText path
         addWidget $(widgetFile "wiki")
