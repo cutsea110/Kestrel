@@ -540,6 +540,8 @@ getHistoryR vsn wp = do
           ver = wikiVersion curp
           notCurrent =  v /= ver
           markdown = getDoc langs
+          toBool = maybe False (const True)
+          donttouch = Just undefined
       defaultLayout $ do
         setTitle $ preEscapedText path
         addWidget $(widgetFile "wiki")
@@ -555,6 +557,8 @@ getHistoryR vsn wp = do
           deleteMe = (WikiR wp, [("mode", "d")])
           ver = wikiVersion curp
           notCurrent =  v /= ver
+          toBool = maybe False (const True)
+          donttouch = Just undefined
       defaultLayout $ do
         setTitle $ preEscapedText path
         addWidget $(widgetFile "wiki")
@@ -606,17 +610,19 @@ postHistoryR vsn wp = do
       msgShow <- getMessageRender
       let path = pathOf wp
           isTop = wp == topPage
-      (raw, com, ver, v) <- runInputPost $ (,,,)
+      (raw, com, ver, v, donttouch) <- runInputPost $ (,,,,)
                             <$> ireq textField "content"
                             <*> iopt textField "comment"
                             <*> ireq intField "version"
                             <*> ireq intField "original_version"
+                            <*> iopt textField "donttouch"
       content <- runDB $ markdownToWikiHtml (wikiWriterOption msgShow) raw
       langs <- languages
       let editMe = (WikiR wp, [("mode", "e")])
           deleteMe = (WikiR wp, [("mode", "d")])
           notCurrent = v /= ver
           markdown = getDoc langs
+          toBool = maybe False (const True)
       defaultLayout $ do
         setTitle $ preEscapedText path
         addWidget $(widgetFile "wiki")

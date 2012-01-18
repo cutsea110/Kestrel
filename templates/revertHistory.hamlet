@@ -28,6 +28,8 @@
     <div .warnings
       [_{MsgWarning}]: _{MsgConfirmRewindLastChance}
     <button type=submit name=_method value=commit>_{MsgRewindToThisEdition}
+    <input type=checkbox name=donttouch :toBool donttouch:checked
+    <label for=donttouch>_{MsgDontRegisterRecentChanges}
     <br
   <div .preview
     #{content}
