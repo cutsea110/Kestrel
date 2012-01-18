@@ -81,7 +81,8 @@ getRecentChangesR = do
       jsonMap [ ("title", jsonScalar $ T.unpack (wikiPath w))
               , ("uri", jsonScalar $ T.unpack $ r $ WikiR $ fromPath (wikiPath w))
               , ("uday", jsonScalar $ show (wikiUpdated w))
-              , ("new", jsonScalar $ show $ ((utctDay now) `diffDays` (utctDay $ wikiUpdated w)) <= Settings.newDays)
+              , ("toucheddate", jsonScalar $ show $ fromJust $ wikiTouched w)
+              , ("new", jsonScalar $ show $ ((utctDay now) `diffDays` (utctDay $ fromJust $ wikiTouched w)) <= Settings.newDays)
               ]
 
 getAuthStatusR :: Handler RepJson
