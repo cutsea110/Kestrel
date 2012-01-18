@@ -249,8 +249,8 @@ putWikiR wp = do
                                 <*> iopt textField "donttouch"
   runDB $ do
     (pid, page) <- getBy404 $ UniqueWiki path
-    let updated = Just $ wikiUpdated page
-        touched = maybe (Just now) (const updated) donttouch
+    let oldtouched = wikiTouched page
+        touched = maybe (Just now) (const oldtouched) donttouch
     if wikiVersion page == ver
       then do
       insert WikiHistory { wikiHistoryWiki=pid
