@@ -67,6 +67,7 @@ ChangeLog: ChangeLog
 ChangeLogDescription: Please write brief notes to help you check the history of changes.
 Warning: Warning!
 DontRegisterRecentChanges: Don't register to `Recent Changes'.
+PageLinks: Page Links
 
 # deleteWiki
 ConfirmRemove path@Text: Confirm removal of `#{path}'.
