@@ -28,6 +28,7 @@
     <button type=submit name=_method value=commit>_{MsgUpdate}
     <input type=checkbox name=donttouch :toBool donttouch:checked
     <label for=donttouch>_{MsgDontRegisterRecentChanges}
+    <button #wiki-select-button type=submit .link>_{MsgPageLinks}
     <div .preview>#{content}
     <br
     <textarea #content name=content .required .content>#{raw}
@@ -40,3 +41,7 @@
     <button type=submit name=_method value=commit>_{MsgUpdate}
   <div #help
     ^{markdown}
+
+<div #wiki-selector
+  <div .scroll
+    <ul #wiki-links

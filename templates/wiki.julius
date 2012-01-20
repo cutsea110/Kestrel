@@ -44,4 +44,53 @@ $(document).ready(function(){
             });
     $(this).after(a);
   });
+  $('#wiki-selector').hide().attr({title: "#{msgShow MsgAllPages}"}).dialog({
+    autoOpen: false,
+    width: 600,
+    modal: true
+  });
+
+  $('#wiki-select-button').click(function(){
+    var obj = $('#content')[0];
+    var pos;
+
+    if (obj) {
+      obj.focus();
+      if (jQuery.browser.msie) {
+        pos = document.selection.createRange();
+      } else {
+        pos = obj.selectionStart;
+      }
+    }
+    $('#wiki-selector').dialog('open');
+    $('#wiki-links li').remove();
+    $.getJSON(
+      '@{AllPagesR}',
+      function(json){
+        $.each(json.entries, function(i, item) {
+          var a = $('<a/>')
+                  .attr({href: '#'})
+                  .text(item.title)
+                  .click(function() {
+                    $('#wiki-selector').dialog('close');
+                    obj.focus();
+                    var wikiName = '[' + item.title + ']()';
+                    if (jQuery.browser.msie) {
+                      pos.text = wikiName;
+                      pos.select();
+                    }else{
+                      var s = obj.value;
+                      var np = pos + wikiName.length;
+                      obj.value = s.substr(0,pos) + wikiName + s.substr(pos);
+                      obj.setSelectionRange(np,np);
+                    }
+                    return false;
+                  }),
+              li = $('<li/>').append(a);
+          $('#wiki-links').append(li);
+        });
+      }
+    );
+    return false;
+  });
 });
