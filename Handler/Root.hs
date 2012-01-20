@@ -129,10 +129,10 @@ postSystemBatchR = do
     upgradeThumbnail :: (FileHeaderId, FileHeader) -> IO (FileHeaderId, Maybe Int, Maybe Int, Bool)
     upgradeThumbnail (fid, fh) = do
       let uid = fileHeaderCreator fh 
-          s3dir' = Settings.s3dir </> show uid
-          s3fp = s3dir' </> show fid
-          thumbDir = Settings.s3ThumbnailDir </> show uid
-          thumbfp = thumbDir </> show fid
+          s3dir' = Settings.s3dir </> T.unpack (toSinglePiece uid)
+          s3fp = s3dir' </> T.unpack (toSinglePiece fid)
+          thumbDir = Settings.s3ThumbnailDir </> T.unpack (toSinglePiece uid)
+          thumbfp = thumbDir </> T.unpack (toSinglePiece fid)
       bs <- L.readFile s3fp
       et <- mkThumbnail bs
       case et of
