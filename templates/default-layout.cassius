@@ -205,6 +205,10 @@ ul#selectable_images li a img
    background-position: 0% 50%
    background-repeat: no-repeat
 
+#sidenavi li.currentURL
+    background-color: #e0d0ff
+#sidenavi a.currentURL
+    background-color: #e0d0ff
 
 #seitoku-header-logo
   height: 60px
