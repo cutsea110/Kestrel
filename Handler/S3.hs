@@ -34,11 +34,11 @@ getUploadR = do
     addWidget $(widgetFile "s3/upload")
 
 upload uid fi = do
-  if fileName fi /= "" && L.length (fileContent fi) > 0
+  if fileName' fi /= "" && L.length (fileContent fi) > 0
     then do
     now <- liftIO getCurrentTime
-    let (name, ext) = splitExtension $ T.unpack $ fileName fi
-        efname = encodeUrl $ fileName fi
+    let (name, ext) = splitExtension $ T.unpack $ fileName' fi
+        efname = encodeUrl $ fileName' fi
         fsize = L.length $ fileContent fi
     (et, width, height, imagep) <- liftIO $ do
       et <- mkThumbnail (fileContent fi)
@@ -46,7 +46,7 @@ upload uid fi = do
         Right t -> return (et, Just (fst (orgSZ t)), Just (snd (orgSZ t)), True)
         Left _  -> return (et, Nothing, Nothing, False)
     fid <-
-      insert FileHeader { fileHeaderFullname=fileName fi
+      insert FileHeader { fileHeaderFullname=fileName' fi
                         , fileHeaderEfname=efname
                         , fileHeaderContentType=fileContentType fi
                         , fileHeaderFileSize=fsize
@@ -70,8 +70,13 @@ upload uid fi = do
         Right t -> do createDirectoryIfMissing True thumbDir
                       saveFile t thumbfp
         Left _ -> return ()
-    return $ Just (fid, fileName fi, T.pack ext, fsize, now, imagep, width, height)
+    return $ Just (fid, fileName' fi, T.pack ext, fsize, now, imagep, width, height)
     else return Nothing
+  where
+    fileName' :: FileInfo -> T.Text
+    fileName' = last . T.split (\c -> c=='/' || c=='\\') . fileName
+
+
 
 postUploadR :: Handler RepXml
 postUploadR = do
