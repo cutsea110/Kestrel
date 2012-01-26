@@ -1,7 +1,8 @@
-!!!
-<html
+\<!DOCTYPE HTML PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "html://www.w3c.org/TR/xhtml1/xhtml1-transitional.dtd">
+<html xmlns=http://www.w3c.org/1999/xhtml
     <head
         <title>#{pageTitle pc}
+        <meta http-equiv=X-UA-Compatible content="IE=edge"
         ^{const $ pageHead pc}
         ^{ga}
     <body
