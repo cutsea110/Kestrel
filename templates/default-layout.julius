@@ -8,8 +8,9 @@ $(document).ready(function(){
       // javascript element.getAttribute('value')
       // というわけでattributesのgetNamedItem経由でnodeValueを取得した
       //
-      var btn = document.getElementsByName($(this).attr('name'))[0];
-      $(this).text( btn.attributes.getNamedItem('value').nodeValue );
+      var btn = $(this)[0],
+          val = btn.attributes.getNamedItem('value').nodeValue;
+      $(this).text(val);
     });
   }
 
