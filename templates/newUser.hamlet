@@ -1,0 +1,24 @@
+<a href=@{UsersR}>Return to list
+<h1>Add new
+<form method=post action=@{NewUserR}
+  <table
+    <tr
+      <th>ident
+      <td
+        <input type=text name=ident
+    <tr
+      <th>password
+      <td
+        <input type=password name=password
+    <tr
+      <th>nickname
+      <td
+        <input type=text name=nickname
+    <tr
+      <th>active or inactive
+      <td
+        <input #active type=radio name=active value=yes checked
+        <label for=active>active
+        <input #inactive type=radio name=active value=no
+        <label for=active>inactive
+  <input type=submit

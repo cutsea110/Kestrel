@@ -1,0 +1,25 @@
+<a href=@{UsersR}>Return to list
+<h1>Edit item
+<form method=post action=@{UserR uid}
+  <table
+    <tr
+      <th>ident
+      <td
+        <input type=text name=ident value=#{userIdent user}
+    <tr
+      <th>password
+      <td
+        <input type=password name=password
+    <tr
+      <th>nickname
+      <td
+        <input type=text name=nickname value=#{userDisplayName user}
+    <tr
+      <th>active or inactive
+      <td
+        <input #active type=radio name=active value=yes :userActive user:checked
+        <label for=active>active
+        <input #inactive type=radio name=active value=no :not $ userActive user:checked
+        <label for=active>inactive
+  <input type=submit
+  <a href=@{DeleteUserR uid}>Delete

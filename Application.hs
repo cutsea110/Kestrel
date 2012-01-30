@@ -29,6 +29,7 @@ import Handler.Root
 import Handler.Profile
 import Handler.Wiki
 import Handler.S3
+import Handler.Admin
 
 -- This line actually creates our YesodSite instance. It is the second half
 -- of the call to mkYesodData which occurs in Kestrel.hs. Please see

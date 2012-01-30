@@ -28,4 +28,8 @@
 /s3/user/#UserId/thumbnail/#FileHeaderId ThumbnailR GET
 
 /system-batch SystemBatchR GET POST
--- /admin AdminR UserCrud userCrud -- FIXME
+
+/admin UsersR GET
+/admin/edit/#UserId UserR GET POST
+/admin/add NewUserR GET POST
+/admin/delete/#UserId DeleteUserR GET POST
