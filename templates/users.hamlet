@@ -1,0 +1,7 @@
+<h1>Items
+<ul
+  $forall user <- users
+    <li
+      <a href=@{UserR $ fst user}>#{userInfoOneline $ snd user}
+<p
+  <a href=@{NewUserR}>Add new item
