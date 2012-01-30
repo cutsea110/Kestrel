@@ -1,0 +1,6 @@
+<h1>Really delete?
+<form method=post action=@{DeleteUserR uid}
+  <p>Do you really want to delete #{userInfoOneline user}
+  <p
+    <input type=submit value=Yes
+    <a href=@{UsersR}>No
