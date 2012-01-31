@@ -6,32 +6,22 @@ $doctype 5
         ^{const $ pageHead pc}
         ^{ga}
     <body
+        ^{header}
         <div #doc .kui-t1 .clearfix
           <div #seitoku-header-logo
-            <img #seitoku-header src=@{StaticR img_seitoku_header_gif}
+            <div #seitoku-header-right
+              <div #seitoku-header-text>
+                興味をきっかけに、広がっていく好奇心。
+                <br
+                <br
+                聖徳大学 短期大学部 総合文化学科は、一人ひとりの個性や希望を活かせる
+                <br
+                フレキシブルな学科です。
           <div #kui-main
-            <div #maincol .kui-b
-              ^{header}
-              $maybe msg <- mmsg
-                <div #message>#{msg}
+            <div #main_left
+            <div #main_right
               ^{const $ pageBody pc}
               ^{footer}
-          <div #sidebar .kui-b .clearfix
-            <div #sidenavi .sidebox .clearfix
-            <div #recent-changes .sidebox
-            <div #tools .sidebox
-              <fieldset
-                <legend>_{MsgTools}
-                <form method=get action=@{WikiListR}
-                  <input type=text name=q placeholder=_{MsgSearchPlaceholder} .watermark
-                  <button type=submit name=_method value=search>_{MsgGo}
-                <form method=get action=http://www.google.com/search
-                  <input type=hidden name=hq value=inurl:#{googleInurl}
-                  <input type=hidden name=ie value=UTF-8
-                  <input type=hidden name=oe value=UTF-8
-                  <input type=hidden name=filter value=0
-                  <input type=text name=q .google
-                  <button type=submit name=btnG>_{MsgGo}
         $maybe _ <- mu
           <div #file_selector
            <div #photo-gallery .scroll

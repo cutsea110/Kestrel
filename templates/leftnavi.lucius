@@ -1,0 +1,79 @@
+﻿/* common styling */
+.menu_leftnavi{
+  font-family: arial, sans-serif;
+  width: 180px;
+  height: 240px;
+  position: relative;
+  font-size: x-small;
+  font-weight: bold;
+  margin: 20px 0 0 0;
+  z-index: 100;
+  text-align: left;
+}
+
+.menu_leftnavi ul {
+  padding: 0;
+  margin: 0;
+  list-style-type: none;
+  width: 180px;
+  height: 240px;
+}
+
+.menu_leftnavi ul li ul {
+  visibility: hidden;
+  position: absolute;
+  height: 0;
+  overflow: hidden;
+  top: 0;
+  left: 180px;
+}
+
+.menu_leftnavi ul li {
+  float: left;
+}
+
+.menu_leftnavi ul li a, .menu_leftnavi ul li a:visited {
+  display: block;
+  float: left;
+  text-decoration: none;
+  color: #FFF;
+  width: 170px;
+  height 100px;
+  line-height: 38px;
+  background: transparent url(@{StaticR img_menu_a_png}) no-repeat;
+  padding-left: 15px;
+}
+
+* html .menu_leftnavi ul li a, * html .menu_leftnavi ul li a:visited {
+  width:180px;
+}
+
+.menu_leftnavi table {
+  border-collapse: collapse;
+  border: 0;
+  margin: 0;
+  padding: 0;
+  position: absolute;
+  left: 0;
+  top: 0;
+}
+
+/* first line for IE7 and non-IE browsers - second line for IE5.5 and IE6 */
+.menu_leftnavi ul li:hover a,
+.menu_leftnavi ul li a:hover,
+.menu_leftnavi ul li a.current {
+  background: transparent url(@{StaticR img_menu_c_png}) no-repeat;
+//  color: #2c2725;
+  color: #d7edf9;
+}
+
+.menu_leftnavi ul li:hover {
+  position: relative;
+  z-index: 90;
+}
+
+* html .menu_leftnavi ul li a:hover {
+  position: relative;
+  z-index: 100;
+}
+
