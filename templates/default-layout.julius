@@ -169,7 +169,7 @@ $(document).ready(function(){
     }
     $("#file_selector").dialog('open');
     $("#selectable_images .image-gallery").remove();
-    $.getJSON($("#file-select-button").closest("form").attr("action"),
+    $.getJSON($("#file-select-button").attr("action"),
       function(data){
         $.each(data.files,
           function(i,item){

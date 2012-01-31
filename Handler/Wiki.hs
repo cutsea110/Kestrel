@@ -205,7 +205,6 @@ $if not (isNull blocks)
 
 postWikiR :: WikiPage -> Handler RepHtml
 postWikiR wp = do
-  _ <- requireAuth
   _method <- lookupPostParam "_method"
   case _method of
     Just "preview" -> previewWiki
@@ -216,6 +215,7 @@ postWikiR wp = do
     
     previewWiki :: Handler RepHtml
     previewWiki = do
+      (uid, _) <- requireAuth
       msgShow <- getMessageRender
       let path = pathOf wp
           isTop = wp == topPage
@@ -596,7 +596,6 @@ getHistoryR vsn wp = do
 
 postHistoryR :: Version -> WikiPage -> Handler RepHtml
 postHistoryR vsn wp = do
-  _ <- requireAuth
   _method <- lookupPostParam "_method"
   case _method of
     Just "preview" -> previewHistory
@@ -607,6 +606,7 @@ postHistoryR vsn wp = do
     
     previewHistory :: Handler RepHtml
     previewHistory = do
+      (uid, _) <- requireAuth
       msgShow <- getMessageRender
       let path = pathOf wp
           isTop = wp == topPage
