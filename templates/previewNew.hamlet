@@ -18,13 +18,14 @@
 <div #main-content
   <h3 .metatitle> _{MsgPreviewOfThe path}
   <form method=post action=@{NewR} .validate
+    <div .preview>#{content}
     <input type=hidden name=path value=#{path'}
     <button type=submit name=_method value=preview>_{MsgMorePreview}
     <button type=submit name=_method value=commit>_{MsgCreateNew}
     <input type=checkbox name=donttouch :toBool donttouch:checked
     <label for=donttouch>_{MsgDontRegisterRecentChanges}
+    <button #file-select-button type=submit .link action=@{FileListR uid}>_{MsgFileGallery}
     <button #wiki-select-button type=submit .link>_{MsgPageLinks}
-    <div .preview>#{content}
     <br
     <textarea #content name=content .required .content>#{raw}
     <div .description>_{MsgChangeLog} (_{MsgChangeLogDescription}):
