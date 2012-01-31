@@ -44,8 +44,6 @@ module Foundation
     , WriterOptions(..)
     , dropPrefix
       --
---    , UserCrud -- FIXME Crud
---    , userCrud -- FIXME Crud
     , (+++)
     ) where
 
@@ -59,7 +57,6 @@ import Kestrel.Helpers.Auth.HashDB
 import Yesod.Auth.OpenId
 import Yesod.Auth.Facebook
 -- import Yesod.Auth.OAuth
--- import Yesod.Crud
 import Yesod.Default.Config
 import Yesod.Default.Util (addStaticContentExternal)
 import Yesod.Logger (Logger, logMsg, formatLogText)
@@ -248,43 +245,6 @@ instance YesodJquery Kestrel where
   urlJqueryJs _ = Left $ StaticR js_jquery_1_4_4_min_js
   urlJqueryUiJs _ = Left $ StaticR js_jquery_ui_1_8_9_custom_min_js
   urlJqueryUiCss _ = Left $ StaticR css_jquery_ui_1_8_9_custom_css
-
-{-- FIXME Crud
-type UserCrud = Crud Kestrel User
-
-instance ToForm User Kestrel where
-  toForm mu = fieldsToTable $ User
-              <$> stringField "ident" (fmap userIdent mu)
-              <*> maybePasswordField "password" Nothing
-              <*> maybeStringField "nickname" (fmap userNickname mu)
-              <*> boolField "active" (fmap userActive mu)
-
-userCrud :: Kestrel -> Crud Kestrel User
-userCrud = const Crud
-           { crudSelect = do
-                _ <- requireAuth
-                runDB $ selectList [] [] 0 0
-           , crudReplace = \k a -> do
-                _ <- requireAuth
-                runDB $ do
-                  case userPassword a of
-                    Nothing -> do
-                      Just a' <- get k
-                      replace k $ a {userPassword=userPassword a', userActive=userActive a}
-                    Just rp -> do
-                      replace k $ a {userPassword=Just $ encrypt rp, userActive=userActive a}
-           , crudInsert = \a -> do
-                _ <- requireAuth
-                runDB $ do
-                  insert $ a {userPassword=(fmap encrypt $ userPassword a)}
-           , crudGet = \k -> do
-                _ <- requireAuth
-                runDB $ get k
-           , crudDelete = \k -> do
-                _ <- requireAuth
-                runDB $ delete k
-           }
---}
 
 instance RenderMessage Kestrel FormMessage where
     renderMessage _ _ = defaultFormMessage
