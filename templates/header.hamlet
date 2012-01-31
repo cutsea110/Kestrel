@@ -12,7 +12,3 @@
       $maybe cr <- cr
         <input type=hidden name=go value=@{r2m cr}
       <button type=submit .link>_{MsgLogin}
-<div #file-list-view
-  $maybe u <- mu
-    <form method=get action=@{FileListR (fst u)}
-      <button #file-select-button type=submit .link>_{MsgFileGallery}
