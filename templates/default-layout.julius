@@ -81,11 +81,18 @@ $(document).ready(function(){
         var a = $('<a/>').attr({href: '@{sidePaneView}'}).text('#{Settings.sidePaneTitle}');
         $('#sidenavi').append(fs.append(ld.append(a)).append(sp));
       }
+      var currentPath = document.URL.split(/[?#]/)[0];
       $('#sidenavi')
-      .find('a[href^=' + document.URL.split('?')[0] + '?mode=v]')
-      .addClass('currentURL')
-      .closest('li')
-      .addClass('currentURL');
+      .find('a')
+      .each(function(i, item) {
+        var href = item.href.split(/[?#]/)[0];
+        if (href==currentPath) {
+          $(this)
+          .addClass('currentURL')
+          .closest('li')
+          .addClass('currentURL');
+        }
+      });
     },
     error: function(msg, status) {
       if ('#{show mu}'!='Nothing') {
