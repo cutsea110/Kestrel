@@ -22,6 +22,20 @@ h3, h4, h5, h6 {
 div {
   margin-left:5px;
 }
+div.more {
+  margin-left:0px;
+}
+a.more {
+  font-weight: bold;
+  color: #c38389;
+  text-decoration: none;
+}
+a.more:link {
+  color: #c38389;
+}
+a.more:hover, a.more:visited {
+  color: #c43b48;
+}
 
 #title {
   color: #2c2725;
