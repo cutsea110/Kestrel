@@ -19,6 +19,16 @@ h3, h4, h5, h6 {
   border-bottom: 1px dotted #da6772;
 }
 
+p {
+  text-indent: 1em;
+}
+div.profile {
+  padding: 5px;
+  border-style: solid;
+  border-width: 1px;
+  font-size: small;
+}
+
 div {
   margin-left:5px;
 }

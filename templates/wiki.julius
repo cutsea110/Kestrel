@@ -39,7 +39,8 @@ $(document).ready(function(){
             .attr({href: '#'})
             .text('#{msgShow MsgMore}')
             .click(function() {
-              more.show();
+              $(this).hide();
+              more.show('slow');
               $(this).remove();
               return false;
             });
