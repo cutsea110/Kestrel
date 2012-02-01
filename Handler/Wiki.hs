@@ -18,7 +18,6 @@ import Data.Text (Text)
 import Data.String (IsString)
 import qualified Data.Text as T
 import Text.Blaze (preEscapedText)
-import Text.Cassius (cassiusFile)
 import Text.Julius (juliusFile)
 
 import Settings (topTitle)
@@ -58,7 +57,6 @@ getWikiListR = do
           1 -> invalidArgs ["Search term must be given two or more characters."]
           _ -> defaultLayout $ do
             setTitle $ preEscapedText "Search Result"
-            addCassius $(cassiusFile "templates/wiki.cassius")
             addJulius $(juliusFile "templates/wikilist.julius")
             addStylesheet $ StaticR css_hk_kate_css
             addWidget $(whamletFile "templates/searchWiki.hamlet")

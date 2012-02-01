@@ -1,7 +1,3 @@
-<div .right
-  <ul .breadcrumbs
-    <li
-      <a href=@{AllPagesR}>_{MsgALLPAGES}
 <ul .tabs
   <li .selected
     <a href=@{AllPagesR}>_{MsgALLPAGES}

@@ -35,6 +35,7 @@ $(document).ready(function(){
   $(".more").hide().each(function(){
     var more = $(this),
         a = $("<a/>")
+            .addClass('more')
             .attr({href: '#'})
             .text('#{msgShow MsgMore}')
             .click(function() {

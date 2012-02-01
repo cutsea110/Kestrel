@@ -1,7 +1,3 @@
-<div .right
-  <ul .breadcrumbs
-    <li
-      <a href=@{RecentChangesR}>_{MsgRECENTCHANGES}
 <ul .tabs
   <li
     <a href=@{AllPagesR}>_{MsgALLPAGES}

@@ -1,8 +1,3 @@
-<div .right
-  <ul .breadcrumbs
-    $forall a <- ancestory (fromPath path)
-      <li
-        <a href=@{WikiR a}>#{lastNameOf a}
 <ul .tabs
   <li
     <a href=@?{viewMe}>_{MsgVIEW}

@@ -17,7 +17,7 @@ $(document).ready(function(){
   if ('#{show mu}'=='Nothing') {
     $('#userbox').hide();
     $('ul.tabs').hide();
-    $('#seitoku-header').dblclick(function(){
+    $('#seitoku-header-logo').dblclick(function(){
       $('#userbox').show();
    });
   }
@@ -67,37 +67,50 @@ $(document).ready(function(){
     return true;
   });
 
+  var focusedAccordion = null;
+  $(".accordion").accordion({
+    autoHeight: false,
+    navigation: true
+  })
+  .hover(
+    function(){
+      $(this).addClass('focused');
+    },
+    function(){
+      $(this).removeClass('focused');
+    }
+  );
+
   $.ajax({
     type: 'GET',
     url: '@?{simpleSidePane}',
     dataType: 'html',
     success: function(data) {
-      var fs = $('<fieldset></fieldset>'),
-          ld = $('<legend/>'),
+      var div = $('<div/>').addClass('menu_leftnavi'),
           sp = $(data);
       if ('#{show mu}'=='Nothing') {
-        $('#sidenavi').append(fs.append(ld.text('#{Settings.sidePaneTitle}')).append(sp));
+        $('#main_left').append(div.append(sp));
       }else{
         var a = $('<a/>').attr({href: '@{sidePaneView}'}).text('#{Settings.sidePaneTitle}');
-        $('#sidenavi').append(fs.append(ld.append(a)).append(sp));
+        $('#main_left').append(div.append(a).append(sp));
       }
       var currentPath = document.URL.split(/[?#]/)[0];
-      $('#sidenavi')
+      $('#main_left')
       .find('a')
       .each(function(i, item) {
         var href = item.href.split(/[?#]/)[0];
         if (href==currentPath) {
           $(this)
-          .addClass('currentURL')
+          .addClass('current')
           .closest('li')
-          .addClass('currentURL');
+          .addClass('current');
         }
       });
     },
     error: function(msg, status) {
       if ('#{show mu}'!='Nothing') {
         var anc = $('<a/>').attr({href:'@?{sidePaneNew}'}).text('#{msgShow (MsgEditing Settings.sidePaneTitle)}');
-        $('#sidenavi').append(anc);
+        $('#main_left').append(anc);
       }
     }
   });

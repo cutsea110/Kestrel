@@ -72,7 +72,7 @@ import Model
 import Text.Jasmine (minifym)
 import Web.ClientSession (getKey)
 import Text.Hamlet (ihamletFile)
-import Text.Cassius (cassiusFile)
+import Text.Lucius (luciusFile)
 import Text.Julius (juliusFile)
 import Yesod.Form.Jquery
 import Control.Monad (mplus, mzero, MonadPlus)
@@ -204,8 +204,10 @@ instance Yesod Kestrel where
           addScriptEither $ Left $ StaticR plugins_exinplaceeditor_jquery_exinplaceeditor_0_1_3_js
           addStylesheetEither $ Left $ StaticR plugins_exinplaceeditor_exinplaceeditor_css
           addScriptEither $ Left $ StaticR plugins_watermark_jquery_watermark_js
-          addCassius $(cassiusFile "templates/default-layout.cassius")
+          addLucius $(luciusFile "templates/default-layout.lucius")
           addJulius $(juliusFile "templates/default-layout.julius")
+          addLucius $(luciusFile "templates/leftnavi.lucius")
+          addLucius $(luciusFile "templates/accordion.lucius")
           atomLink FeedR $ T.unpack Settings.topTitle
         ihamletToRepHtml $(ihamletFile "templates/default-layout.hamlet")
         
@@ -284,7 +286,6 @@ instance YesodAuth Kestrel where
     loginHandler = do
       defaultLayout $ do
         setTitle "Login"
-        addCassius $(cassiusFile "templates/login.cassius")
         addWidget $(whamletFile "templates/login.hamlet")
 
 instance YesodAuthHashDB Kestrel where
@@ -338,7 +339,7 @@ wikiWriterOption msgShow =
   defaultWriterOptions{
           writerStandalone = True
         , writerTemplate = "$if(toc)$\n<a id='pandoc-TOC-toggle' href=''></a><div id='pandoc-TOC-Title'>" ++ T.unpack (msgShow MsgTOC) ++ "$toc$</div>\n$endif$\n$body$"
-        , writerTableOfContents = True
+        , writerTableOfContents = False
         , writerNumberSections = False
         , writerIdentifierPrefix = "pandoc-"
         }
