@@ -77,7 +77,7 @@ executable kestrel
                   , language-javascript == 0.4.5
                   , hjsmin       >= 0.0.12  && < 0.1
                   , web-encodings >= 0.3 && < 0.4
-                  , highlighting-kate == 0.3.1
+                  , highlighting-kate >= 0.5.0.1 && < 0.6
                   , pandoc       >= 1.8.2
                   , pandoc-types >= 1.8.2
                   , utility-ht
