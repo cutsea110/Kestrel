@@ -7,6 +7,7 @@
 {-# LANGUAGE CPP #-}
 {-# OPTIONS_GHC -fspec-constr-count=100 #-}
 {-# OPTIONS_GHC -fno-warn-missing-signatures #-}
+{-# OPTIONS_GHC -fno-warn-unused-do-bind #-}
 module Foundation
     ( Kestrel (..)
     , KestrelRoute (..)
