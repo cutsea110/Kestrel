@@ -35,7 +35,7 @@
     <div .description>_{MsgChangeLog} (_{MsgChangeLogDescription}):
     <textarea name=comment .comment
       $if notCurrent
-        \ _{MsgWrittenBachToTheOriginalVer v}
+        \ _{MsgWrittenBackToTheOriginalVer v}
     <br
     <button type=submit name=_method value=preview>_{MsgPreview}
     <button type=submit name=_method value=commit>_{MsgUpdate}
