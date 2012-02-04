@@ -1,11 +1,10 @@
 /* Based on kate's own default colors for Haskell */
-table.sourceCode, tr.sourceCode, td.lineNumbers, td.sourceCode, table.sourceCode pre 
+table.sourceCode, tr.sourceCode, td.lineNumbers, td.sourceCode, table.sourceCode pre
    { margin: 0; padding: 0; border: 0; vertical-align: baseline; border: none; }
-table.sourceCode { margin-left: 18px; }
-td.nums { text-align: right; background-color: white; color: red; padding-right: 5px; padding-left: 5px; border-width: 0; } 
+td.lineNumbers { text-align: right; background-color: #EBEBEB; color: black; padding-right: 5px; padding-left: 5px; }
 td.sourceCode { padding-left: 5px; }
-code.sourceCode { }
-code.sourceCode span.kw { font-weight: bold; } 
+pre.sourceCode { }
+code.sourceCode span.kw { font-weight: bold; }
 code.sourceCode span.dt { color: #800000; }
 code.sourceCode span.dv { color: #0000FF; }
 code.sourceCode span.bn { color: #0000FF; }
