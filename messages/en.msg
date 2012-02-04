@@ -107,7 +107,7 @@ BackToTheEditingHistory: Back to the editing history.
 
 # editHistory
 EditingHistory path@Text: Editing `#{path}'.
-WrittenBachToTheOriginalVer v@Int: Written back to the original Ver.#{show v}.
+WrittenBackToTheOriginalVer v@Int: Written back to the original Ver.#{show v}.
 
 # previewHistory
 PreviewOfThe page@Text: Preview of the `#{page}.
