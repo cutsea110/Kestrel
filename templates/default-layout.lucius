@@ -27,6 +27,10 @@ div.profile {
   border-style: solid;
   border-width: 1px;
   font-size: small;
+  min-height: 157px;
+  img {
+    width: 128px;
+  }
 }
 
 div {
@@ -284,7 +288,6 @@ table.nostyle td {
   display:block;
   height:0;
   visibility:hidden;
-  width: 80%;
 }
 
 .clearfix {
@@ -357,21 +360,22 @@ table.nostyle td {
 
 #userbox a, #file-list-view a{color:#8080ff;}
 
-ul.tabs{margin:0;padding:0;}
-
-ul.tabs li.selected{border-bottom:3px solid white;}
-
-ul.tabs li {
-  display:inline;
-  margin:0 0 0 1.2em;
-  padding:0 0.6em;
-}
-ul.tabs li a {
-  color:#3366CC;
-  font-size:83%;
-  font-weight:bold;
-  margin:0px;
-  text-decoration:none;
+ul.tabs {
+  li {
+    display:inline;
+    margin:0 0 0 1.2em;
+    padding:0 0.6em;
+    a {
+      color:#3366CC;
+      font-size:83%;
+      font-weight:bold;
+      margin:0px;
+      text-decoration:none;
+    }
+  }
+  li.selected{
+    border-bottom:3px solid white;
+  }
 }
 
 .sidebox {
