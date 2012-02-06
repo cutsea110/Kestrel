@@ -58,8 +58,8 @@ table.nostyle td
     clear: both
     height: 0
     visibility: hidden
-    display: none
 .clearfix
+    display:inline-block
     min-height: 1px
 * html .clearfix
     height: 1px
