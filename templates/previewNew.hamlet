@@ -12,8 +12,8 @@
       <a href=@?{topView}>_{MsgTOP}
 <div #main-content
   <h3 .metatitle> _{MsgPreviewOfThe path}
+  <div .preview>#{content}
   <form method=post action=@{NewR} .validate
-    <div .preview>#{content}
     <input type=hidden name=path value=#{path'}
     <button type=submit name=_method value=preview>_{MsgMorePreview}
     <button type=submit name=_method value=commit>_{MsgCreateNew}
