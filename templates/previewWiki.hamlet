@@ -21,8 +21,8 @@
       <a href=@?{topView}>_{MsgTOP}
 <div #main-content
   <h3 .metatitle> _{MsgPreviewOfThe path}
+  <div .preview>#{content}
   <form method=post action=@{WikiR wp} .validate
-    <div .preview>#{content}
     <input type=hidden name=version value=#{show ver}
     <button type=submit name=_method value=preview>_{MsgMorePreview}
     <button type=submit name=_method value=commit>_{MsgUpdate}
