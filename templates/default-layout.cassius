@@ -58,6 +58,7 @@ table.nostyle td
     clear: both
     height: 0
     visibility: hidden
+    display: none
 .clearfix
     min-height: 1px
 * html .clearfix
