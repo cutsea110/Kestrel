@@ -108,7 +108,7 @@ BackToTheEditingHistory: 更新履歴に戻る.
 
 # editHistory
 EditingHistory path@Text: `#{path}' を編集中.
-WrittenBachToTheOriginalVer v@Int: 第 #{show v} 版を元に書き戻した.
+WrittenBackToTheOriginalVer v@Int: 第 #{show v} 版を元に書き戻した.
 
 # previewHistory
 PreviewOfThe page@Text: `#{page} のプレビュー中.

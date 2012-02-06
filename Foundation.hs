@@ -7,6 +7,7 @@
 {-# LANGUAGE CPP #-}
 {-# OPTIONS_GHC -fspec-constr-count=100 #-}
 {-# OPTIONS_GHC -fno-warn-missing-signatures #-}
+{-# OPTIONS_GHC -fno-warn-unused-do-bind #-}
 module Foundation
     ( Kestrel (..)
     , KestrelRoute (..)
@@ -46,6 +47,7 @@ module Foundation
       --
     , (+++)
     ) where
+import Debug.Trace (trace)
 
 import Prelude
 import Yesod hiding (Form, AppConfig (..), withYamlEnvironment)
@@ -75,12 +77,13 @@ import Text.Hamlet (ihamletFile)
 import Text.Lucius (luciusFile)
 import Text.Julius (juliusFile)
 import Yesod.Form.Jquery
-import Control.Monad (mplus, mzero, MonadPlus)
 import Control.Applicative ((<*>))
 import Text.Pandoc
 import Text.Pandoc.Shared
-import qualified Text.Highlighting.Kate as Kate
-import Text.XHtml.Strict (showHtmlFragment)
+import qualified Text.Highlighting.Kate as Kate (highlightAs, languages)
+import Text.Highlighting.Kate.Types (FormatOptions(..), defaultFormatOpts)
+import Text.Highlighting.Kate.Format.HTML (formatHtmlBlock)
+import Text.Blaze.Renderer.String (renderHtml)
 import qualified Text.ParserCombinators.Parsec as P
 import qualified Data.Map as Map (lookup, fromList, Map)
 import Web.Encodings (encodeUrl)
@@ -377,36 +380,34 @@ wikiLink _ _ x = x
 
 codeHighlighting :: Block -> Block
 codeHighlighting b@(CodeBlock (_, attr, _) src) =
+ trace (show attr) $
   case marry ls langs of
-    l:_ ->
-      case Kate.highlightAs l src of
-        Right result -> RawBlock "html" $ showHtmlFragment $ Kate.formatAsXHtml opts l result
-        Left  err    -> RawBlock "html" $ "Could not parse code: " ++ err
+    l:_ -> RawBlock "html" $ renderHtml $ formatHtmlBlock opts $ Kate.highlightAs l src
     _   -> b
   where
-    opts = [Kate.OptNumberLines] `mplus` (findRight (P.parse lineNo "") attr)
+    opts = defaultFormatOpts 
+             { numberLines = True
+             , startNumber =
+               maybe 1 id (findRight (P.parse lineNo "") attr)
+             }
     -- Language
     toL = map $ map toLower
     (ls, langs) = (toL attr, toL Kate.languages)
     marry xs ys = [x | x <- xs, y <- ys, x == y]
-    -- OptNumberFrom Int
-    lineNo :: P.Parser Kate.FormatOption
+    -- startNumber
+    lineNo :: P.Parser Int
     lineNo = do
-      n <- number
+      P.string "line"
+      n <- P.many1 P.digit
       P.eof
-      return $ Kate.OptNumberFrom n
-      where
-        number :: P.Parser Int
-        number = do 
-          n <- P.many1 P.digit
-          return $ read n
+      return $ read n
 codeHighlighting x = x
 
-findRight :: (MonadPlus m) => (a -> Either err v) -> [a] -> m v
-findRight _ []     = mzero
+findRight :: (a -> Either err v) -> [a] -> Maybe v
+findRight _ []     = Nothing
 findRight p (a:as) = case p a of
   Left  _ -> findRight p as
-  Right x -> return x
+  Right x -> Just x
       
 mkWikiDictionary :: [(WikiId, Wiki)] -> Map.Map Text Wiki
 mkWikiDictionary = Map.fromList . map (((,).wikiPath.snd) <*> snd)
