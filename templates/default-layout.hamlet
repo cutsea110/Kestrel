@@ -7,7 +7,7 @@ $doctype 5
         ^{ga}
     <body
         ^{header}
-        <div #doc .kui-t1 .clearfix
+        <div #doc .kui-t1
           <div #seitoku-header-logo
             <div #seitoku-header-right
               <div #seitoku-header-text>

@@ -47,7 +47,6 @@ module Foundation
       --
     , (+++)
     ) where
-import Debug.Trace (trace)
 
 import Prelude
 import Yesod hiding (Form, AppConfig (..), withYamlEnvironment)
@@ -380,7 +379,6 @@ wikiLink _ _ x = x
 
 codeHighlighting :: Block -> Block
 codeHighlighting b@(CodeBlock (_, attr, _) src) =
- trace (show attr) $
   case marry ls langs of
     l:_ -> RawBlock "html" $ renderHtml $ formatHtmlBlock opts $ Kate.highlightAs l src
     _   -> b
