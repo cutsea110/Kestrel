@@ -27,7 +27,7 @@ div.profile {
   border-style: solid;
   border-width: 1px;
   font-size: small;
-  min-height: 157px;
+  width: 590px;
   img {
     width: 128px;
   }
@@ -292,6 +292,7 @@ table.nostyle td {
 }
 
 .clearfix {
+  display:inline-block;
   min-height:1px
 }
 
