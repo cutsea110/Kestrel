@@ -38,7 +38,7 @@
   text-decoration: none;
   color: #FFF;
   width: 170px;
-  height 100px;
+  height: 40px;
   line-height: 38px;
   background: transparent url(@{StaticR img_menu_a_png}) no-repeat;
   padding-left: 15px;
@@ -63,7 +63,6 @@
 .menu_leftnavi ul li a:hover,
 .menu_leftnavi ul li a.current {
   background: transparent url(@{StaticR img_menu_c_png}) no-repeat;
-//  color: #2c2725;
   color: #d7edf9;
 }
 

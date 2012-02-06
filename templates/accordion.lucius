@@ -1,6 +1,4 @@
-﻿ * Accordion container.
- */
-.Accordion {
+﻿.Accordion {
   margin: 20px;
   padding: 0;
   border-left: solid 1px #e2d6ca;
