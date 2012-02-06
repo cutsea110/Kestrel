@@ -6,7 +6,7 @@ $doctype 5
         ^{const $ pageHead pc}
         ^{ga}
     <body
-        <div #doc .kui-t1 .clearfix
+        <div #doc .kui-t1
           <div #kui-main
             <div #maincol .kui-b
               ^{header}
@@ -14,11 +14,11 @@ $doctype 5
                 <div #message>#{msg}
               ^{const $ pageBody pc}
               ^{footer}
-          <div #sidebar .kui-b .clearfix
+          <div #sidebar .kui-b
             <div #kestrel-logo
               <a title="Go to top page" alt="site logo" href=@?{topView}
                 <img src=@{StaticR img_kestrel_logo_png}
-            <div #sidenavi .sidebox .clearfix
+            <div #sidenavi .sidebox
             <div #recent-changes .sidebox
             <div #tools .sidebox
               <fieldset
