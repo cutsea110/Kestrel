@@ -114,8 +114,9 @@ blockquote {
 }
 
 div.preview {
-  background-color:#f8f8f8;
-  padding:10px;
+  background-color:#f0f0f0;
+  padding-top:10px;
+  padding-bottom:10px;
 }
 
 fieldset.blocks {margin:0.5em 0 0.5em 0;}
