@@ -196,6 +196,7 @@ instance Yesod Kestrel where
             ga = $(ihamletFile "templates/ga.hamlet")
             header = $(ihamletFile "templates/header.hamlet")
             footer = $(ihamletFile "templates/footer.hamlet")
+        mlastup <- runDB $ selectFirst [WikiTouched !=. Nothing] [Desc WikiTouched,LimitTo 1]
         pc <- widgetToPageContent $ do
           widget
           addScriptEither $ urlJqueryJs y
