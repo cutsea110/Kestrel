@@ -17,6 +17,8 @@ $doctype 5
                 聖徳大学 短期大学部 総合文化学科は、一人ひとりの個性や希望を活かせる
                 <br
                 フレキシブルな学科です。
+          $maybe lu <- mlastup
+            <div #lastupdate>_{MsgLastUpdatedDate}: #{maybe "-" showDate $ wikiTouched $ snd lu}
           <div #kui-main
             <div #main_left
             <div #main_right

@@ -1,5 +1,5 @@
 ﻿h1 {
-  padding: 0 0 10px 5px;
+  padding: 0 0 12px 5px;
   background: #c43b48;
   font-size:130%;
   color: #2c2725;
@@ -199,7 +199,6 @@ table.history th {
 body {
   margin: 0;
   padding: 0;
-  background: #FFF;
   scrollbar-3dlight-color:    #ff9999;
   scrollbar-arrow-color:      white;
   scrollbar-darkshadow-color: #ae002c;
@@ -207,7 +206,7 @@ body {
   scrollbar-highlight-color:  white;
   scrollbar-shadow-color:     #666;
   scrollbar-track-color: #ffcccc;
-  background: url(@{StaticR img_bg_01_jpg});
+  background: url(@{StaticR img_bg_01_jpg}) repeat-x #fdedf3;
   color: #594f4b;
   font-size: small;
 }
@@ -289,7 +288,6 @@ table.nostyle td {
   display:block;
   height:0;
   visibility:hidden;
-  display:none;
 }
 
 .clearfix {
@@ -350,6 +348,7 @@ table.nostyle td {
   padding: 5px 5px;
   width: 620px;
   background: #FFF;
+  line-height: 1.5em;
 }
 
 #userbox, #file-list-view {
@@ -405,7 +404,7 @@ ul{list-style-type:square;}
 
 img {
   border-style:none;
-    vertical-align: middle;
+  vertical-align: middle;
 }
 #footer {
   color:#888888;
@@ -462,6 +461,8 @@ ul#selectable_images li a img {
 
 .inline{display:inline-block;}
 
+.nonedecoration{text-decoration:none;}
+
 #trashbox{margin-right:20px;}
 
 .google {
@@ -475,26 +476,36 @@ ul#selectable_images li a img {
 
 #seitoku-header-logo{
   width: 870px;
-  height: 260px;
-  background: url(@{StaticR img_title_01_png}) no-repeat left;
-  margin: 10px 0 0 20px;
+  height: 185px;
+  background: url(@{StaticR img_title_01_gif}) no-repeat center;
+  margin-left: 20px;
 }
 
 #seitoku-header-right {
-  width: 500px;
-  height: 240px;
   float: right;
-  margin: 10px 0 0 360px;
+  margin-top: 75px;
+  margin-right: 20px;
   text-align: left;
-  padding: 0 0 0 20px;
-  color: #2c2725;
+  padding: 0;
+  color: #fff;
   font-weight: bold;
-  background: url(@{StaticR img_r_img_01_gif}) right top no-repeat;
+  font-size: 14px;
 }
 
-#seitoku-header-text {
-  width: 480px;
-  margin: 90px 0 0 10px;
+div#lastupdate { /* 最終更新日 */
+  font-size: 9px;
+  width: 870px;
+  margin-left: 20px;
+  text-align: right;
+  color: #999;
+}
+
+div.brancharea {
+  width: 610px;
+  height: 350px;
+  text-align: center;
+  padding-top: 20px;
+  background: url(@{StaticR img_line_chara_png}) no-repeat center;
 }
 
 .accordion {
