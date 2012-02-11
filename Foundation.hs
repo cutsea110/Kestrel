@@ -85,8 +85,6 @@ import Text.Highlighting.Kate.Format.HTML (formatHtmlBlock)
 import Text.Blaze.Renderer.String (renderHtml)
 import qualified Text.ParserCombinators.Parsec as P
 import qualified Data.Map as Map (lookup, fromList, Map)
-import Web.Encodings (encodeUrl)
-import Web.Encodings.StringLike ()
 import Data.List (inits)
 import Data.Char (toLower)
 import Data.Text (Text)
@@ -148,14 +146,14 @@ topPage = WikiPage [Settings.topTitle]
 topView :: (KestrelRoute, [(Text, Text)])
 topView = (WikiR topPage, [("mode","v")])
 topNew :: (KestrelRoute, [(Text, Text)])
-topNew = (NewR, [("path", encodeUrl Settings.topTitle)])
+topNew = (NewR, [("path", Settings.topTitle)])
 
 sidePane :: WikiPage
 sidePane = WikiPage [Settings.sidePaneTitle]
 sidePaneView :: KestrelRoute
 sidePaneView = WikiR sidePane
 sidePaneNew :: (KestrelRoute, [(Text, Text)])
-sidePaneNew = (NewR, [("path", encodeUrl Settings.sidePaneTitle), ("mode", "e")])
+sidePaneNew = (NewR, [("path", Settings.sidePaneTitle), ("mode", "e")])
 simpleSidePane :: (KestrelRoute, [(Text, Text)])
 simpleSidePane = (WikiR sidePane, [("mode", "s")])
 isSidePane :: Text -> Bool
@@ -364,15 +362,14 @@ transformDoc render pages = bottomUp codeHighlighting . bottomUp (wikiLink rende
 -- Wiki Link Sign of WikiName is written as [WikiName]().
 wikiLink :: (KestrelRoute -> [(Text, Text)] -> Text) -> Map.Map Text Wiki -> Inline -> Inline
 wikiLink render pages (Link ls ("", "")) = 
-  case Map.lookup p'' pages of
+  case Map.lookup path' pages of
     Just _  -> 
-      Link [Str p'] (render' (WikiR $ fromPath p'') [("mode", "v")], p')
+      Link [Str p'] (render' (WikiR $ fromPath path') [("mode", "v")], p')
     Nothing -> 
       Emph [Str p', Link [Str "?"] (render' NewR [("path", path'), ("mode", "v")], p')]
   where
     p' = inlinesToString ls
-    p'' = T.pack p'
-    path' = encodeUrl p''
+    path' = T.pack p'
     render' = (T.unpack .) . render
 wikiLink _ _ x = x
 
