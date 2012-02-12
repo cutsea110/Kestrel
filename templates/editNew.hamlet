@@ -20,7 +20,7 @@
     <button #file-select-button type=submit .link action=@{FileListR uid}>_{MsgFileGallery}
     <button #wiki-select-button type=submit .link>_{MsgPageLinks}
     <br
-    <input type=hidden name=path value=#{path'}
+    <input type=hidden name=path value=#{path}
     <textarea #content name=content .required .content
     <div .description>_{MsgChangeLog} (_{MsgChangeLogDescription}):
     <textarea name=comment .comment

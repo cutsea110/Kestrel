@@ -10,7 +10,6 @@ import Foundation
 import Control.Monad
 import Data.Time
 import Control.Applicative ((<$>),(<*>))
-import Web.Encodings (encodeUrl, decodeUrl)
 import Data.Tuple.HT
 import Data.Algorithm.Diff
 import Data.List (groupBy)
@@ -35,7 +34,7 @@ getEitherWikiNewR wp = do
   mwiki <- runDB $ getBy $ UniqueWiki path
   case mwiki of
     Nothing -> 
-      redirectParams RedirectSeeOther NewR [("path", encodeUrl path), ("mode", "v")]
+      redirectParams RedirectSeeOther NewR [("path", path), ("mode", "v")]
     Just _ ->
       redirect RedirectSeeOther $ WikiR wp
 
@@ -282,7 +281,7 @@ deleteWikiR wp = do
     deleteWhere [WikiHistoryWiki ==. pid]
     delete pid
     return pid
-  redirectParams RedirectSeeOther NewR [("path", encodeUrl path),("mode", "v")]
+  redirectParams RedirectSeeOther NewR [("path", path),("mode", "v")]
 
 getNewR :: Handler RepHtml
 getNewR = do
@@ -299,11 +298,10 @@ getNewR = do
       path'' <- lookupGetParam "path"
       case path'' of
         Nothing -> invalidArgs ["'path' query paramerter is required."]
-        Just path' -> do
-          let path = decodeUrl path'
-              isTop = path==Settings.topTitle
-              viewMe = (NewR, [("path", path'), ("mode", "v")])
-              editMe = (NewR, [("path", path'), ("mode", "e")])
+        Just path -> do
+          let isTop = path==Settings.topTitle
+              viewMe = (NewR, [("path", path), ("mode", "v")])
+              editMe = (NewR, [("path", path), ("mode", "e")])
           defaultLayout $ do
             setTitle $ preEscapedText path
             addWidget $(widgetFile "wiki")
@@ -317,12 +315,11 @@ getNewR = do
       path'' <- lookupGetParam "path"
       case path'' of
         Nothing -> invalidArgs ["'path' query paramerter is required."]
-        Just path' -> do
+        Just path -> do
           langs <- languages
-          let path = decodeUrl path'
-              isTop = path==Settings.topTitle
-              viewMe = (NewR, [("path", path'), ("mode", "v")])
-              editMe = (NewR, [("path", path'), ("mode", "e")])
+          let isTop = path==Settings.topTitle
+              viewMe = (NewR, [("path", path), ("mode", "v")])
+              editMe = (NewR, [("path", path), ("mode", "e")])
               markdown = getDoc langs
               toBool = maybe False (const True)
               donttouch = if isSidePane path then Just undefined else Nothing
@@ -345,16 +342,15 @@ postNewR = do
     previewWiki = do
       (uid, _) <- requireAuth
       msgShow <- getMessageRender
-      (path', raw, com, donttouch) <- runInputPost $ (,,,)
+      (path, raw, com, donttouch) <- runInputPost $ (,,,)
                                       <$> ireq textField "path"
                                       <*> ireq textField "content"
                                       <*> iopt textField "comment"
                                       <*> iopt textField "donttouch"
       langs <- languages
-      let path = decodeUrl path'
-          isTop = path == Settings.topTitle
-          viewMe = (NewR, [("path", path'), ("mode", "v")])
-          editMe = (NewR, [("path", path'), ("mode", "e")])
+      let isTop = path == Settings.topTitle
+          viewMe = (NewR, [("path", path), ("mode", "v")])
+          editMe = (NewR, [("path", path), ("mode", "e")])
           markdown = getDoc langs
           toBool = maybe False (const True)
       content <- runDB $ markdownToWikiHtml (wikiWriterOption msgShow) raw
@@ -368,7 +364,7 @@ postNewR = do
     createWiki = do
       (uid, _) <- requireAuth
       (path, raw, com, donttouch) <- runInputPost $ (,,,)
-                                     <$> (fmap decodeUrl . ireq textField) "path"
+                                     <$> ireq textField "path"
                                      <*> ireq textField "content"
                                      <*> iopt textField "comment"
                                      <*> iopt textField "donttouch"
