@@ -3,26 +3,27 @@
 {-# LANGUAGE CPP #-}
 {-# OPTIONS_GHC -fno-warn-orphans #-}
 module Application
-    ( withKestrel
-    , withDevelAppPort
+    ( getApplication
+    , getApplicationDev
     ) where
 
 import Foundation
 import Settings
 import Settings.StaticFiles (staticSite)
+import Yesod
 import Yesod.Auth
 import Yesod.Default.Config
 import Yesod.Default.Main
-import Data.Dynamic (Dynamic, toDyn)
 #if DEVELOPMENT
-import Yesod.Logger (Logger, logBS, flushLogger)
-import Network.Wai.Middleware.RequestLogger (logHandleDev)
+import Yesod.Logger (Logger, logBS)
+import Network.Wai.Middleware.RequestLogger (logCallbackDev)
 #else
-import Yesod.Logger (Logger)
-import Network.Wai.Middleware.RequestLogger (logStdout)
+import Yesod.Logger (Logger, logBS, toProduction)
+import Network.Wai.Middleware.RequestLogger (logCallback)
 #endif
-import qualified Database.Persist.Base
+import qualified Database.Persist.Store
 import Database.Persist.GenericSql (runMigration)
+import Network.HTTP.Conduit (newManager, def)
 
 -- Import all relevant handler modules here.
 import Handler.Root
@@ -40,22 +41,32 @@ mkYesodDispatch "Kestrel" resourcesKestrel
 -- performs initialization and creates a WAI application. This is also the
 -- place to put your migrate statements to have automatic database
 -- migrations handled by Yesod.
-withKestrel :: AppConfig DefaultEnv () -> Logger -> (Application -> IO ()) -> IO ()
-withKestrel conf logger f = do
+getApplication :: AppConfig DefaultEnv Extra -> Logger -> IO Application
+getApplication conf logger = do
+    manager <- newManager def
     s <- staticSite
     dbconf <- withYamlEnvironment "config/postgres.yml" (appEnv conf)
-              $ either error return . Database.Persist.Base.loadConfig
-    Database.Persist.Base.withPool (dbconf :: Settings.PersistConfig) $ \p -> do
-        Database.Persist.Base.runPool dbconf (runMigration migrateAll) p
-        let h = Kestrel conf logger s p
-        defaultRunner (f . logWare) h
+              Database.Persist.Store.loadConfig >>=
+              Database.Persist.Store.applyEnv
+    p <- Database.Persist.Store.createPoolConfig (dbconf :: Settings.PersistConfig)
+    Database.Persist.Store.runPool dbconf (runMigration migrateAll) p
+    let foundation = Kestrel conf setLogger s p manager dbconf
+    app <- toWaiAppPlain foundation
+    return $ logWare app
   where
 #ifdef DEVELOPMENT
-    logWare = logHandleDev (\msg -> logBS logger msg >> flushLogger logger)
+    logWare = logCallbackDev (logBS setLogger)
+    setLogger = logger
 #else
-    logWare = logStdout
+    setLogger = toProduction logger -- by default the logger is set for development
+    logWare = logCallback (logBS setLogger)
 #endif
 
 -- for yesod devel
-withDevelAppPort :: Dynamic
-withDevelAppPort = toDyn $ defaultDevelApp withKestrel
+getApplicationDev :: IO (Int, Application)
+getApplicationDev =
+    defaultDevelApp loader getApplication
+  where
+    loader = loadConfig (configSettings Development)
+        { csParseExtra = parseExtra
+        }
