@@ -79,14 +79,10 @@ import Yesod.Form.Jquery
 import Control.Applicative ((<*>))
 import Text.Pandoc
 import Text.Pandoc.Shared
-import qualified Text.Highlighting.Kate as Kate (highlightAs, languages)
-import Text.Highlighting.Kate.Types (FormatOptions(..), defaultFormatOpts)
-import Text.Highlighting.Kate.Format.HTML (formatHtmlBlock)
+import qualified Text.Pandoc.Highlighting as PH (formatHtmlBlock, highlight)
 import Text.Blaze.Renderer.String (renderHtml)
-import qualified Text.ParserCombinators.Parsec as P
 import qualified Data.Map as Map (lookup, fromList, Map)
 import Data.List (inits)
-import Data.Char (toLower)
 import Data.Text (Text)
 import Data.Time.Clock (UTCTime(..))
 import qualified Data.Text as T
@@ -374,27 +370,11 @@ wikiLink render pages (Link ls ("", "")) =
 wikiLink _ _ x = x
 
 codeHighlighting :: Block -> Block
-codeHighlighting b@(CodeBlock (_, attr, _) src) =
-  case marry ls langs of
-    l:_ -> RawBlock "html" $ renderHtml $ formatHtmlBlock opts $ Kate.highlightAs l src
-    _   -> b
+codeHighlighting b@(CodeBlock attr src) = 
+  case PH.highlight PH.formatHtmlBlock attr src of
+    Just r -> RawBlock "html" $ renderHtml r
+    _ -> b
   where
-    opts = defaultFormatOpts 
-             { numberLines = True
-             , startNumber =
-               maybe 1 id (findRight (P.parse lineNo "") attr)
-             }
-    -- Language
-    toL = map $ map toLower
-    (ls, langs) = (toL attr, toL Kate.languages)
-    marry xs ys = [x | x <- xs, y <- ys, x == y]
-    -- startNumber
-    lineNo :: P.Parser Int
-    lineNo = do
-      P.string "line"
-      n <- P.many1 P.digit
-      P.eof
-      return $ read n
 codeHighlighting x = x
 
 findRight :: (a -> Either err v) -> [a] -> Maybe v
@@ -422,10 +402,6 @@ inlinesToString = concatMap go
           Cite _ xs               -> concatMap go xs
           Code _ s                -> s
           Space                   -> " "
-          EmDash                  -> "---"
-          EnDash                  -> "--"
-          Apostrophe              -> "'"
-          Ellipses                -> "..."
           LineBreak               -> " "
           Math DisplayMath s      -> "$$" ++ s ++ "$$"
           Math InlineMath s       -> "$" ++ s ++ "$"
