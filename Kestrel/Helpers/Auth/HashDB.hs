@@ -70,8 +70,8 @@ japanese UpdatedPassword = "パスワードを更新しました."
 japanese PasswordDoesntMatch = "パスワードが合致していません."
 japanese ReEnterAgain = "再度入力しなおしてください."
 
-type Lang = Text
-translate :: [Lang] -> Message -> Text
+type Language = Text
+translate :: [Language] -> Message -> Text
 translate ("en":_) = english
 translate ("ja":_) = japanese
 translate (_:rest) = translate rest

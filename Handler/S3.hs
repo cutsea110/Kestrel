@@ -14,12 +14,13 @@ module Handler.S3
        ) where
 
 import Foundation
+import Kestrel.Helpers.Util (encodeUrl)
+
 import Data.Time
 import qualified Data.ByteString.Lazy as L
 import Data.ByteString.Char8 (pack)
 import System.Directory
 import System.FilePath
-import Web.Encodings (encodeUrl)
 import qualified Data.Text as T
 import qualified Settings (s3dir, s3ThumbnailDir)
 import Text.Cassius (cassiusFile)

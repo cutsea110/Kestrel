@@ -37,6 +37,7 @@ library
                     Handler.S3
                     Handler.Admin
                     Kestrel.Helpers.Auth.HashDB
+                    Kestrel.Helpers.Util
 
      ghc-options:   -Wall -threaded -O0
      cpp-options:   -DDEVELOPMENT
@@ -54,14 +55,19 @@ executable kestrel
      main-is: main.hs
     
      build-depends: base         >= 4       && < 5
+                  , HTTP         >= 4000.1
                   , yesod        >= 0.9     && < 0.10
-                  , yesod-auth
-                  , yesod-core
-                  , yesod-default
-                  , yesod-static
-                  , yesod-form
-                  , yesod-newsfeed
-                  , yesod-sitemap
+                  , yesod-auth   >= 0.7     && < 0.8
+                  , yesod-core   >= 0.9     && < 0.10
+                  , yesod-default >= 0.5    && < 0.6
+                  , yesod-static >= 0.3     && < 0.4
+                  , yesod-form   >= 0.3     && < 0.4
+                  , yesod-newsfeed >= 0.3   && < 0.4
+                  , yesod-sitemap >= 0.2    && < 0.3
+                  , certificate == 1.0.1
+                  , http-enumerator == 0.7.2.5
+                  , tls == 0.8.5
+                  , tls-extra == 0.4.2.1
                   , mime-mail
                   , wai
                   , wai-extra
@@ -76,10 +82,8 @@ executable kestrel
                   , hamlet
                   , language-javascript == 0.4.5
                   , hjsmin       >= 0.0.12  && < 0.1
-                  , web-encodings >= 0.3 && < 0.4
-                  , highlighting-kate >= 0.5.0.1 && < 0.6
-                  , pandoc       >= 1.8.2
-                  , pandoc-types >= 1.8.2
+                  , pandoc       >= 1.9.0.5 && < 1.10
+                  , pandoc-types >= 1.9.0.2 && < 1.10
                   , utility-ht
                   , Diff
                   , transformers
@@ -97,3 +101,4 @@ executable kestrel
                   , shakespeare-css
                   , blaze-html
                   , clientsession
+                  , utf8-string  >= 0.3.7   && < 0.4

@@ -19,7 +19,7 @@
   <h3 .metatitle> _{MsgPreviewOfThe path}
   <div .preview>#{content}
   <form method=post action=@{NewR} .validate
-    <input type=hidden name=path value=#{path'}
+    <input type=hidden name=path value=#{path}
     <button type=submit name=_method value=preview>_{MsgMorePreview}
     <button type=submit name=_method value=commit>_{MsgCreateNew}
     <input type=checkbox name=donttouch :toBool donttouch:checked
