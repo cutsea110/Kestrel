@@ -7,6 +7,7 @@ module Handler.Wiki where
 
 import Foundation
 
+import Yesod
 import Control.Monad
 import Data.Time
 import Control.Applicative ((<$>),(<*>))
@@ -23,7 +24,7 @@ import Text.Julius (juliusFile)
 import Settings (topTitle)
 import Settings.StaticFiles
 
-getDoc :: (IsString t, Monad m, Eq t) => [t] -> GGWidget master m ()
+getDoc :: (IsString t, Eq t) => [t] -> GWidget sub master ()
 getDoc [] = $(whamletFile "templates/markdown-help-en.hamlet")
 getDoc ("en":_) = $(whamletFile "templates/markdown-help-en.hamlet")
 getDoc ("ja":_) = $(whamletFile "templates/markdown-help-ja.hamlet")
@@ -35,9 +36,9 @@ getEitherWikiNewR wp = do
   mwiki <- runDB $ getBy $ UniqueWiki path
   case mwiki of
     Nothing -> 
-      redirectParams RedirectSeeOther NewR [("path", path), ("mode", "v")]
+      redirect (NewR, [("path", path), ("mode", "v")] :: [(Text, Text)])
     Just _ ->
-      redirect RedirectSeeOther $ WikiR wp
+      redirect $ WikiR wp
 
 getWikiListR :: Handler RepHtml
 getWikiListR = do
@@ -67,14 +68,14 @@ getAllPagesR = do
   render <- getUrlRender
   entries <- runDB $ selectList [] [Asc WikiPath]
   let widget = $(widgetFile "allPages")
-      json = jsonMap [("entries", jsonList $ map (go render) entries)]
+      json = object ["entries" .= array (map (go render) entries)]
   defaultLayoutJson widget json
   where
-    go r (_, w) =
-      jsonMap [ ("title", jsonScalar $ T.unpack (wikiPath w))
-              , ("uri", jsonScalar $ T.unpack $ r $ WikiR $ fromPath (wikiPath w))
-              , ("uday", jsonScalar $ show (wikiUpdated w))
-              ]
+    go r (Entity _ w) =
+      object [ "title" .= wikiPath w
+             , "uri" .= r (WikiR (fromPath (wikiPath w)))
+             , "uday" .= wikiUpdated w
+             ]
 
 
 getWikiR :: WikiPage -> Handler RepHtml
@@ -94,7 +95,7 @@ getWikiR wp = do
     getwiki opt = do
       let path = pathOf wp
       runDB $ do
-        (_, p)  <- getBy404 $ UniqueWiki path
+        (Entity _ p)  <- getBy404 $ UniqueWiki path
         me <- get $ wikiEditor p
         let (raw, upd, ver) = (wikiContent p, wikiUpdated p, wikiVersion p)
             isTop = wp == topPage
@@ -138,7 +139,7 @@ getWikiR wp = do
         Nothing  -> invalidArgs []
         Just key -> do
           let path =pathOf wp
-          (_, p) <- runDB $ getBy404 $ UniqueWiki path
+          (Entity _ p) <- runDB $ getBy404 $ UniqueWiki path
           let blocks = searchWord key $ wikiContent p
               isNull = \h -> case h of
                 [] -> True
@@ -173,7 +174,7 @@ $if not (isNull blocks)
 
     editWiki :: Handler RepHtml
     editWiki = do
-      (uid, _) <- requireAuth
+      (Entity uid _) <- requireAuth
       msgShow <- getMessageRender
       (path, raw, content, upd, ver, _, isTop) <- getwiki (wikiWriterOption msgShow)
       langs <- languages
@@ -190,7 +191,7 @@ $if not (isNull blocks)
             
     deleteWiki :: Handler RepHtml
     deleteWiki = do
-      (uid, _) <- requireAuth
+      (Entity uid _) <- requireAuth
       msgShow <- getMessageRender
       (path, raw, content, upd, ver, me, isTop) <- getwiki (wikiWriterOption msgShow)
       let editMe = (WikiR wp, [("mode", "e")])
@@ -214,7 +215,7 @@ postWikiR wp = do
     
     previewWiki :: Handler RepHtml
     previewWiki = do
-      (uid, _) <- requireAuth
+      (Entity uid _) <- requireAuth
       msgShow <- getMessageRender
       let path = pathOf wp
           isTop = wp == topPage
@@ -237,7 +238,7 @@ postWikiR wp = do
 
 putWikiR :: WikiPage -> Handler RepHtml
 putWikiR wp = do
-  (uid, _) <- requireAuth
+  (Entity uid _) <- requireAuth
   msgShow <- getMessageRender
   let path = pathOf wp
   now <- liftIO getCurrentTime
@@ -247,7 +248,7 @@ putWikiR wp = do
                                 <*> ireq intField "version"
                                 <*> iopt textField "donttouch"
   runDB $ do
-    (pid, page) <- getBy404 $ UniqueWiki path
+    (Entity pid page) <- getBy404 $ UniqueWiki path
     let oldtouched = wikiTouched page
         touched = maybe (Just now) (const oldtouched) donttouch
     if wikiVersion page == ver
@@ -272,18 +273,18 @@ putWikiR wp = do
       -- FIXME Conflict?
       lift $ setMessage $ preEscapedText $ msgShow MsgConflictOccurred
       return pid
-  redirectParams RedirectSeeOther (WikiR wp) [("mode", "v")]
+  redirect (WikiR wp, [("mode", "v")] :: [(Text, Text)])
 
 deleteWikiR :: WikiPage -> Handler RepHtml
 deleteWikiR wp = do
   _ <- requireAuth
   let path = pathOf wp
   runDB $ do
-    (pid, _) <- getBy404 $ UniqueWiki path
+    (Entity pid _) <- getBy404 $ UniqueWiki path
     deleteWhere [WikiHistoryWiki ==. pid]
     delete pid
     return pid
-  redirectParams RedirectSeeOther NewR [("path", path),("mode", "v")]
+  redirect (NewR, [("path", path),("mode", "v")] :: [(Text, Text)])
 
 getNewR :: Handler RepHtml
 getNewR = do
@@ -312,7 +313,7 @@ getNewR = do
     
     editNew :: Handler RepHtml
     editNew = do
-      (uid, _) <- requireAuth
+      (Entity uid _) <- requireAuth
       msgShow <- getMessageRender
       path'' <- lookupGetParam "path"
       case path'' of
@@ -342,7 +343,7 @@ postNewR = do
   where
     previewWiki :: Handler RepHtml
     previewWiki = do
-      (uid, _) <- requireAuth
+      (Entity uid _) <- requireAuth
       msgShow <- getMessageRender
       (path, raw, com, donttouch) <- runInputPost $ (,,,)
                                       <$> ireq textField "path"
@@ -364,7 +365,7 @@ postNewR = do
     
     createWiki :: Handler RepHtml
     createWiki = do
-      (uid, _) <- requireAuth
+      (Entity uid _) <- requireAuth
       (path, raw, com, donttouch) <- runInputPost $ (,,,)
                                      <$> ireq textField "path"
                                      <*> ireq textField "content"
@@ -393,7 +394,7 @@ postNewR = do
         , wikiHistoryComment=com
         }
         -- FIXME: use sendResponseCreated API
-      redirectParams RedirectSeeOther (WikiR $ fromPath path) [("mode", "v")]
+      redirect (WikiR $ fromPath path, [("mode", "v")] :: [(Text, Text)])
 
 getHistoriesR :: WikiPage -> Handler RepHtml
 getHistoriesR wp = do
@@ -407,9 +408,9 @@ getHistoriesR wp = do
     getHistories = do
       let path = pathOf wp
       runDB $ do
-        (pid, _) <- getBy404 $ UniqueWiki path
+        (Entity pid _) <- getBy404 $ UniqueWiki path
         hists' <- selectList [WikiHistoryWiki ==. pid] [Desc WikiHistoryVersion]
-        hists <- forM hists' $ \(_, h) -> do
+        hists <- forM hists' $ \(Entity _ h) -> do
           Just u <- get $ wikiHistoryEditor h
           return (u, h)
         return hists
@@ -480,8 +481,8 @@ getHistoryR vsn wp = do
       msgShow <- getMessageRender
       let path = pathOf wp
       runDB $ do
-        (pid', p') <- getBy404 $ UniqueWiki path
-        (_, p) <- getBy404 $ UniqueWikiHistory pid' v
+        (Entity pid' p') <- getBy404 $ UniqueWiki path
+        (Entity _ p) <- getBy404 $ UniqueWikiHistory pid' v
         me <- get $ wikiHistoryEditor p
         let (raw, upd, ver) = (wikiHistoryContent p, wikiHistoryUpdated p, wikiHistoryVersion p)
             isTop = wp == topPage
@@ -492,9 +493,9 @@ getHistoryR vsn wp = do
     getHistories = do
       let path = pathOf wp
       runDB $ do
-        (pid, _) <- getBy404 $ UniqueWiki path
+        (Entity pid _) <- getBy404 $ UniqueWiki path
         hists' <- selectList [WikiHistoryWiki ==. pid] [Desc WikiHistoryVersion]
-        hists <- forM hists' $ \(_, h) -> do
+        hists <- forM hists' $ \(Entity _ h) -> do
           Just u <- get $ wikiHistoryEditor h
           return (u, h)
         return hists
@@ -527,7 +528,7 @@ getHistoryR vsn wp = do
 
     editHistory :: Version -> Handler RepHtml
     editHistory v = do
-      (uid, _) <- requireAuth
+      (Entity uid _) <- requireAuth
       msgShow <- getMessageRender
       (path, raw, content, upd, _, me, isTop, curp) <- getHistory v
       langs <- languages
@@ -546,7 +547,7 @@ getHistoryR vsn wp = do
     
     revertHistory :: Version -> Handler RepHtml
     revertHistory v = do
-      (uid, _) <- requireAuth
+      (Entity uid _) <- requireAuth
       msgShow <- getMessageRender
       (path, raw, content, upd, _, me, isTop, curp) <- getHistory v
       let editMe = (WikiR wp, [("mode", "e")])
@@ -566,8 +567,8 @@ getHistoryR vsn wp = do
       msgShow <- getMessageRender
       let path = pathOf wp
       (p, v1, v0) <- runDB $ do
-        (pid, p) <- getBy404 $ UniqueWiki path
-        [(_, v1),(_, v0)] <- 
+        (Entity pid p) <- getBy404 $ UniqueWiki path
+        [(Entity _ v1),(Entity _ v0)] <- 
           selectList [WikiHistoryWiki ==. pid, WikiHistoryVersion <-. (selver p v)]
                      [Desc WikiHistoryVersion, LimitTo 2]
         return (p, v1, v0)
@@ -602,7 +603,7 @@ postHistoryR vsn wp = do
     
     previewHistory :: Handler RepHtml
     previewHistory = do
-      (uid, _) <- requireAuth
+      (Entity uid _) <- requireAuth
       msgShow <- getMessageRender
       let path = pathOf wp
           isTop = wp == topPage
@@ -631,8 +632,8 @@ putHistoryR v wp = do
   let path = pathOf wp
   com <- runInputPost $ iopt textField "comment"
   runDB $ do
-    (pid, _) <- getBy404 $ UniqueWiki path
-    (hid, _) <- getBy404 $ UniqueWikiHistory pid v
+    (Entity pid _) <- getBy404 $ UniqueWiki path
+    (Entity hid _) <- getBy404 $ UniqueWikiHistory pid v
     update hid [ WikiHistoryComment =. com ]
   hamletToRepHtml
     [hamlet|\

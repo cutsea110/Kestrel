@@ -3,6 +3,7 @@
 module Handler.Root where
 
 import Foundation
+import Yesod
 import Yesod.AtomFeed
 import Yesod.Sitemap
 import Data.Maybe (fromJust)
@@ -22,8 +23,8 @@ getRootR = do
     let path = pathOf topPage
     top <- getBy $ UniqueWiki path
     case top of
-      Nothing -> lift $ uncurry (redirectParams RedirectSeeOther) topNew
-      Just _ -> lift $ uncurry (redirectParams RedirectSeeOther) topView
+      Nothing -> lift $ redirect topNew
+      Just _ -> lift $ redirect topView
 
 -- Some default handlers that ship with the Yesod site template. You will
 -- very rarely need to modify this.
@@ -38,14 +39,14 @@ getSitemapR = do
   pages <- runDB $ selectList [] [Asc WikiPath]
   sitemap $ map go pages
   where
-    go (_, p) = SitemapUrl (WikiR $ fromWiki p) (wikiUpdated p) Daily 0.9
+    go (Entity _ p) = SitemapUrl (WikiR $ fromWiki p) (wikiUpdated p) Daily 0.9
 
 getFeedR :: Handler RepAtom
 getFeedR = runDB $ do
   msgShow <- lift $ getMessageRender
   tops <- selectList  [WikiTouched !=. Nothing] [Desc WikiTouched, LimitTo 10]
-  entries <- markdownsToWikiHtmls (noToc msgShow) $ map (wikiContent . snd) tops
-  let uday = (wikiUpdated . snd . head) tops
+  entries <- markdownsToWikiHtmls (noToc msgShow) $ map (wikiContent . entityVal) tops
+  let uday = (wikiUpdated . entityVal . head) tops
   lift $ atomFeed Feed
     { feedTitle = Settings.topTitle
     , feedDescription = ""
@@ -56,7 +57,7 @@ getFeedR = runDB $ do
     , feedEntries = map go $ zip tops entries
     }
   where
-    go ((_, w), e) = FeedEntry
+    go ((Entity _ w), e) = FeedEntry
       { feedEntryLink = WikiR $ fromWiki w
       , feedEntryUpdated = wikiUpdated w
       , feedEntryTitle = wikiPath w
@@ -72,38 +73,38 @@ getRecentChangesR = do
   entries <- runDB $ selectList [WikiTouched !=. Nothing] [Desc WikiTouched, LimitTo Settings.numOfRecentChanges]
   now <- liftIO getCurrentTime
   let widget = $(widgetFile "recentChanges")
-      json = jsonMap [("entries", jsonList $ map (go now render) entries)]
+      json = object ["entries" .= array (map (go now render) entries)]
   defaultLayoutJson widget json
   where
     (sec,minute,hour,day,month,year) = (1,60*sec,60*minute,24*hour,30*day,365*day)
     fromSec d s = ceiling $ d / s
-    go now r (_, w) = 
-      jsonMap [ ("title", jsonScalar $ T.unpack (wikiPath w))
-              , ("uri", jsonScalar $ T.unpack $ r $ WikiR $ fromPath (wikiPath w))
-              , ("uday", jsonScalar $ show (wikiUpdated w))
-              , ("toucheddate", jsonScalar $ show $ fromJust $ wikiTouched w)
-              , ("new", jsonScalar $ show $ ((utctDay now) `diffDays` (utctDay $ fromJust $ wikiTouched w)) <= Settings.newDays)
-              ]
+    go now r (Entity _ w) = 
+      object [ "title" .= wikiPath w
+             , "uri" .= r (WikiR (fromPath (wikiPath w)))
+             , "uday" .= wikiUpdated w
+             , "toucheddate" .= fromJust (wikiTouched w)
+             , "new" .= (((utctDay now) `diffDays` utctDay (fromJust (wikiTouched w))) <= Settings.newDays)
+             ]
 
 getAuthStatusR :: Handler RepJson
 getAuthStatusR = do
   mu <- maybeAuth
   case mu of
-    Nothing -> jsonToRepJson $ jsonMap [("status", jsonScalar "401")]
-    Just _  -> jsonToRepJson $ jsonMap [("status", jsonScalar "200")]
+    Nothing -> jsonToRepJson $ object ["status" .= ("401" :: T.Text)]
+    Just _  -> jsonToRepJson $ object ["status" .= ("200" :: T.Text)]
 
 getAuthToGoR :: Handler ()
 getAuthToGoR = do
   go <- lookupGetParam "go"
   case go of
-    Nothing -> uncurry (redirectParams RedirectSeeOther) topView
+    Nothing -> redirect topView
     Just r -> do
       _ <- requireAuth
-      redirectText RedirectSeeOther r
+      redirect r
 
 getSystemBatchR :: Handler RepHtml
 getSystemBatchR = do
-  (_, self) <- requireAuth
+  (Entity _ self) <- requireAuth
   defaultLayout $ do
     setTitle "システムバッチ"
     addWidget $(widgetFile "systembatch")
@@ -125,14 +126,14 @@ postSystemBatchR = do
           update fid [ FileHeaderWidth =. w 
                      , FileHeaderHeight =. h
                      , FileHeaderThumbnail =. imgp ]
-      redirect RedirectSeeOther SystemBatchR
-    upgradeThumbnail :: (FileHeaderId, FileHeader) -> IO (FileHeaderId, Maybe Int, Maybe Int, Bool)
-    upgradeThumbnail (fid, fh) = do
+      redirect SystemBatchR
+    upgradeThumbnail :: Entity FileHeader -> IO (FileHeaderId, Maybe Int, Maybe Int, Bool)
+    upgradeThumbnail (Entity fid fh) = do
       let uid = fileHeaderCreator fh 
-          s3dir' = Settings.s3dir </> T.unpack (toSinglePiece uid)
-          s3fp = s3dir' </> T.unpack (toSinglePiece fid)
-          thumbDir = Settings.s3ThumbnailDir </> T.unpack (toSinglePiece uid)
-          thumbfp = thumbDir </> T.unpack (toSinglePiece fid)
+          s3dir' = Settings.s3dir </> T.unpack (toPathPiece uid)
+          s3fp = s3dir' </> T.unpack (toPathPiece fid)
+          thumbDir = Settings.s3ThumbnailDir </> T.unpack (toPathPiece uid)
+          thumbfp = thumbDir </> T.unpack (toPathPiece fid)
       bs <- L.readFile s3fp
       et <- mkThumbnail bs
       case et of

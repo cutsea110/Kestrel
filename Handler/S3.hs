@@ -16,9 +16,9 @@ module Handler.S3
 import Foundation
 import Kestrel.Helpers.Util (encodeUrl)
 
+import Yesod
 import Data.Time
 import qualified Data.ByteString.Lazy as L
-import Data.ByteString.Char8 (pack)
 import System.Directory
 import System.FilePath
 import qualified Data.Text as T
@@ -28,7 +28,7 @@ import Graphics.Thumbnail
 
 getUploadR :: Handler RepHtml
 getUploadR = do
-  (uid,_) <- requireAuth
+  (Entity uid _) <- requireAuth
   msg <- getMessageRender
   defaultLayout $ do
     addCassius $(cassiusFile "templates/s3/s3.cassius")
@@ -59,10 +59,10 @@ upload uid fi = do
                         , fileHeaderCreator=uid
                         , fileHeaderCreated=now
                         }
-    let s3dir' = Settings.s3dir </> T.unpack (toSinglePiece uid)
-        s3fp = s3dir' </> T.unpack (toSinglePiece fid)
-        thumbDir = Settings.s3ThumbnailDir </> T.unpack (toSinglePiece uid)
-        thumbfp = thumbDir </> T.unpack (toSinglePiece fid)
+    let s3dir' = Settings.s3dir </> T.unpack (toPathPiece uid)
+        s3fp = s3dir' </> T.unpack (toPathPiece fid)
+        thumbDir = Settings.s3ThumbnailDir </> T.unpack (toPathPiece uid)
+        thumbfp = thumbDir </> T.unpack (toPathPiece fid)
     liftIO $ do
       createDirectoryIfMissing True s3dir'
       L.writeFile s3fp (fileContent fi)
@@ -81,8 +81,9 @@ upload uid fi = do
 
 postUploadR :: Handler RepXml
 postUploadR = do
-  (uid, _) <- requireAuth
+  (Entity uid _) <- requireAuth
   y <- getYesod
+  let (ApprootMaster approot') = approot
   mfi <- lookupFile "upfile"
   case mfi of
     Nothing -> invalidArgs ["upload file is required."]
@@ -93,12 +94,12 @@ postUploadR = do
         Nothing -> invalidArgs ["upload file is required."]
         Just (fid, name, ext, fsize, cdate, imgp, wd, ht) -> do
           cacheSeconds 10 -- FIXME
-          let rf = (dropPrefix (approot y) $ r $ FileR uid fid)
-              trf = (dropPrefix (approot y) $ r $ ThumbnailR uid fid) 
+          let rf = (dropPrefix (approot' y) $ r $ FileR uid fid)
+              trf = (dropPrefix (approot' y) $ r $ ThumbnailR uid fid) 
           fmap RepXml $ hamletToContent
                       [xhamlet|\
 <file>
-  <fhid>#{T.unpack $ toSinglePiece fid}
+  <fhid>#{T.unpack $ toPathPiece fid}
   <name>#{name}
   <ext>#{ext}
   <size>#{show fsize}
@@ -120,7 +121,7 @@ postUploadR = do
 
 putUploadR :: Handler RepHtml
 putUploadR = do
-  (uid, _) <- requireAuth
+  (Entity uid _) <- requireAuth
   mfi <- lookupFile "upfile"
   case mfi of
     Nothing -> invalidArgs ["upload file is required."]
@@ -134,10 +135,10 @@ putUploadR = do
 getFileR :: UserId -> FileHeaderId -> Handler RepHtml
 getFileR uid fid = do
   h <- runDB $ get404 fid
-  let s3dir' = Settings.s3dir </> T.unpack (toSinglePiece uid)
-      s3fp = s3dir' </> T.unpack (toSinglePiece fid)
-  setHeader "Content-Type" $ pack $ T.unpack $ fileHeaderContentType h
-  setHeader "Content-Disposition" $ pack $ T.unpack $ "attachment; filename=" +++ fileHeaderEfname h
+  let s3dir' = Settings.s3dir </> T.unpack (toPathPiece uid)
+      s3fp = s3dir' </> T.unpack (toPathPiece fid)
+  setHeader "Content-Type" $ fileHeaderContentType h
+  setHeader "Content-Disposition" $ "attachment; filename=" +++ fileHeaderEfname h
   return $ RepHtml $ ContentFile s3fp Nothing
 
 postFileR :: UserId -> FileHeaderId -> Handler RepXml
@@ -150,19 +151,20 @@ postFileR uid fid = do
 
 deleteFileR :: UserId -> FileHeaderId -> Handler RepXml
 deleteFileR uid fid = do
-  (uid'', _) <- requireAuth
+  (Entity uid'' _) <- requireAuth
   y <- getYesod
+  let (ApprootMaster approot') = approot
   if uid/=uid''
     then
     invalidArgs ["You couldn't delete this resource."]
     else do
     r <- getUrlRender
     runDB $ delete fid
-    let s3dir' = Settings.s3dir </> T.unpack (toSinglePiece uid)
-        s3fp = s3dir' </> T.unpack (toSinglePiece fid)
-        thumbDir = Settings.s3ThumbnailDir </> T.unpack (toSinglePiece uid)
-        thumbfp = thumbDir </> T.unpack (toSinglePiece fid)
-        rf = (dropPrefix (approot y) $ r $ FileR uid fid)
+    let s3dir' = Settings.s3dir </> T.unpack (toPathPiece uid)
+        s3fp = s3dir' </> T.unpack (toPathPiece fid)
+        thumbDir = Settings.s3ThumbnailDir </> T.unpack (toPathPiece uid)
+        thumbfp = thumbDir </> T.unpack (toPathPiece fid)
+        rf = dropPrefix (approot' y) $ r $ FileR uid fid
     liftIO $ do
       exist <- doesFileExist s3fp
       if exist then removeFile s3fp else return ()
@@ -181,9 +183,9 @@ getFileListR uid = do
   render <- getUrlRender
   files <- runDB $ selectList [FileHeaderCreator ==. uid] [Desc FileHeaderCreated]
   cacheSeconds 10 -- FIXME
-  jsonToRepJson $ jsonMap [("files", jsonList $ map (go y render) files)]
+  jsonToRepJson $ object ["files" .= array (map (go y render) files)]
   where
-    go y r (fid, FileHeader
+    go y r (Entity fid FileHeader
                { fileHeaderFullname = name
                , fileHeaderExtension = ext
                , fileHeaderThumbnail = imgp
@@ -192,31 +194,28 @@ getFileListR uid = do
                , fileHeaderHeight = height
                , fileHeaderCreated = cdate
                }) = 
-      jsonMap [ ("name", jsonScalar $ T.unpack name)
-              , ("ext" , jsonScalar $ T.unpack ext)
-              , ("size", jsonScalar $ show size)
-              , ("cdate", jsonScalar $ show cdate)
-              , ("uri", jsonScalar $ T.unpack $ (dropPrefix (approot y) $ r $ FileR uid fid))
-              , ("thumbnail_uri", thumbnailUri)
-              , ("width", jsonScalar $ show w)
-              , ("height", jsonScalar $ show h)
-              ]
+      object [ "name" .= name
+             , "ext" .= ext
+             , "size" .= size
+             , "cdate" .= cdate
+             , "uri" .= (dropPrefix (approot' y) $ r $ FileR uid fid)
+             , "thumbnail_uri" .= thumbnailUri
+             , "width" .= w
+             , "height" .= h
+             ]
       where
-        thumbnailUri = if imgp                                  
-                       then jsonScalar $ T.unpack $ (dropPrefix (approot y) $ r $ ThumbnailR uid fid)
-                       else jsonScalar ""
-        w = case width of
-          Just x -> x
-          Nothing -> 0
-        h = case height of
-          Just x -> x
-          Nothing -> 0
+        ApprootMaster approot' = approot
+        w = maybe 0 id width
+        h = maybe 0 id height
+        thumbnailUri = if imgp
+                       then dropPrefix (approot' y) $ r $ ThumbnailR uid fid
+                       else ""
 
 getThumbnailR :: UserId -> FileHeaderId -> Handler RepHtml
 getThumbnailR uid fid = do
   h <- runDB $ get404 fid
-  let thumbDir = Settings.s3ThumbnailDir </> T.unpack (toSinglePiece uid)
-      thumbfp = thumbDir </> T.unpack (toSinglePiece fid)
-  setHeader "Content-Type" $ pack $ T.unpack $ fileHeaderContentType h
-  setHeader "Content-Disposition" $ pack $ T.unpack $ "attachment; filename=" +++ fileHeaderEfname h
+  let thumbDir = Settings.s3ThumbnailDir </> T.unpack (toPathPiece uid)
+      thumbfp = thumbDir </> T.unpack (toPathPiece fid)
+  setHeader "Content-Type" $ fileHeaderContentType h
+  setHeader "Content-Disposition" $ "attachment; filename=" +++ fileHeaderEfname h
   return $ RepHtml $ ContentFile thumbfp Nothing

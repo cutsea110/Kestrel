@@ -11,12 +11,15 @@ module Settings
     , PersistConfig
     , staticRoot
     , staticDir
+    , Extra (..)
+    , parseExtra
     , s3dir
     , s3ThumbnailDir
     , topTitle
     , sidePaneTitle
     , newDays
     , numOfRecentChanges
+    , facebookApplicationName
     , facebookApplicationId
     , facebookApplicationSecret
     , twitterConsumerKey
@@ -26,12 +29,16 @@ module Settings
     , tz
     ) where
 
+import Prelude
 import Text.Shakespeare.Text (st)
 import Language.Haskell.TH.Syntax
 import Database.Persist.Postgresql (PostgresConf)
 import Yesod.Default.Config
 import qualified Yesod.Default.Util
 import Data.Text (Text)
+import Network.HTTP.Types (Ascii)
+import Data.Yaml
+import Control.Applicative
 
 -- | Which Persistent backend this site is using.
 type PersistConfig = PostgresConf
@@ -70,6 +77,16 @@ widgetFile = Yesod.Default.Util.widgetFileReload
 widgetFile = Yesod.Default.Util.widgetFileNoReload
 #endif
 
+data Extra = Extra
+    { extraCopyright :: Text
+    , extraAnalytics :: Maybe Text -- ^ Google Analytics
+    } deriving Show
+
+parseExtra :: DefaultEnv -> Object -> Parser Extra
+parseExtra _ o = Extra
+    <$> o .:  "copyright"
+    <*> o .:? "analytics"
+
 s3dir :: FilePath
 s3dir = "s3"
 
@@ -90,9 +107,10 @@ numOfRecentChanges = 20
 tz :: Int
 tz = 9
 
-facebookApplicationId,facebookApplicationSecret :: Text
-(facebookApplicationId,facebookApplicationSecret) =
-  ("196074110406072","e0d687d928a17ed6041ab822ac31868f")
+
+facebookApplicationName,facebookApplicationId,facebookApplicationSecret :: Ascii
+(facebookApplicationName,facebookApplicationId,facebookApplicationSecret) =
+  ("kestrel.org","196074110406072","e0d687d928a17ed6041ab822ac31868f")
 
 twitterConsumerKey,twitterConsumerSecret :: Text
 (twitterConsumerKey,twitterConsumerSecret) =
