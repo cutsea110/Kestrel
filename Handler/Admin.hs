@@ -4,6 +4,7 @@ module Handler.Admin where
 import Foundation
 import Kestrel.Helpers.Auth.HashDB (encrypt)
 
+import Yesod
 import Data.Text (Text)
 import Control.Applicative ((<$>),(<*>))
 
@@ -31,7 +32,7 @@ postUserR uid = do
   runDB $ do 
     orig <- get404 uid
     replace uid new { userPassword = pass orig new }
-  redirect RedirectSeeOther (UserR uid)
+  redirect $ UserR uid
   where
     pass :: User -> User -> Maybe Text
     pass old new = maybe (userPassword old) (return . encrypt) (userPassword new)
@@ -51,7 +52,7 @@ postNewUserR = do
          <*> iopt textField "nickname"
          <*> ireq boolField "active"
   uid <- runDB $ insert new {userPassword = fmap encrypt (userPassword new)}
-  redirect RedirectSeeOther (UserR uid)
+  redirect $ UserR uid
 
 getDeleteUserR :: UserId -> Handler RepHtml
 getDeleteUserR uid = do
@@ -64,4 +65,4 @@ postDeleteUserR :: UserId -> Handler ()
 postDeleteUserR uid = do
   _ <- requireAuth
   runDB $ delete uid
-  redirect RedirectSeeOther UsersR
+  redirect UsersR

@@ -12,9 +12,9 @@
       $forall entry <- entries
         <tr
           <td
-            #{showDate $ fromJust $ wikiTouched $ snd entry}
+            #{showDate $ fromJust $ wikiTouched $ entityVal entry}
           <td
-            $with diff <- diffUTCTime now (fromJust $ wikiTouched $ snd entry)
+            $with diff <- diffUTCTime now (fromJust $ wikiTouched $ entityVal entry)
               $if diff < minute
                 (_{MsgSecAgo $ fromSec diff sec})
               $elseif diff < hour
@@ -28,4 +28,4 @@
               $else
                 (_{MsgYearAgo $ fromSec diff year})
           <td
-            <a href=@{WikiR $ fromWiki $ snd entry}>#{wikiPath $ snd entry}
+            <a href=@{WikiR $ fromWiki $ entityVal entry}>#{wikiPath $ entityVal entry}

@@ -2,6 +2,7 @@
 module Handler.Profile where
 
 import Foundation
+import Yesod
 import Text.Julius (juliusFile)
 
 import Control.Monad (unless)
@@ -9,7 +10,7 @@ import Text.Blaze (preEscapedText)
 
 getProfileR :: UserId -> Handler RepHtml
 getProfileR uid = do
-  (uid', _) <- requireAuth
+  (Entity uid' _) <- requireAuth
   msgShow <- getMessageRender
   unless (uid' == uid) $ do
     permissionDenied $ msgShow MsgCouldntAccessAnotherUserProfile
@@ -28,11 +29,11 @@ postProfileR uid = do
 
 putProfileR :: UserId -> Handler ()
 putProfileR uid = do
-  (uid', _) <- requireAuth
+  (Entity uid' _) <- requireAuth
   msgShow <- getMessageRender
   unless (uid' == uid) $ do
     permissionDenied $ msgShow MsgCouldntAccessAnotherUserProfile
   nn <- runInputPost $ ireq textField "nickname"
   runDB $ update uid [UserNickname =. Just nn]
   setMessage $ preEscapedText $ msgShow MsgUpdatedProfile
-  redirect RedirectSeeOther $ ProfileR uid
+  redirect $ ProfileR uid

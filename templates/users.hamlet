@@ -2,6 +2,6 @@
 <ul
   $forall user <- users
     <li
-      <a href=@{UserR $ fst user}>#{userInfoOneline $ snd user}
+      <a href=@{UserR $ entityKey user}>#{userInfoOneline $ entityVal user}
 <p
   <a href=@{NewUserR}>Add new item

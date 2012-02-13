@@ -1,6 +1,7 @@
 $doctype 5
 <html
     <head
+        <meta charset=UTF-8
         <title>#{pageTitle pc}
         <meta http-equiv=X-UA-Compatible content="IE=edge"
         ^{const $ pageHead pc}
@@ -18,7 +19,7 @@ $doctype 5
                 <br
                 フレキシブルな学科です。
           $maybe lu <- mlastup
-            <div #lastupdate>_{MsgLastUpdatedDate}: #{maybe "-" showDate $ wikiTouched $ snd lu}
+            <div #lastupdate>_{MsgLastUpdatedDate}: #{maybe "-" showDate $ wikiTouched $ entityVal lu}
           <div #kui-main
             <div #main_left
             <div #main_right

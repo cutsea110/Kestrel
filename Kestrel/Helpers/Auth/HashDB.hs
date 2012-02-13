@@ -18,7 +18,7 @@ module Kestrel.Helpers.Auth.HashDB
     , setpassR
     ) where
 
-import Yesod hiding (Update)
+import Yesod
 import Yesod.Auth
 import Control.Monad (unless)
 import Control.Applicative ((<$>), (<*>))
@@ -146,10 +146,10 @@ postLoginR = do
         Just _aid -> do
             setCreds False $ Creds "account" account [] -- FIXME aid?
             y <- getYesod
-            redirectUltDest RedirectSeeOther $ loginDest y
+            redirectUltDest $ loginDest y
         Nothing -> do
             toMaster <- getRouteToMaster
-            redirect RedirectSeeOther $ toMaster LoginR
+            redirect $ toMaster LoginR
 
 getPasswordR :: YesodAuthHashDB master => GHandler Auth master RepHtml
 getPasswordR = do
@@ -160,7 +160,7 @@ getPasswordR = do
         Just _ -> return ()
         Nothing -> do
             setMessage $ preEscapedText $ msgShow IfYouWantToChangePassword
-            redirect RedirectSeeOther $ toMaster loginR
+            redirect $ toMaster loginR
     defaultLayout $ do
         setTitle $ preEscapedText $ msgShow ChangePassword
         [whamlet|\
@@ -189,18 +189,18 @@ postPasswordR = do
     toMaster <- getRouteToMaster
     unless (new == confirm) $ do
         setMessage $ preEscapedText $ msgShow PasswordDoesntMatch +++ msgShow ReEnterAgain
-        redirect RedirectSeeOther $ toMaster setpassR
+        redirect $ toMaster setpassR
     maid <- maybeAuthId
     aid <- case maid of
             Nothing -> do
                 setMessage $ preEscapedText $ msgShow IfYouWantToChangePassword
-                redirect RedirectSeeOther $ toMaster loginR
+                redirect $ toMaster loginR
             Just aid -> return aid
     let sha1pass = encrypt new
     setPassword aid sha1pass
     setMessage $ preEscapedText $ msgShow UpdatedPassword
     y <- getYesod
-    redirect RedirectSeeOther $ loginDest y
+    redirect $ loginDest y
 
 encrypt :: Text -> Text
 encrypt = T.pack . showDigest . sha1 . pack . T.unpack

@@ -10,18 +10,15 @@
 {-# OPTIONS_GHC -fno-warn-unused-do-bind #-}
 module Foundation
     ( Kestrel (..)
-    , KestrelRoute (..)
+    , Route (..)
     , KestrelMessage (..)
     , resourcesKestrel
     , Handler
     , Widget
     , maybeAuth
     , requireAuth
-    , module Yesod
     , module Settings
     , module Model
-    , StaticRoute (..)
-    , AuthRoute (..)
       -- 
     , WikiPage(..)
     , topPage
@@ -49,26 +46,28 @@ module Foundation
     ) where
 
 import Prelude
-import Yesod hiding (Form, AppConfig (..), withYamlEnvironment)
-import Yesod.Static (Static, base64md5, StaticRoute(..))
+import Yesod
+import Yesod.Static
 import Settings.StaticFiles
 import Yesod.AtomFeed
 import Yesod.Auth
 import Kestrel.Helpers.Auth.HashDB
 import Yesod.Auth.OpenId
 import Yesod.Auth.Facebook
+import Facebook (Credentials(..))
 -- import Yesod.Auth.OAuth
 import Yesod.Default.Config
 import Yesod.Default.Util (addStaticContentExternal)
 import Yesod.Logger (Logger, logMsg, formatLogText)
+import Network.HTTP.Conduit (Manager)
 #ifdef DEVELOPMENT
 import Yesod.Logger (logLazyText)
 #endif
 import qualified Settings
 import qualified Data.ByteString.Lazy as L
-import qualified Database.Persist.Base
+import qualified Database.Persist.Store
 import Database.Persist.GenericSql
-import Settings (widgetFile)
+import Settings (widgetFile, Extra (..))
 import Model
 import Text.Jasmine (minifym)
 import Web.ClientSession (getKey)
@@ -101,10 +100,12 @@ import Network.Mail.Mime (sendmail)
 -- starts running, such as database connections. Every handler will have
 -- access to the data present here.
 data Kestrel = Kestrel
-    { settings :: AppConfig DefaultEnv ()
+    { settings :: AppConfig DefaultEnv Extra
     , getLogger :: Logger
     , getStatic :: Static -- ^ Settings for static file serving.
-    , connPool :: Database.Persist.Base.PersistConfigPool Settings.PersistConfig -- ^ Database connection pool.
+    , connPool :: Database.Persist.Store.PersistConfigPool Settings.PersistConfig -- ^ Database connection pool.
+    , httpManager :: Manager
+    , persistConfig :: Settings.PersistConfig
     }
 
 mkMessage "Kestrel" "messages" "en"
@@ -133,24 +134,24 @@ mkYesodData "Kestrel" $(parseRoutesFile "config/routes")
 type Form x = Html -> MForm Kestrel Kestrel (FormResult x, Widget)
 
 newtype WikiPage = WikiPage { unWikiPage :: [Text] } deriving (Eq, Show, Read)
-instance MultiPiece WikiPage where
-  toMultiPiece = unWikiPage
-  fromMultiPiece = Just . WikiPage
+instance PathMultiPiece WikiPage where
+  toPathMultiPiece = unWikiPage
+  fromPathMultiPiece = Just . WikiPage
   
 topPage :: WikiPage
 topPage = WikiPage [Settings.topTitle]
-topView :: (KestrelRoute, [(Text, Text)])
+topView :: (Route Kestrel, [(Text, Text)])
 topView = (WikiR topPage, [("mode","v")])
-topNew :: (KestrelRoute, [(Text, Text)])
+topNew :: (Route Kestrel, [(Text, Text)])
 topNew = (NewR, [("path", Settings.topTitle)])
 
 sidePane :: WikiPage
 sidePane = WikiPage [Settings.sidePaneTitle]
-sidePaneView :: KestrelRoute
+sidePaneView :: Route Kestrel
 sidePaneView = WikiR sidePane
-sidePaneNew :: (KestrelRoute, [(Text, Text)])
+sidePaneNew :: (Route Kestrel, [(Text, Text)])
 sidePaneNew = (NewR, [("path", Settings.sidePaneTitle), ("mode", "e")])
-simpleSidePane :: (KestrelRoute, [(Text, Text)])
+simpleSidePane :: (Route Kestrel, [(Text, Text)])
 simpleSidePane = (WikiR sidePane, [("mode", "s")])
 isSidePane :: Text -> Bool
 isSidePane p = Settings.sidePaneTitle == p
@@ -173,7 +174,7 @@ ancestory = map WikiPage . filter (/=[]) . inits . unWikiPage
 -- Please see the documentation for the Yesod typeclass. There are a number
 -- of settings which can be configured by overriding methods here.
 instance Yesod Kestrel where
-    approot = appRoot . settings
+    approot = ApprootMaster $ appRoot . settings
 
     encryptKey _ = fmap Just $ getKey "config/client_session_key.aes"
     
@@ -186,7 +187,9 @@ instance Yesod Kestrel where
         msgShow <- getMessageRender
         let mgaUA = Settings.googleAnalyticsUA
             maTUser = Settings.addThisUser
-            googleInurl = dropSchema $ approot y
+            (ApprootMaster approot') = approot
+            googleInurl = dropSchema $ approot' y 
+            -- dropSchema $ appRoot $ settings y -- by approot's defninition
             ga = $(ihamletFile "templates/ga.hamlet")
             header = $(ihamletFile "templates/header.hamlet")
             footer = $(ihamletFile "templates/footer.hamlet")
@@ -237,8 +240,12 @@ instance Yesod Kestrel where
 -- How to run database actions.
 instance YesodPersist Kestrel where
     type YesodPersistBackend Kestrel = SqlPersist
-    runDB f = liftIOHandler
-              $ fmap connPool getYesod >>= Database.Persist.Base.runPool (undefined::Settings.PersistConfig) f
+    runDB f = do
+        master <- getYesod
+        Database.Persist.Store.runPool
+            (persistConfig master)
+            f
+            (connPool master)
     
 instance YesodJquery Kestrel where
   urlJqueryJs _ = Left $ StaticR js_jquery_1_4_4_min_js
@@ -261,7 +268,7 @@ instance YesodAuth Kestrel where
       runDB $ do
         x <- getBy $ UniqueUser $ credsIdent creds
         case x of
-            Just (uid, u) -> 
+            Just (Entity uid u) -> 
               if userActive u 
               then do
                 lift $ setMessage $ preEscapedText $ msgShow MsgNowLogin
@@ -273,12 +280,17 @@ instance YesodAuth Kestrel where
               lift $ setMessage $ preEscapedText $ msgShow MsgNowLogin
               fmap Just $ insert $ User (credsIdent creds) Nothing Nothing True
 
-    authPlugins = [ authHashDB
-                  , authOpenId
-                  , authFacebook Settings.facebookApplicationId 
-                                 Settings.facebookApplicationSecret 
-                                 []
-                  ]
+    authPlugins _ = [ authHashDB
+                    , authOpenId
+                    , authFacebook 
+                      (Credentials
+                       Settings.facebookApplicationName
+                       Settings.facebookApplicationId                      
+                       Settings.facebookApplicationSecret)
+                      []
+                    ]
+                  
+    authHttpManager = httpManager
 
     loginHandler = do
       defaultLayout $ do
@@ -298,7 +310,7 @@ instance YesodAuthHashDB Kestrel where
         ma <- getBy $ UniqueUser account
         case ma of
             Nothing -> return Nothing
-            Just (uid, _) -> return $ Just HashDBCreds
+            Just (Entity uid _) -> return $ Just HashDBCreds
                 { hashdbCredsId = uid
                 , hashdbCredsAuthId = Just uid
                 }
@@ -350,15 +362,15 @@ sidePaneWriterOption =
         , writerIdentifierPrefix = "sidepane-"
         }
 
-writeHtmlStr ::  WriterOptions -> (KestrelRoute -> [(Text, Text)] -> Text) -> Map.Map Text Wiki -> Pandoc -> String
+writeHtmlStr ::  WriterOptions -> (Route Kestrel -> [(Text, Text)] -> Text) -> Map.Map Text Wiki -> Pandoc -> String
 writeHtmlStr opt render pages = 
   writeHtmlString opt . transformDoc render pages
 
-transformDoc :: (KestrelRoute -> [(Text, Text)] -> Text) -> Map.Map Text Wiki -> Pandoc -> Pandoc
+transformDoc :: (Route Kestrel -> [(Text, Text)] -> Text) -> Map.Map Text Wiki -> Pandoc -> Pandoc
 transformDoc render pages = bottomUp codeHighlighting . bottomUp (wikiLink render pages)
 
 -- Wiki Link Sign of WikiName is written as [WikiName]().
-wikiLink :: (KestrelRoute -> [(Text, Text)] -> Text) -> Map.Map Text Wiki -> Inline -> Inline
+wikiLink :: (Route Kestrel -> [(Text, Text)] -> Text) -> Map.Map Text Wiki -> Inline -> Inline
 wikiLink render pages (Link ls ("", "")) = 
   case Map.lookup path' pages of
     Just _  -> 
@@ -385,8 +397,8 @@ findRight p (a:as) = case p a of
   Left  _ -> findRight p as
   Right x -> Just x
       
-mkWikiDictionary :: [(WikiId, Wiki)] -> Map.Map Text Wiki
-mkWikiDictionary = Map.fromList . map (((,).wikiPath.snd) <*> snd)
+mkWikiDictionary :: [Entity Wiki] -> Map.Map Text Wiki
+mkWikiDictionary = Map.fromList . map (((,).wikiPath.entityVal) <*> entityVal)
 
 -- Network.Gitit.ContentTransformer
 inlinesToString :: [Inline] -> String

@@ -11,4 +11,4 @@
     <ul
       $forall entry <- entries
         <li
-          <a href=@{WikiR $ fromWiki $ snd entry}>#{wikiPath $ snd entry}
+          <a href=@{WikiR $ fromWiki $ entityVal entry}>#{wikiPath $ entityVal entry}
