@@ -305,6 +305,7 @@ table.nostyle td {
 }
 
 .floatr {
+  float:right;
   margin-left:1em;
 }
 
