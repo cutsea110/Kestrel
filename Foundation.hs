@@ -207,7 +207,6 @@ instance Yesod Kestrel where
           addLucius $(luciusFile "templates/default-layout.lucius")
           addJulius $(juliusFile "templates/default-layout.julius")
           addLucius $(luciusFile "templates/leftnavi.lucius")
-          addLucius $(luciusFile "templates/accordion.lucius")
           atomLink FeedR $ T.unpack Settings.topTitle
         ihamletToRepHtml $(ihamletFile "templates/default-layout.hamlet")
         
