@@ -1,18 +1,18 @@
-<div .right
-  <ul .breadcrumbs
-    <li
+<div .right>
+  <ul .breadcrumbs>
+    <li>
       <a href=@{AllPagesR}>_{MsgALLPAGES}
-<ul .tabs
-  <li .selected
+<ul .tabs>
+  <li .selected>
     <a href=@{AllPagesR}>_{MsgALLPAGES}
-  <li
+  <li>
     <a href=@{RecentChangesR}>_{MsgRECENTCHANGES}
-  <li
+  <li>
     <a href=@?{topView}>_{MsgTOP}
-<div #main-content
+<div #main-content>
   <h3 .metatitle>_{MsgAllPages}
-  <div #result
-    <ul
+  <div #result>
+    <ul>
       $forall entry <- entries
-        <li
+        <li>
           <a href=@{WikiR $ fromWiki $ entityVal entry}>#{wikiPath $ entityVal entry}

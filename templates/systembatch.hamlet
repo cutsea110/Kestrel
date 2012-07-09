@@ -1,7 +1,7 @@
-<div #main-content
+<div #main-content>
   <h3>_{MsgSystemBatch}
-  <div .function-block
+  <div .function-block>
     <div .subheader>_{MsgRebuildThumbnailHeader}
-    <div .form-block
-      <form method=post enctype=multipart/form-data action=@{SystemBatchR} .validate
-        <button type=submit name=_method value=thumbnail_update>_{MsgRebuildThumbnail}
+    <div .form-block>
+      <form method=post enctype=multipart/form-data action=@{SystemBatchR} .validate>
+        <button type=submit name=_method value=thumbnail_update>_{MsgRebuildThumbnail}>

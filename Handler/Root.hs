@@ -72,7 +72,8 @@ getRecentChangesR = do
   render <- getUrlRender
   entries <- runDB $ selectList [WikiTouched !=. Nothing] [Desc WikiTouched, LimitTo Settings.numOfRecentChanges]
   now <- liftIO getCurrentTime
-  let widget = $(widgetFile "recentChanges")
+  let less = (<) -- FIX?
+      widget = $(widgetFile "recentChanges")
       json = object ["entries" .= array (map (go now render) entries)]
   defaultLayoutJson widget json
   where

@@ -68,7 +68,7 @@ $(document).ready(function(){
       var fs = $('<fieldset></fieldset>'),
           ld = $('<legend/>'),
           sp = $(data);
-      if ('#{show mu}'=='Nothing') {
+      if ('#{show $ isNothing mu}'=='True') {
         $('#sidenavi').append(fs.append(ld.text('#{Settings.sidePaneTitle}')).append(sp));
       }else{
         var a = $('<a/>').attr({href: '@{sidePaneView}'}).text('#{Settings.sidePaneTitle}');
@@ -88,7 +88,7 @@ $(document).ready(function(){
       });
     },
     error: function(msg, status) {
-      if ('#{show mu}'!='Nothing') {
+      if ('#{show $ isNothing mu}'!='True') {
         var anc = $('<a/>').attr({href:'@?{sidePaneNew}'}).text('#{msgShow (MsgEditing Settings.sidePaneTitle)}');
         $('#sidenavi').append(anc);
       }

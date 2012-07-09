@@ -1,48 +1,48 @@
 $doctype 5
-<html
-    <head
-        <meta charset=UTF-8
-        <title>#{pageTitle pc}
-        <meta http-equiv=X-UA-Compatible content="IE=edge"
+<html>
+    <head>
+        <meta charset=UTF-8>
+        <title>#{pageTitle pc}>
+        <meta http-equiv=X-UA-Compatible content="IE=edge">
         ^{const $ pageHead pc}
         ^{ga}
-    <body
-        <div #doc .kui-t1
-          <div #kui-main
-            <div #maincol .kui-b
+    <body>
+        <div #doc .kui-t1>
+          <div #kui-main>
+            <div #maincol .kui-b>
               ^{header}
               $maybe msg <- mmsg
-                <div #message>#{msg}
+                <div #message>#{msg}>
               ^{const $ pageBody pc}
               ^{footer}
-          <div #sidebar .kui-b
-            <div #kestrel-logo
-              <a title="Go to top page" alt="site logo" href=@?{topView}
-                <img src=@{StaticR img_kestrel_logo_png}
-            <div #sidenavi .sidebox
-            <div #recent-changes .sidebox
-            <div #tools .sidebox
-              <fieldset
+          <div #sidebar .kui-b>
+            <div #kestrel-logo>
+              <a title="Go to top page" alt="site logo" href=@?{topView}>
+                <img src=@{StaticR img_kestrel_logo_png}>
+            <div #sidenavi .sidebox>
+            <div #recent-changes .sidebox>
+            <div #tools .sidebox>
+              <fieldset>
                 <legend>_{MsgTools}
-                <form method=get action=@{WikiListR}
-                  <input type=text name=q placeholder=_{MsgSearchPlaceholder} .watermark
-                  <button type=submit name=_method value=search>_{MsgGo}
-                <form method=get action=http://www.google.com/search
-                  <input type=hidden name=hq value=inurl:#{googleInurl}
-                  <input type=hidden name=ie value=UTF-8
-                  <input type=hidden name=oe value=UTF-8
-                  <input type=hidden name=filter value=0
-                  <input type=text name=q .google
+                <form method=get action=@{WikiListR}>
+                  <input type=text name=q placeholder=_{MsgSearchPlaceholder} .watermark>
+                  <button type=submit name=_method value=search>_{MsgGo}>
+                <form method=get action=http://www.google.com/search>
+                  <input type=hidden name=hq value=inurl:#{googleInurl}>
+                  <input type=hidden name=ie value=UTF-8>
+                  <input type=hidden name=oe value=UTF-8>
+                  <input type=hidden name=filter value=0>
+                  <input type=text name=q .google>
                   <button type=submit name=btnG>_{MsgGo}
         $maybe _ <- mu
-          <div #file_selector
-           <div #photo-gallery .scroll
-             <ul #selectable_images .inline
-           <hr
+          <div #file_selector>
+           <div #photo-gallery .scroll>
+             <ul #selectable_images .inline>
+           <hr>
            <div #upload_error .errors.hide>_{MsgFailToUploadFile}
-           <form #upload_form method=post enctype=multipart/form-data action=@{UploadR}
-             <div #fields .inline
-               <input #upload_file type=file name=upfile
-             <input #go_upload type=button name=upload value=_{MsgUploadFile}
-           <div #trash-area .right
-             <img #trashbox src=@{StaticR img_trash_empty64_png} .transparent
+           <form #upload_form method=post enctype=multipart/form-data action=@{UploadR}>
+             <div #fields .inline>
+               <input #upload_file type=file name=upfile>
+             <input #go_upload type=button name=upload value=_{MsgUploadFile}>
+           <div #trash-area .right>
+             <img #trashbox src=@{StaticR img_trash_empty64_png} .transparent>

@@ -1,30 +1,30 @@
-<div .right
-  <ul .breadcrumbs
+<div .right>
+  <ul .breadcrumbs>
     $forall a <- ancestory wp
-      <li
+      <li>
         <a href=@{WikiR a}>#{lastNameOf a}
-<ul .tabs
-  <li .selected
+<ul .tabs>
+  <li .selected>
     <a href=@{WikiR wp}>_{MsgVIEW}
-  <li
+  <li>
     <a href=@?{editMe}>_{MsgEDIT}
-  <li
+  <li>
     <a href=@?{deleteMe}>_{MsgDELETE}
-  <li
+  <li>
     <a href=@{HistoriesR wp}>_{MsgHISTORY}
-  <li
+  <li>
     <a href=@{AllPagesR}>_{MsgALLPAGES}
-  <li
+  <li>
     <a href=@{RecentChangesR}>_{MsgRECENTCHANGES}
   $if not isTop
-    <li
+    <li>
       <a href=@?{topView}>_{MsgTOP}
-<div #main-content
+<div #main-content>
   #{content}
-  <div #metainfo align=right
+  <div #metainfo align=right>
     $maybe e <- me
       _{MsgLastEditor}: #{userDisplayName e}
     $nothing
       _{MsgLastEditor}: -
-    <br
+    <br>
     _{MsgLastUpdatedDate}: #{showDate upd}

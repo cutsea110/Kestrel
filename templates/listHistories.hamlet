@@ -1,44 +1,44 @@
-<div .right
-  <ul .breadcrumbs
+<div .right>
+  <ul .breadcrumbs>
     $forall a <- ancestory wp
-      <li
+      <li>
         <a href=@{WikiR a}>#{lastNameOf a}
-<ul .tabs
-  <li
+<ul .tabs>
+  <li>
     <a href=@{WikiR wp}>_{MsgVIEW}
-  <li
+  <li>
     <a href=@?{editMe}>_{MsgEDIT}
-  <li
+  <li>
     <a href=@?{deleteMe}>_{MsgDELETE}
-  <li .selected
+  <li .selected>
     <a href=@{HistoriesR wp}>_{MsgHISTORY}
-  <li
+  <li>
     <a href=@{AllPagesR}>_{MsgALLPAGES}
-  <li
+  <li>
     <a href=@{RecentChangesR}>_{MsgRECENTCHANGES}
   $if not isTop
-    <li
+    <li>
       <a href=@?{topView}>_{MsgTOP}
-<div #main-content
+<div #main-content>
   <h3 .metatitle>_{MsgChangeHistoryOf path}
-  <table .history
-    <thead
-      <tr
+  <table .history>
+    <thead>
+      <tr>
         <th rowspan=2>_{MsgVersion}
         <th rowspan=2>_{MsgUpdatedDate}
         <th>_{MsgEditor}
         <th>_{MsgChangeLines}
         <th>_{MsgOperation}
-      <tr
+      <tr>
         <th colspan=3>_{MsgCommentLog}
-    <tbody
+    <tbody>
     $forall h <- hs
-      <tr .#{altClass (snd3 h)}
+      <tr .#{altClass (snd3 h)}>
         <td rowspan=2 .number>#{show (wikiHistoryVersion (snd3 h))}
         <td rowspan=2>#{showDate (wikiHistoryUpdated (snd3 h))}
         <td>#{userDisplayName (fst3 h)}
         <td>+#{show (fst (thd3 h))},#{show (snd (thd3 h))}
-        <td
+        <td>
            [
            <a href=@?{viewVer (wikiHistoryVersion (snd3 h))}>_{MsgVIEW}
            | _{MsgThisVerOfTheOriginal}
@@ -55,16 +55,16 @@
              $if notEpoch (snd3 h)
                <a href=@?{prevDiff (wikiHistoryVersion (snd3 h))}>_{MsgPreviousVersion}
              _{MsgPostDiffBetween}]
-      <tr .#{altClass (snd3 h)}
-        <td colspan=3
+      <tr .#{altClass (snd3 h)}>
+        <td colspan=3>
           $maybe _ <- mu
             $maybe com <- wikiHistoryComment (snd3 h)
               $if isNull com
-                <textarea name=comment uri=@{HistoryR (wikiHistoryVersion (snd3 h)) wp} .inplaceedit
+                <textarea name=comment uri=@{HistoryR (wikiHistoryVersion (snd3 h)) wp} .inplaceedit>
               $else
                 <textarea name=comment uri=@{HistoryR (wikiHistoryVersion (snd3 h)) wp} .inplaceedit>#{com}
             $nothing
-              <textarea name=comment uri=@{HistoryR (wikiHistoryVersion (snd3 h)) wp} .inplaceedit
+              <textarea name=comment uri=@{HistoryR (wikiHistoryVersion (snd3 h)) wp} .inplaceedit>
           $nothing
             $maybe com <- wikiHistoryComment (snd3 h)
               $if isNull com
@@ -74,8 +74,8 @@
             $nothing
               <span>_{MsgNullText}
     $maybe next <- mnext
-      <tr
-        <td colspan=5
+      <tr>
+        <td colspan=5>
           [
           <a href=@?{next}>_{MsgForEvenOlderHistory}
           ]

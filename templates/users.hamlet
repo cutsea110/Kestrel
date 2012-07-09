@@ -1,7 +1,7 @@
 <h1>Items
-<ul
+<ul>
   $forall user <- users
-    <li
+    <li>
       <a href=@{UserR $ entityKey user}>#{userInfoOneline $ entityVal user}
-<p
+<p>
   <a href=@{NewUserR}>Add new item

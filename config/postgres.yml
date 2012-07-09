@@ -1,13 +1,13 @@
 Default: &defaults
   user: cutsea110
-  password: cutsea110
+  password: jpn$wmr11o
   host: localhost
   port: 5432
   database: kestrel
   poolsize: 10
 
 Development:
-  database: kestrel_devel
+  database: kestrel
   <<: *defaults
 
 Test:

@@ -82,10 +82,11 @@ import qualified Text.Pandoc.Highlighting as PH (formatHtmlBlock, highlight)
 import Text.Blaze.Renderer.String (renderHtml)
 import qualified Data.Map as Map (lookup, fromList, Map)
 import Data.List (inits)
+import Data.Maybe (isNothing)
 import Data.Text (Text)
 import Data.Time.Clock (UTCTime(..))
 import qualified Data.Text as T
-import Text.Blaze (preEscapedText, preEscapedString)
+import Text.Blaze.Internal (preEscapedText, preEscapedString)
 #if DEVELOPMENT
 import qualified Data.Text.Lazy.Encoding
 #else
@@ -176,8 +177,6 @@ ancestory = map WikiPage . filter (/=[]) . inits . unWikiPage
 instance Yesod Kestrel where
     approot = ApprootMaster $ appRoot . settings
 
-    encryptKey _ = fmap Just $ getKey "config/client_session_key.aes"
-    
     defaultLayout widget = do
         y <- getYesod
         mu <- maybeAuth
@@ -205,7 +204,7 @@ instance Yesod Kestrel where
           addScriptEither $ Left $ StaticR plugins_watermark_jquery_watermark_js
           addCassius $(cassiusFile "templates/default-layout.cassius")
           addJulius $(juliusFile "templates/default-layout.julius")
-          atomLink FeedR $ T.unpack Settings.topTitle
+          atomLink FeedR Settings.topTitle
         ihamletToRepHtml $(ihamletFile "templates/default-layout.hamlet")
         
     -- This is done to provide an optimization for serving static files from

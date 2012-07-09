@@ -1,10 +1,10 @@
-<ul .tabs
-  <li
+<ul .tabs>
+  <li>
     <a href=@{AllPagesR}>_{MsgALLPAGES}
-  <li
+  <li>
     <a href=@{RecentChangesR}>_{MsgRECENTCHANGES}
-  <li
+  <li>
     <a href=@?{topView}>_{MsgTOP}
-<div #main-content
+<div #main-content>
   <h3 .metatitle>_{MsgSearchResultFor key}
-  <div #result
+  <div #result>

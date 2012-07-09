@@ -17,7 +17,7 @@ import Data.List (groupBy)
 import Data.Text (Text)
 import Data.String (IsString)
 import qualified Data.Text as T
-import Text.Blaze (preEscapedText)
+import Text.Blaze.Internal (preEscapedText)
 import Text.Cassius (cassiusFile)
 import Text.Julius (juliusFile)
 

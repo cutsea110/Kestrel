@@ -1,44 +1,44 @@
-<div .right
-  <ul .breadcrumbs
+<div .right>
+  <ul .breadcrumbs>
     $forall a <- ancestory wp
-      <li
+      <li>
         <a href=@{WikiR a}>#{lastNameOf a}
-<ul .tabs
-  <li
+<ul .tabs>
+  <li>
     <a href=@{WikiR wp}>_{MsgVIEW}
-  <li .selected
+  <li .selected>
     <a href=@?{editMe}>_{MsgEDIT}
-  <li
+  <li>
     <a href=@?{deleteMe}>_{MsgDELETE}
-  <li
+  <li>
     <a href=@{HistoriesR wp}>_{MsgHISTORY}
-  <li
+  <li>
     <a href=@{AllPagesR}>_{MsgALLPAGES}
-  <li
+  <li>
     <a href=@{RecentChangesR}>_{MsgRECENTCHANGES}
   $if not isTop
-    <li
+    <li>
       <a href=@?{topView}>_{MsgTOP}
-<div #main-content
+<div #main-content>
   <h3 .metatitle> _{MsgEditingHistory path}
-  <form method=post action=@{WikiR wp} .validate
+  <form method=post action=@{WikiR wp} .validate>
     <button type=submit name=_method value=preview>_{MsgPreview}
     <button type=submit name=_method value=commit>_{MsgUpdate}
-    <input type=checkbox name=donttouch :toBool donttouch:checked
+    <input type=checkbox name=donttouch :toBool donttouch:checked>
     <label for=donttouch>_{MsgDontRegisterRecentChanges}
     <button #file-select-button type=submit .link action=@{FileListR uid}>_{MsgFileGallery}
     <button #wiki-select-button type=submit .link>_{MsgPageLinks}
-    <br
-    <input type=hidden name=version value=#{show ver}
+    <br>
+    <input type=hidden name=version value=#{show ver}>
     <textarea #content name=content .required .content>#{raw}
     <div .description>_{MsgChangeLog} (_{MsgChangeLogDescription}):
-    <textarea name=comment .comment
-    <br
+    <textarea name=comment .comment>
+    <br>
     <button type=submit name=_method value=preview>_{MsgPreview}
     <button type=submit name=_method value=commit>_{MsgUpdate}
-  <div #help
+  <div #help>
     ^{markdown}
 
-<div #wiki-selector
-  <div .scroll
-    <ul #wiki-links
+<div #wiki-selector>
+  <div .scroll>
+    <ul #wiki-links>

@@ -6,7 +6,7 @@ import Yesod
 import Text.Julius (juliusFile)
 
 import Control.Monad (unless)
-import Text.Blaze (preEscapedText)
+import Text.Blaze.Internal (preEscapedText)
 
 getProfileR :: UserId -> Handler RepHtml
 getProfileR uid = do

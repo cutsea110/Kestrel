@@ -10,6 +10,6 @@ $maybe aTUser <- maTUser
   \<script type="text/javascript" src="http://s7.addthis.com/js/250/addthis_widget.js#username=#{aTUser}"></script>
   \<!-- AddThis Button END -->
   \</div>
-<div #footer .center
+<div #footer .center>
   powered by 
   <a href=http://docs.yesodweb.com>yesod.
