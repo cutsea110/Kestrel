@@ -1,33 +1,33 @@
-<ul .tabs
-  <li
+<ul .tabs>
+  <li>
     <a href=@{WikiR wp}>_{MsgVIEW}
-  <li
+  <li>
     <a href=@?{editMe}>_{MsgEDIT}
-  <li
+  <li>
     <a href=@?{deleteMe}>_{MsgDELETE}
-  <li .selected
+  <li .selected>
     <a href=@{HistoriesR wp}>_{MsgHISTORY}
-  <li
+  <li>
     <a href=@{AllPagesR}>_{MsgALLPAGES}
-  <li
+  <li>
     <a href=@{RecentChangesR}>_{MsgRECENTCHANGES}
   $if not isTop
-    <li
+    <li>
       <a href=@?{topView}>_{MsgTOP}
-<div #main-content
-  <div align=right
+<div #main-content>
+  <div align=right>
     $if notCurrent
       <a href=@?{currDiff}>_{MsgDiffWithTheLatestVer}
-      <br
+      <br>
     <a href=@?{editVer}>_{MsgBasedOnTheEditingOfThisEdition}
-    <br
+    <br>
     <a href=@{HistoriesR wp}>_{MsgBackToTheEditingHistory}
-  <div .history
+  <div .history>
     #{content}
-   <div #metainfo align=right
+   <div #metainfo align=right>
      $maybe e <- me
       _{MsgLastEditor}: #{userDisplayName e}
      $nothing
       _{MsgLastEditor}: -
-     <br
+     <br>
      _{MsgLastUpdatedDate}: #{showDate upd}

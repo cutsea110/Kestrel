@@ -3,7 +3,7 @@
 {-# LANGUAGE CPP #-}
 {-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE GADTs #-}
-{-# LANGUAGE FlexibleContexts #-}
+{-# LANGUAGE FlexibleContexts, EmptyDataDecls #-}
 {-# OPTIONS_GHC -fspec-constr-count=100 #-}
 module Model where
 

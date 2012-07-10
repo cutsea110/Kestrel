@@ -14,7 +14,7 @@ $(document).ready(function(){
     });
   }
 
-  if ('#{show mu}'=='Nothing') {
+  if ('#{show $ isNothing mu}'=='Nothing') {
     $('#userbox').hide();
     $('ul.tabs').hide();
     $('#seitoku-header-logo').dblclick(function(){
@@ -88,7 +88,7 @@ $(document).ready(function(){
     success: function(data) {
       var div = $('<div/>').addClass('menu_leftnavi'),
           sp = $(data);
-      if ('#{show mu}'=='Nothing') {
+      if ('#{show $ isNothing mu}'=='True') {
         $('#main_left').append(div.append(sp));
       }else{
         var a = $('<a/>').attr({href: '@{sidePaneView}'}).text('#{Settings.sidePaneTitle}');
@@ -108,7 +108,7 @@ $(document).ready(function(){
       });
     },
     error: function(msg, status) {
-      if ('#{show mu}'!='Nothing') {
+      if ('#{show $ isNothing mu}'!='True') {
         var anc = $('<a/>').attr({href:'@?{sidePaneNew}'}).text('#{msgShow (MsgEditing Settings.sidePaneTitle)}');
         $('#main_left').append(anc);
       }

@@ -53,7 +53,7 @@ import Yesod.AtomFeed
 import Yesod.Auth
 import Kestrel.Helpers.Auth.HashDB
 import Yesod.Auth.OpenId
-import Yesod.Auth.Facebook
+import Yesod.Auth.Facebook.ServerSide
 import Facebook (Credentials(..))
 -- import Yesod.Auth.OAuth
 import Yesod.Default.Config
@@ -70,7 +70,6 @@ import Database.Persist.GenericSql
 import Settings (widgetFile, Extra (..))
 import Model
 import Text.Jasmine (minifym)
-import Web.ClientSession (getKey)
 import Text.Hamlet (ihamletFile)
 import Text.Lucius (luciusFile)
 import Text.Julius (juliusFile)
@@ -79,13 +78,14 @@ import Control.Applicative ((<*>))
 import Text.Pandoc
 import Text.Pandoc.Shared
 import qualified Text.Pandoc.Highlighting as PH (formatHtmlBlock, highlight)
-import Text.Blaze.Renderer.String (renderHtml)
+import Text.Blaze.Html.Renderer.String (renderHtml)
 import qualified Data.Map as Map (lookup, fromList, Map)
 import Data.List (inits)
+import Data.Maybe (isNothing)
 import Data.Text (Text)
 import Data.Time.Clock (UTCTime(..))
 import qualified Data.Text as T
-import Text.Blaze (preEscapedText, preEscapedString)
+import Text.Blaze.Internal (preEscapedText, preEscapedString)
 #if DEVELOPMENT
 import qualified Data.Text.Lazy.Encoding
 #else
@@ -176,8 +176,6 @@ ancestory = map WikiPage . filter (/=[]) . inits . unWikiPage
 instance Yesod Kestrel where
     approot = ApprootMaster $ appRoot . settings
 
-    encryptKey _ = fmap Just $ getKey "config/client_session_key.aes"
-    
     defaultLayout widget = do
         y <- getYesod
         mu <- maybeAuth
@@ -204,10 +202,10 @@ instance Yesod Kestrel where
           addScriptEither $ Left $ StaticR plugins_exinplaceeditor_jquery_exinplaceeditor_0_1_3_js
           addStylesheetEither $ Left $ StaticR plugins_exinplaceeditor_exinplaceeditor_css
           addScriptEither $ Left $ StaticR plugins_watermark_jquery_watermark_js
-          addLucius $(luciusFile "templates/default-layout.lucius")
-          addJulius $(juliusFile "templates/default-layout.julius")
-          addLucius $(luciusFile "templates/leftnavi.lucius")
-          atomLink FeedR $ T.unpack Settings.topTitle
+          toWidget $(luciusFile "templates/default-layout.lucius")
+          toWidget $(juliusFile "templates/default-layout.julius")
+          toWidget $(luciusFile "templates/leftnavi.lucius")
+          atomLink FeedR Settings.topTitle
         ihamletToRepHtml $(ihamletFile "templates/default-layout.hamlet")
         
     -- This is done to provide an optimization for serving static files from

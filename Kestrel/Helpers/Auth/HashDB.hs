@@ -26,7 +26,7 @@ import Data.ByteString.Lazy.Char8  (pack)
 import Data.Digest.Pure.SHA        (sha1, showDigest)
 import Data.Text (Text)
 import qualified Data.Text as T
-import Text.Blaze (preEscapedText)
+import Text.Blaze.Internal (preEscapedText)
 
 (+++) :: Text -> Text -> Text
 (+++) = T.append

@@ -1,39 +1,39 @@
 $doctype 5
-<html
-    <head
-        <meta charset=UTF-8
-        <title>#{pageTitle pc}
-        <meta http-equiv=X-UA-Compatible content="IE=edge"
+<html>
+    <head>
+        <meta charset=UTF-8>
+        <title>#{pageTitle pc}>
+        <meta http-equiv=X-UA-Compatible content="IE=edge">
         ^{const $ pageHead pc}
         ^{ga}
-    <body
+    <body>
         ^{header}
-        <div #doc .kui-t1
-          <div #seitoku-header-logo
-            <div #seitoku-header-right
+        <div #doc .kui-t1>
+          <div #seitoku-header-logo>
+            <div #seitoku-header-right>
               <div #seitoku-header-text>
                 興味をきっかけに、広がっていく好奇心。
-                <br
-                <br
+                <br>
+                <br>
                 聖徳大学 短期大学部 総合文化学科は、一人ひとりの個性や希望を活かせる
-                <br
+                <br>
                 フレキシブルな学科です。
           $maybe lu <- mlastup
             <div #lastupdate>_{MsgLastUpdatedDate}: #{maybe "-" showDate $ wikiTouched $ entityVal lu}
-          <div #kui-main
-            <div #main_left
-            <div #main_right
+          <div #kui-main>
+            <div #main_left>
+            <div #main_right>
               ^{const $ pageBody pc}
               ^{footer}
         $maybe _ <- mu
-          <div #file_selector
-           <div #photo-gallery .scroll
-             <ul #selectable_images .inline
-           <hr
+          <div #file_selector>
+           <div #photo-gallery .scroll>
+             <ul #selectable_images .inline>
+           <hr>
            <div #upload_error .errors.hide>_{MsgFailToUploadFile}
-           <form #upload_form method=post enctype=multipart/form-data action=@{UploadR}
-             <div #fields .inline
-               <input #upload_file type=file name=upfile
-             <input #go_upload type=button name=upload value=_{MsgUploadFile}
-           <div #trash-area .right
-             <img #trashbox src=@{StaticR img_trash_empty64_png} .transparent
+           <form #upload_form method=post enctype=multipart/form-data action=@{UploadR}>
+             <div #fields .inline>
+               <input #upload_file type=file name=upfile>
+             <input #go_upload type=button name=upload value=_{MsgUploadFile}>
+           <div #trash-area .right>
+             <img #trashbox src=@{StaticR img_trash_empty64_png} .transparent>

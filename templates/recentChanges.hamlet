@@ -1,31 +1,31 @@
-<ul .tabs
-  <li
-    <a href=@{AllPagesR}>_{MsgALLPAGES}
-  <li .selected
-    <a href=@{RecentChangesR}>_{MsgRECENTCHANGES}
-  <li
+<ul .tabs>
+  <li>
+    <a href=@{AllPagesR}>_{MsgALLPAGES}>
+  <li .selected>
+    <a href=@{RecentChangesR}>_{MsgRECENTCHANGES}>
+  <li>
     <a href=@?{topView}>_{MsgTOP}
-<div #main-content
+<div #main-content>
   <h3 .metatitle>_{MsgRecentChanges}
-  <div #result
-    <table
+  <div #result>
+    <table>
       $forall entry <- entries
-        <tr
-          <td
+        <tr>
+          <td>
             #{showDate $ fromJust $ wikiTouched $ entityVal entry}
-          <td
+          <td>
             $with diff <- diffUTCTime now (fromJust $ wikiTouched $ entityVal entry)
-              $if diff < minute
+              $if less diff minute
                 (_{MsgSecAgo $ fromSec diff sec})
-              $elseif diff < hour
+              $elseif less diff hour
                 (_{MsgMinAgo $ fromSec diff minute})
-              $elseif diff < day
+              $elseif less diff day
                 (_{MsgHourAgo $ fromSec diff hour})
-              $elseif diff < month
+              $elseif less diff month
                 (_{MsgDayAgo $ fromSec diff day})
-              $elseif diff < year
+              $elseif less diff year
                 (_{MsgMonthAgo $ fromSec diff month})
               $else
                 (_{MsgYearAgo $ fromSec diff year})
-          <td
-            <a href=@{WikiR $ fromWiki $ entityVal entry}>#{wikiPath $ entityVal entry}
+          <td>
+            <a href=@{WikiR $ fromWiki $ entityVal entry}>#{wikiPath $ entityVal entry}>

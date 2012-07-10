@@ -31,7 +31,7 @@ getUploadR = do
   (Entity uid _) <- requireAuth
   msg <- getMessageRender
   defaultLayout $ do
-    addCassius $(cassiusFile "templates/s3/s3.cassius")
+    toWidget $(cassiusFile "templates/s3/s3.cassius")
     addWidget $(widgetFile "s3/upload")
 
 upload uid fi = do

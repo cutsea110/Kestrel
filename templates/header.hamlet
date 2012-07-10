@@ -1,14 +1,14 @@
-<div #userbox
+<div #userbox>
   $maybe u <- mu
     _{MsgNowLogin}
-    <a title=_{MsgChangeProf} href=@{ProfileR (entityKey u)}>#{userDisplayName (entityVal u)}
+    <a title=_{MsgChangeProf} href=@{ProfileR (entityKey u)}>#{userDisplayName (entityVal u)}>
     .
-    <form method=get action=@{AuthR LogoutR} .inline
-      <button type=submit .link>_{MsgLogout}
-    <form method=get action=@{AuthR setpassR} .inline
-      <button type=submit .link>_{MsgChangePassword}
+    <form method=get action=@{AuthR LogoutR} .inline>
+      <button type=submit .link>_{MsgLogout}>
+    <form method=get action=@{AuthR setpassR} .inline>
+      <button type=submit .link>_{MsgChangePassword}>
   $nothing
-    <form method=get action=@{AuthToGoR}
-      $maybe cr <- cr
-        <input type=hidden name=go value=@{r2m cr}
-      <button type=submit .link>_{MsgLogin}
+    <form method=get action=@{AuthToGoR}>
+      $maybe r <- cr
+        <input type=hidden name=go value=@{r2m r}>
+      <button type=submit .link>_{MsgLogin}>
