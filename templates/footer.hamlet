@@ -12,4 +12,4 @@ $maybe aTUser <- maTUser
   \</div>
 <div #footer .center>
   powered by 
-  <a href=http://docs.yesodweb.com>yesod Ver #{yesodVersion}.
+  <a href=http://docs.yesodweb.com>yesod ver. #{yesodVersion}
