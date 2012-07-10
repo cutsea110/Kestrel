@@ -15,15 +15,15 @@
             #{showDate $ fromJust $ wikiTouched $ entityVal entry}
           <td>
             $with diff <- diffUTCTime now (fromJust $ wikiTouched $ entityVal entry)
-              $if less diff minute
+              $if (<) diff minute
                 (_{MsgSecAgo $ fromSec diff sec})
-              $elseif less diff hour
+              $elseif (<) diff hour
                 (_{MsgMinAgo $ fromSec diff minute})
-              $elseif less diff day
+              $elseif (<) diff day
                 (_{MsgHourAgo $ fromSec diff hour})
-              $elseif less diff month
+              $elseif (<) diff month
                 (_{MsgDayAgo $ fromSec diff day})
-              $elseif less diff year
+              $elseif (<) diff year
                 (_{MsgMonthAgo $ fromSec diff month})
               $else
                 (_{MsgYearAgo $ fromSec diff year})
