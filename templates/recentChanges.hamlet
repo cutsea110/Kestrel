@@ -1,8 +1,8 @@
 <ul .tabs>
   <li>
-    <a href=@{AllPagesR}>_{MsgALLPAGES}>
+    <a href=@{AllPagesR}>_{MsgALLPAGES}
   <li .selected>
-    <a href=@{RecentChangesR}>_{MsgRECENTCHANGES}>
+    <a href=@{RecentChangesR}>_{MsgRECENTCHANGES}
   <li>
     <a href=@?{topView}>_{MsgTOP}
 <div #main-content>
@@ -28,4 +28,4 @@
               $else
                 (_{MsgYearAgo $ fromSec diff year})
           <td>
-            <a href=@{WikiR $ fromWiki $ entityVal entry}>#{wikiPath $ entityVal entry}>
+            <a href=@{WikiR $ fromWiki $ entityVal entry}>#{wikiPath $ entityVal entry}
