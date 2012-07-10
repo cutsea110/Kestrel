@@ -9,6 +9,6 @@
       <button type=submit .link>_{MsgChangePassword}>
   $nothing
     <form method=get action=@{AuthToGoR}>
-      $maybe cr <- cr
-        <input type=hidden name=go value=@{r2m cr}>
+      $maybe r <- cr
+        <input type=hidden name=go value=@{r2m r}>
       <button type=submit .link>_{MsgLogin}>

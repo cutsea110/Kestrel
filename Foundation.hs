@@ -53,7 +53,7 @@ import Yesod.AtomFeed
 import Yesod.Auth
 import Kestrel.Helpers.Auth.HashDB
 import Yesod.Auth.OpenId
-import Yesod.Auth.Facebook
+import Yesod.Auth.Facebook.ServerSide
 import Facebook (Credentials(..))
 -- import Yesod.Auth.OAuth
 import Yesod.Default.Config
@@ -70,7 +70,6 @@ import Database.Persist.GenericSql
 import Settings (widgetFile, Extra (..))
 import Model
 import Text.Jasmine (minifym)
-import Web.ClientSession (getKey)
 import Text.Hamlet (ihamletFile)
 import Text.Cassius (cassiusFile)
 import Text.Julius (juliusFile)
@@ -79,7 +78,7 @@ import Control.Applicative ((<*>))
 import Text.Pandoc
 import Text.Pandoc.Shared
 import qualified Text.Pandoc.Highlighting as PH (formatHtmlBlock, highlight)
-import Text.Blaze.Renderer.String (renderHtml)
+import Text.Blaze.Html.Renderer.String (renderHtml)
 import qualified Data.Map as Map (lookup, fromList, Map)
 import Data.List (inits)
 import Data.Maybe (isNothing)
@@ -202,8 +201,8 @@ instance Yesod Kestrel where
           addScriptEither $ Left $ StaticR plugins_exinplaceeditor_jquery_exinplaceeditor_0_1_3_js
           addStylesheetEither $ Left $ StaticR plugins_exinplaceeditor_exinplaceeditor_css
           addScriptEither $ Left $ StaticR plugins_watermark_jquery_watermark_js
-          addCassius $(cassiusFile "templates/default-layout.cassius")
-          addJulius $(juliusFile "templates/default-layout.julius")
+          toWidget $(cassiusFile "templates/default-layout.cassius")
+          toWidget $(juliusFile "templates/default-layout.julius")
           atomLink FeedR Settings.topTitle
         ihamletToRepHtml $(ihamletFile "templates/default-layout.hamlet")
         
@@ -291,7 +290,7 @@ instance YesodAuth Kestrel where
     loginHandler = do
       defaultLayout $ do
         setTitle "Login"
-        addCassius $(cassiusFile "templates/login.cassius")
+        toWidget $(cassiusFile "templates/login.cassius")
         addWidget $(whamletFile "templates/login.hamlet")
 
 instance YesodAuthHashDB Kestrel where

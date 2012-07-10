@@ -17,7 +17,7 @@ getProfileR uid = do
   u <- runDB $ get404 uid
   defaultLayout $ do
     setTitle "Profile"
-    addJulius $(juliusFile "templates/profile.julius")
+    toWidget $(juliusFile "templates/profile.julius")
     addWidget $(whamletFile "templates/viewProfile.hamlet")
 
 postProfileR :: UserId -> Handler ()
