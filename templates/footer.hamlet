@@ -1,3 +1,4 @@
 <div #footer .center>
   powered by 
-  <a href=http://docs.yesodweb.com>yesod ver. #{yesodVersion}
+  <a href=http://docs.yesodweb.com>yesod
+  \ ver. #{yesodVersion}
