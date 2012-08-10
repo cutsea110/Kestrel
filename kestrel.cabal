@@ -102,4 +102,5 @@ executable kestrel
                   , clientsession
                   , utf8-string  >= 0.3.7   && < 0.4
                   , data-default >= 0.5     && < 0.6
+                  , conduit      >= 0.5     && < 0.6
 

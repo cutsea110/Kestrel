@@ -17,7 +17,10 @@ import Foundation
 import Kestrel.Helpers.Util (encodeUrl)
 
 import Yesod
+import Control.Applicative ((<$>))
 import Data.Time
+import Data.Conduit (($$))
+import Data.Conduit.List (consume)
 import qualified Data.ByteString.Lazy as L
 import System.Directory
 import System.FilePath
@@ -34,14 +37,15 @@ getUploadR = do
     $(widgetFile "s3/upload")
 
 upload uid fi = do
-  let fsize = L.length (fileContent fi)
+  lbs <- lift $ lift $ fileContent fi
+  let fsize = L.length lbs
   if fileName' fi /= "" && fsize > 0
     then do
     now <- liftIO getCurrentTime
     let (name, ext) = splitExtension $ T.unpack $ fileName' fi
         efname = encodeUrl $ fileName' fi
     (et, width, height, imagep) <- liftIO $ do
-      et <- mkThumbnail (fileContent fi)
+      et <- mkThumbnail lbs
       case et of
         Right t -> return (et, Just (fst (orgSZ t)), Just (snd (orgSZ t)), True)
         Left _  -> return (et, Nothing, Nothing, False)
@@ -64,7 +68,7 @@ upload uid fi = do
         thumbfp = thumbDir </> T.unpack (toPathPiece fid)
     liftIO $ do
       createDirectoryIfMissing True s3dir'
-      L.writeFile s3fp (fileContent fi)
+      L.writeFile s3fp lbs
       -- follow thumbnail
       case et of
         Right t -> do createDirectoryIfMissing True thumbDir
@@ -75,9 +79,7 @@ upload uid fi = do
   where
     fileName' :: FileInfo -> T.Text
     fileName' = last . T.split (\c -> c=='/' || c=='\\') . fileName
-    fileContent :: FileInfo -> L.ByteString
-    fileContent = undefined -- FIX ME!
-
+    fileContent f = L.fromChunks <$> (fileSource f $$ consume)
 
 postUploadR :: Handler RepXml
 postUploadR = do
