@@ -1,3 +1,4 @@
+$newline never
 $maybe aTUser <- maTUser
   \<div class='left inline'>
   \<!-- AddThis Button BEGIN -->

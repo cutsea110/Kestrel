@@ -18,7 +18,7 @@ getProfileR uid = do
   defaultLayout $ do
     setTitle "Profile"
     toWidget $(juliusFile "templates/profile.julius")
-    addWidget $(whamletFile "templates/viewProfile.hamlet")
+    $(whamletFile "templates/viewProfile.hamlet")
 
 postProfileR :: UserId -> Handler ()
 postProfileR uid = do

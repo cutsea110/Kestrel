@@ -1,3 +1,4 @@
+$newline never
 <div #userbox>
   $maybe u <- mu
     _{MsgNowLogin}

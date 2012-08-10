@@ -52,13 +52,9 @@ import Settings.StaticFiles
 import Yesod.AtomFeed
 import Yesod.Auth
 import Kestrel.Helpers.Auth.HashDB
-import Yesod.Auth.OpenId
-import Yesod.Auth.Facebook.ServerSide
-import Facebook (Credentials(..))
--- import Yesod.Auth.OAuth
+import Yesod.Auth.GoogleEmail
 import Yesod.Default.Config
 import Yesod.Default.Util (addStaticContentExternal)
-import Yesod.Logger (Logger, logMsg, formatLogText)
 import Network.HTTP.Conduit (Manager)
 #ifdef DEVELOPMENT
 import Yesod.Logger (logLazyText)
@@ -70,6 +66,7 @@ import Database.Persist.GenericSql
 import Settings (widgetFile, Extra (..))
 import Model
 import Text.Jasmine (minifym)
+import Web.ClientSession (getKey)
 import Text.Hamlet (ihamletFile)
 import Text.Cassius (cassiusFile)
 import Text.Julius (juliusFile)
@@ -101,7 +98,6 @@ import Network.Mail.Mime (sendmail)
 -- access to the data present here.
 data Kestrel = Kestrel
     { settings :: AppConfig DefaultEnv Extra
-    , getLogger :: Logger
     , getStatic :: Static -- ^ Settings for static file serving.
     , connPool :: Database.Persist.Store.PersistConfigPool Settings.PersistConfig -- ^ Database connection pool.
     , httpManager :: Manager
@@ -176,6 +172,12 @@ ancestory = map WikiPage . filter (/=[]) . inits . unWikiPage
 instance Yesod Kestrel where
     approot = ApprootMaster $ appRoot . settings
 
+    -- Store session data on the client in encrypted cookies,
+    -- default session idle timeout is 120 minutes
+    makeSessionBackend _ = do
+        key <- getKey "config/client_session_key.aes"
+        return . Just $ clientSessionBackend key 120
+    
     defaultLayout widget = do
         y <- getYesod
         mu <- maybeAuth
@@ -220,9 +222,6 @@ instance Yesod Kestrel where
     maximumContentLength _ (Just (FileR _ _)) = 20 * 1024 * 1024 -- 20 megabytes
     maximumContentLength _ _                  =  2 * 1024 * 1024 --  2 megabytes for default
     
-    messageLogger y loc level msg =
-      formatLogText (getLogger y) loc level msg >>= logMsg (getLogger y)
-
     -- This function creates static content files in the static folder
     -- and names them based on a hash of their content. This allows
     -- expiration dates to be set far in the future without worry of
@@ -276,13 +275,7 @@ instance YesodAuth Kestrel where
               fmap Just $ insert $ User (credsIdent creds) Nothing Nothing True
 
     authPlugins _ = [ authHashDB
-                    , authOpenId
-                    , authFacebook 
-                      (Credentials
-                       Settings.facebookApplicationName
-                       Settings.facebookApplicationId                      
-                       Settings.facebookApplicationSecret)
-                      []
+                    , authGoogleEmail
                     ]
                   
     authHttpManager = httpManager
@@ -291,7 +284,7 @@ instance YesodAuth Kestrel where
       defaultLayout $ do
         setTitle "Login"
         toWidget $(cassiusFile "templates/login.cassius")
-        addWidget $(whamletFile "templates/login.hamlet")
+        $(whamletFile "templates/login.hamlet")
 
 instance YesodAuthHashDB Kestrel where
     type AuthHashDBId Kestrel = UserId

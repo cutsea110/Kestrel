@@ -15,5 +15,5 @@ Staging:
   <<: *defaults
 
 Production:
-  approot: "http://www.example.com"
+  approot: "http://localhost:8080"
   <<: *defaults

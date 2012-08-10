@@ -49,6 +49,7 @@ getFeedR = runDB $ do
   let uday = (wikiUpdated . entityVal . head) tops
   lift $ atomFeed Feed
     { feedTitle = Settings.topTitle
+    , feedAuthor = ""
     , feedDescription = ""
     , feedLanguage = ""
     , feedLinkSelf = FeedR
@@ -107,7 +108,7 @@ getSystemBatchR = do
   (Entity _ self) <- requireAuth
   defaultLayout $ do
     setTitle "システムバッチ"
-    addWidget $(widgetFile "systembatch")
+    $(widgetFile "systembatch")
 
 postSystemBatchR :: Handler RepHtml
 postSystemBatchR = do

@@ -1,3 +1,4 @@
+$newline never
 <div #main-content>
   <h3>_{MsgSystemBatch}
   <div .function-block>

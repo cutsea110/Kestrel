@@ -29,18 +29,17 @@ import Graphics.Thumbnail
 getUploadR :: Handler RepHtml
 getUploadR = do
   (Entity uid _) <- requireAuth
-  msg <- getMessageRender
   defaultLayout $ do
     toWidget $(cassiusFile "templates/s3/s3.cassius")
-    addWidget $(widgetFile "s3/upload")
+    $(widgetFile "s3/upload")
 
 upload uid fi = do
-  if fileName' fi /= "" && L.length (fileContent fi) > 0
+  let fsize = L.length (fileContent fi)
+  if fileName' fi /= "" && fsize > 0
     then do
     now <- liftIO getCurrentTime
     let (name, ext) = splitExtension $ T.unpack $ fileName' fi
         efname = encodeUrl $ fileName' fi
-        fsize = L.length $ fileContent fi
     (et, width, height, imagep) <- liftIO $ do
       et <- mkThumbnail (fileContent fi)
       case et of
@@ -76,7 +75,8 @@ upload uid fi = do
   where
     fileName' :: FileInfo -> T.Text
     fileName' = last . T.split (\c -> c=='/' || c=='\\') . fileName
-
+    fileContent :: FileInfo -> L.ByteString
+    fileContent = undefined -- FIX ME!
 
 
 postUploadR :: Handler RepXml
@@ -97,7 +97,7 @@ postUploadR = do
           let rf = (dropPrefix (approot' y) $ r $ FileR uid fid)
               trf = (dropPrefix (approot' y) $ r $ ThumbnailR uid fid) 
           fmap RepXml $ hamletToContent
-                      [xhamlet|\
+                      [xhamlet|$newline never
 <file>
   <fhid>#{T.unpack $ toPathPiece fid}
   <name>#{name}
@@ -171,7 +171,7 @@ deleteFileR uid fid = do
       exist' <- doesFileExist thumbfp
       if exist' then removeFile thumbfp else return ()
     fmap RepXml $ hamletToContent
-                  [xhamlet|\
+                  [xhamlet|$newline never
 <deleted>
   <uri>#{rf}
 |]

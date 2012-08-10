@@ -1,3 +1,4 @@
+$newline never
 $maybe gaUA <- mgaUA
   \<!-- Google Analytics BEGIN -->
   \<script type="text/javascript">

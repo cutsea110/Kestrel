@@ -1,3 +1,4 @@
+$newline never
 <div .login-options>
   <div align=center>
     <form method=post action=@{AuthR loginR} .auth .validate>
@@ -17,8 +18,6 @@
     <form method=get action=@{AuthR forwardUrl} .inline>
         <input type=hidden name=openid_identifier value=https://www.google.com/accounts/o8/id>
         <button #google_login_icon type=submit .login_button>
-    <form method=get action=@{AuthR facebookLogin} .inline>
-        <button #facebook_login_icon type=submit .login_button>
     <form method=get action=@{AuthR forwardUrl} .inline>
         <input type=hidden name=openid_identifier value=http://me.yahoo.com>
         <button #yahoo_login_icon type=submit .login_button>

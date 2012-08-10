@@ -1,3 +1,4 @@
+$newline never
 <div .right>
   <ul .breadcrumbs>
     $forall a <- ancestory wp

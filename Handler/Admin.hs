@@ -12,8 +12,7 @@ getUsersR :: Handler RepHtml
 getUsersR = do
   _ <- requireAuth
   users <- runDB $ selectList [] [Asc UserIdent]
-  defaultLayout $ do
-    addWidget $(whamletFile "templates/users.hamlet")
+  defaultLayout $(whamletFile "templates/users.hamlet")
 
 getUserR :: UserId -> Handler RepHtml
 getUserR uid = do
@@ -40,8 +39,7 @@ postUserR uid = do
 getNewUserR :: Handler RepHtml
 getNewUserR = do
   _ <- requireAuth
-  defaultLayout $ do
-    addWidget $(whamletFile "templates/newUser.hamlet")
+  defaultLayout $(whamletFile "templates/newUser.hamlet")
 
 postNewUserR :: Handler ()
 postNewUserR = do
@@ -58,8 +56,7 @@ getDeleteUserR :: UserId -> Handler RepHtml
 getDeleteUserR uid = do
   _ <- requireAuth
   user <- runDB $ get404 uid
-  defaultLayout $ do
-    addWidget $(whamletFile "templates/deleteUser.hamlet")
+  defaultLayout $(whamletFile "templates/deleteUser.hamlet")
 
 postDeleteUserR :: UserId -> Handler ()
 postDeleteUserR uid = do

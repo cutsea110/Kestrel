@@ -104,7 +104,7 @@ class YesodAuth m => YesodAuthHashDB m where
 authHashDB :: YesodAuthHashDB m => AuthPlugin m
 authHashDB =
     AuthPlugin "account" dispatch $ \tm ->
-        [whamlet|\
+        [whamlet|$newline never
 <form method="post" action="@{tm loginR}">
     <table>
         <tr>
@@ -163,7 +163,7 @@ getPasswordR = do
             redirect $ toMaster loginR
     defaultLayout $ do
         setTitle $ preEscapedText $ msgShow ChangePassword
-        [whamlet|\
+        [whamlet|$newline never
 <h3>_{ChangePassword}
 <form method="post" action="@{toMaster setpassR}">
     <table>
