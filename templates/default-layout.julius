@@ -14,7 +14,7 @@ $(document).ready(function(){
     });
   }
 
-  if ('#{show $ isNothing mu}'=='Nothing') {
+  if ('#{show $ isNothing mu}'=='True') {
     $('#userbox').hide();
     $('ul.tabs').hide();
     $('#seitoku-header-logo').dblclick(function(){
