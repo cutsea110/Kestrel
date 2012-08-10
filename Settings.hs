@@ -29,7 +29,6 @@ module Settings
     , tz
     ) where
 
-import Prelude
 import Text.Shakespeare.Text (st)
 import Language.Haskell.TH.Syntax
 import Database.Persist.Postgresql (PostgresConf)

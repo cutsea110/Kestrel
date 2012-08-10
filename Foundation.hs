@@ -9,10 +9,10 @@
 {-# OPTIONS_GHC -fno-warn-missing-signatures #-}
 {-# OPTIONS_GHC -fno-warn-unused-do-bind #-}
 module Foundation
-    ( Kestrel (..)
+    ( App (..)
     , Route (..)
-    , KestrelMessage (..)
-    , resourcesKestrel
+    , AppMessage (..)
+    , resourcesApp
     , Handler
     , Widget
     , maybeAuth
@@ -45,7 +45,6 @@ module Foundation
     , (+++)
     ) where
 
-import Prelude
 import Yesod
 import Yesod.Static
 import Settings.StaticFiles
@@ -56,11 +55,7 @@ import Yesod.Auth.GoogleEmail
 import Yesod.Default.Config
 import Yesod.Default.Util (addStaticContentExternal)
 import Network.HTTP.Conduit (Manager)
-#ifdef DEVELOPMENT
-import Yesod.Logger (logLazyText)
-#endif
 import qualified Settings
-import qualified Data.ByteString.Lazy as L
 import qualified Database.Persist.Store
 import Database.Persist.GenericSql
 import Settings (widgetFile, Extra (..))
@@ -83,11 +78,6 @@ import Data.Text (Text)
 import Data.Time.Clock (UTCTime(..))
 import qualified Data.Text as T
 import Text.Blaze.Internal (preEscapedText, preEscapedString)
-#if DEVELOPMENT
-import qualified Data.Text.Lazy.Encoding
-#else
-import Network.Mail.Mime (sendmail)
-#endif
 
 (+++) :: Text -> Text -> Text
 (+++) = T.append
@@ -96,7 +86,7 @@ import Network.Mail.Mime (sendmail)
 -- keep settings and values requiring initialization before your application
 -- starts running, such as database connections. Every handler will have
 -- access to the data present here.
-data Kestrel = Kestrel
+data App = App
     { settings :: AppConfig DefaultEnv Extra
     , getStatic :: Static -- ^ Settings for static file serving.
     , connPool :: Database.Persist.Store.PersistConfigPool Settings.PersistConfig -- ^ Database connection pool.
@@ -104,7 +94,7 @@ data Kestrel = Kestrel
     , persistConfig :: Settings.PersistConfig
     }
 
-mkMessage "Kestrel" "messages" "en"
+mkMessage "App" "messages" "en"
 
 -- This is where we define all of the routes in our application. For a full
 -- explanation of the syntax, please see:
@@ -112,22 +102,22 @@ mkMessage "Kestrel" "messages" "en"
 --
 -- This function does three things:
 --
--- * Creates the route datatype KestrelRoute. Every valid URL in your
+-- * Creates the route datatype AppRoute. Every valid URL in your
 --   application can be represented as a value of this type.
 -- * Creates the associated type:
---       type instance Route Kestrel = KestrelRoute
--- * Creates the value resourcesKestrel which contains information on the
+--       type instance Route App = AppRoute
+-- * Creates the value resourcesApp which contains information on the
 --   resources declared below. This is used in Application.hs by the call to
 --   mkYesodDispatch
 --
 -- What this function does *not* do is create a YesodSite instance for
--- Kestrel. Creating that instance requires all of the handler functions
+-- App. Creating that instance requires all of the handler functions
 -- for our application to be in scope. However, the handler functions
--- usually require access to the KestrelRoute datatype. Therefore, we
+-- usually require access to the AppRoute datatype. Therefore, we
 -- split these actions into two functions and place them in separate files.
-mkYesodData "Kestrel" $(parseRoutesFile "config/routes")
+mkYesodData "App" $(parseRoutesFile "config/routes")
 
-type Form x = Html -> MForm Kestrel Kestrel (FormResult x, Widget)
+type Form x = Html -> MForm App App (FormResult x, Widget)
 
 newtype WikiPage = WikiPage { unWikiPage :: [Text] } deriving (Eq, Show, Read)
 instance PathMultiPiece WikiPage where
@@ -136,18 +126,18 @@ instance PathMultiPiece WikiPage where
   
 topPage :: WikiPage
 topPage = WikiPage [Settings.topTitle]
-topView :: (Route Kestrel, [(Text, Text)])
+topView :: (Route App, [(Text, Text)])
 topView = (WikiR topPage, [("mode","v")])
-topNew :: (Route Kestrel, [(Text, Text)])
+topNew :: (Route App, [(Text, Text)])
 topNew = (NewR, [("path", Settings.topTitle)])
 
 sidePane :: WikiPage
 sidePane = WikiPage [Settings.sidePaneTitle]
-sidePaneView :: Route Kestrel
+sidePaneView :: Route App
 sidePaneView = WikiR sidePane
-sidePaneNew :: (Route Kestrel, [(Text, Text)])
+sidePaneNew :: (Route App, [(Text, Text)])
 sidePaneNew = (NewR, [("path", Settings.sidePaneTitle), ("mode", "e")])
-simpleSidePane :: (Route Kestrel, [(Text, Text)])
+simpleSidePane :: (Route App, [(Text, Text)])
 simpleSidePane = (WikiR sidePane, [("mode", "s")])
 isSidePane :: Text -> Bool
 isSidePane p = Settings.sidePaneTitle == p
@@ -169,7 +159,7 @@ ancestory = map WikiPage . filter (/=[]) . inits . unWikiPage
 
 -- Please see the documentation for the Yesod typeclass. There are a number
 -- of settings which can be configured by overriding methods here.
-instance Yesod Kestrel where
+instance Yesod App where
     approot = ApprootMaster $ appRoot . settings
 
     -- Store session data on the client in encrypted cookies,
@@ -232,8 +222,8 @@ instance Yesod Kestrel where
 --    yepnopeJs _ = Just $ Right $ StaticR js_modernizr_js
 
 -- How to run database actions.
-instance YesodPersist Kestrel where
-    type YesodPersistBackend Kestrel = SqlPersist
+instance YesodPersist App where
+    type YesodPersistBackend App = SqlPersist
     runDB f = do
         master <- getYesod
         Database.Persist.Store.runPool
@@ -241,16 +231,16 @@ instance YesodPersist Kestrel where
             f
             (connPool master)
     
-instance YesodJquery Kestrel where
+instance YesodJquery App where
   urlJqueryJs _ = Left $ StaticR js_jquery_1_4_4_min_js
   urlJqueryUiJs _ = Left $ StaticR js_jquery_ui_1_8_9_custom_min_js
   urlJqueryUiCss _ = Left $ StaticR css_jquery_ui_1_8_9_custom_css
 
-instance RenderMessage Kestrel FormMessage where
+instance RenderMessage App FormMessage where
     renderMessage _ _ = defaultFormMessage
 
-instance YesodAuth Kestrel where
-    type AuthId Kestrel = UserId
+instance YesodAuth App where
+    type AuthId App = UserId
 
     -- Where to send a user after successful login
     loginDest _ = RootR
@@ -286,8 +276,8 @@ instance YesodAuth Kestrel where
         toWidget $(cassiusFile "templates/login.cassius")
         $(whamletFile "templates/login.hamlet")
 
-instance YesodAuthHashDB Kestrel where
-    type AuthHashDBId Kestrel = UserId
+instance YesodAuthHashDB App where
+    type AuthHashDBId App = UserId
 
     getPassword uid = runDB $ do
       ma <- get uid
@@ -304,15 +294,6 @@ instance YesodAuthHashDB Kestrel where
                 , hashdbCredsAuthId = Just uid
                 }
     getHashDB = runDB . fmap (fmap userIdent) . get
-
--- Sends off your mail. Requires sendmail in production!
-deliver :: Kestrel -> L.ByteString -> IO ()
-#ifdef DEVELOPMENT
-deliver y = logLazyText (getLogger y) . Data.Text.Lazy.Encoding.decodeUtf8
-#else
-deliver _ = sendmail
-#endif
-
 
 {- markdown utility -}
 markdownToWikiHtml opt raw = do
@@ -332,7 +313,7 @@ markdownsToWikiHtmls opt raws = do
 readDoc :: Text -> Pandoc
 readDoc = readMarkdown defaultParserState . tabFilter (stateTabStop defaultParserState) . T.unpack
 
-wikiWriterOption :: (KestrelMessage -> Text) -> WriterOptions
+wikiWriterOption :: (AppMessage -> Text) -> WriterOptions
 wikiWriterOption msgShow =
   defaultWriterOptions{
           writerStandalone = True
@@ -351,15 +332,15 @@ sidePaneWriterOption =
         , writerIdentifierPrefix = "sidepane-"
         }
 
-writeHtmlStr ::  WriterOptions -> (Route Kestrel -> [(Text, Text)] -> Text) -> Map.Map Text Wiki -> Pandoc -> String
+writeHtmlStr ::  WriterOptions -> (Route App -> [(Text, Text)] -> Text) -> Map.Map Text Wiki -> Pandoc -> String
 writeHtmlStr opt render pages = 
   writeHtmlString opt . transformDoc render pages
 
-transformDoc :: (Route Kestrel -> [(Text, Text)] -> Text) -> Map.Map Text Wiki -> Pandoc -> Pandoc
+transformDoc :: (Route App -> [(Text, Text)] -> Text) -> Map.Map Text Wiki -> Pandoc -> Pandoc
 transformDoc render pages = bottomUp codeHighlighting . bottomUp (wikiLink render pages)
 
 -- Wiki Link Sign of WikiName is written as [WikiName]().
-wikiLink :: (Route Kestrel -> [(Text, Text)] -> Text) -> Map.Map Text Wiki -> Inline -> Inline
+wikiLink :: (Route App -> [(Text, Text)] -> Text) -> Map.Map Text Wiki -> Inline -> Inline
 wikiLink render pages (Link ls ("", "")) = 
   case Map.lookup path' pages of
     Just _  -> 

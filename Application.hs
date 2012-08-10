@@ -31,7 +31,7 @@ import Handler.Admin
 -- This line actually creates our YesodSite instance. It is the second half
 -- of the call to mkYesodData which occurs in Kestrel.hs. Please see
 -- the comments there for more details.
-mkYesodDispatch "Kestrel" resourcesKestrel
+mkYesodDispatch "App" resourcesApp
 
 -- This function allocates resources (such as a database connection pool),
 -- performs initialization and creates a WAI application. This is also the
@@ -46,7 +46,7 @@ makeApplication conf = do
     logWare   = if development then logStdoutDev
                                else logStdout
 
-makeFoundation :: AppConfig DefaultEnv Extra -> IO Kestrel
+makeFoundation :: AppConfig DefaultEnv Extra -> IO App
 makeFoundation conf = do
     manager <- newManager def
     s <- staticSite
@@ -55,9 +55,8 @@ makeFoundation conf = do
               Database.Persist.Store.applyEnv
     p <- Database.Persist.Store.createPoolConfig (dbconf :: Settings.PersistConfig)
     Database.Persist.Store.runPool dbconf (runMigration migrateAll) p
-    return $ Kestrel conf s p manager dbconf
+    return $ App conf s p manager dbconf
 
--- for yesod devel
 -- for yesod devel
 getApplicationDev :: IO (Int, Application)
 getApplicationDev =
