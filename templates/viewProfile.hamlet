@@ -1,3 +1,4 @@
+$newline never
 <h3>_{MsgProfileSettings}
 <form method=post action=@{ProfileR uid}>
   <input type=hidden name=_method value=modify>

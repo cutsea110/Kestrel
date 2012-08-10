@@ -29,16 +29,18 @@ module Settings
     , tz
     ) where
 
-import Prelude
 import Text.Shakespeare.Text (st)
 import Language.Haskell.TH.Syntax
 import Database.Persist.Postgresql (PostgresConf)
 import Yesod.Default.Config
-import qualified Yesod.Default.Util
+import Yesod.Default.Util
 import Data.Text (Text)
-import Network.HTTP.Types (Ascii)
+import Data.ByteString
 import Data.Yaml
 import Control.Applicative
+import Settings.Development
+import Data.Default (def)
+import Text.Hamlet
 
 -- | Which Persistent backend this site is using.
 type PersistConfig = PostgresConf
@@ -66,16 +68,22 @@ staticDir = "static"
 staticRoot :: AppConfig DefaultEnv x -> Text
 staticRoot conf = [st|#{appRoot conf}/static|]
 
+-- | Settings for 'widgetFile', such as which template languages to support and
+-- default Hamlet settings.
+widgetFileSettings :: WidgetFileSettings
+widgetFileSettings = def
+    { wfsHamletSettings = defaultHamletSettings
+        { hamletNewlines = AlwaysNewlines
+        }
+    }
+
 -- The rest of this file contains settings which rarely need changing by a
 -- user.
-
-
 widgetFile :: FilePath -> Q Exp
-#if DEVELOPMENT
-widgetFile = Yesod.Default.Util.widgetFileReload
-#else
-widgetFile = Yesod.Default.Util.widgetFileNoReload
-#endif
+widgetFile = (if development 
+              then widgetFileReload 
+              else widgetFileNoReload)
+             widgetFileSettings
 
 data Extra = Extra
     { extraCopyright :: Text
@@ -108,7 +116,7 @@ tz :: Int
 tz = 9
 
 
-facebookApplicationName,facebookApplicationId,facebookApplicationSecret :: Ascii
+facebookApplicationName,facebookApplicationId,facebookApplicationSecret :: ByteString
 (facebookApplicationName,facebookApplicationId,facebookApplicationSecret) =
   ("kestrel.org","196074110406072","e0d687d928a17ed6041ab822ac31868f")
 

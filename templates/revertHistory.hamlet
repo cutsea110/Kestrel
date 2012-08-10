@@ -1,3 +1,4 @@
+$newline never
 <ul .tabs>
   <li>
     <a href=@{WikiR wp}>_{MsgVIEW}

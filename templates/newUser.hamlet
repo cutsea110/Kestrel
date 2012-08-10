@@ -1,3 +1,4 @@
+$newline never
 <a href=@{UsersR}>Return to list
 <h1>Add new
 <form method=post action=@{NewUserR}>

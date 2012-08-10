@@ -59,7 +59,7 @@ getWikiListR = do
             setTitle $ preEscapedText "Search Result"
             toWidget $(juliusFile "templates/wikilist.julius")
             addStylesheet $ StaticR css_hk_kate_css
-            addWidget $(whamletFile "templates/searchWiki.hamlet")
+            $(whamletFile "templates/searchWiki.hamlet")
 
 getAllPagesR :: Handler RepHtmlJson
 getAllPagesR = do
@@ -143,7 +143,7 @@ getWikiR wp = do
                 [] -> True
                 _  -> False
           hamletToRepHtml
-             [hamlet|\
+             [hamlet|$newline never
 $if not (isNull blocks)
   <fieldset .blocks>
     <legend>
@@ -155,7 +155,8 @@ $if not (isNull blocks)
     simpleViewWiki :: Handler RepHtml
     simpleViewWiki = do
       (_, _, content, _, _, _, _) <- getwiki sidePaneWriterOption
-      hamletToRepHtml [hamlet|\#{content}
+      hamletToRepHtml [hamlet|$newline never
+\#{content}
 |]
     
     viewWiki :: Handler RepHtml
@@ -166,9 +167,9 @@ $if not (isNull blocks)
           deleteMe = (WikiR wp, [("mode", "d")])
       defaultLayout $ do
         setTitle $ preEscapedText path
-        addWidget $(widgetFile "wiki")
+        $(widgetFile "wiki")
         addStylesheet $ StaticR css_hk_kate_css
-        addWidget $(whamletFile "templates/viewWiki.hamlet")
+        $(whamletFile "templates/viewWiki.hamlet")
 
     editWiki :: Handler RepHtml
     editWiki = do
@@ -183,9 +184,9 @@ $if not (isNull blocks)
           donttouch = if isSidePane path then Just undefined else Nothing
       defaultLayout $ do
         setTitle $ preEscapedText path
-        addWidget $(widgetFile "wiki")
+        $(widgetFile "wiki")
         addStylesheet $ StaticR css_hk_kate_css
-        addWidget $(whamletFile "templates/editWiki.hamlet")
+        $(whamletFile "templates/editWiki.hamlet")
             
     deleteWiki :: Handler RepHtml
     deleteWiki = do
@@ -196,9 +197,9 @@ $if not (isNull blocks)
           deleteMe = (WikiR wp, [("mode", "d")])
       defaultLayout $ do
         setTitle $ preEscapedText path
-        addWidget $(widgetFile "wiki")
+        $(widgetFile "wiki")
         addStylesheet $ StaticR css_hk_kate_css
-        addWidget $(whamletFile "templates/deleteWiki.hamlet")
+        $(whamletFile "templates/deleteWiki.hamlet")
 
 
 postWikiR :: WikiPage -> Handler RepHtml
@@ -230,9 +231,9 @@ postWikiR wp = do
           toBool = maybe False (const True)
       defaultLayout $ do
         setTitle $ preEscapedText path
-        addWidget $(widgetFile "wiki")
+        $(widgetFile "wiki")
         addStylesheet $ StaticR css_hk_kate_css
-        addWidget $(whamletFile "templates/previewWiki.hamlet")
+        $(whamletFile "templates/previewWiki.hamlet")
 
 putWikiR :: WikiPage -> Handler RepHtml
 putWikiR wp = do
@@ -305,9 +306,9 @@ getNewR = do
               editMe = (NewR, [("path", path), ("mode", "e")])
           defaultLayout $ do
             setTitle $ preEscapedText path
-            addWidget $(widgetFile "wiki")
+            $(widgetFile "wiki")
             addStylesheet $ StaticR css_hk_kate_css
-            addWidget $(whamletFile "templates/viewNew.hamlet")
+            $(whamletFile "templates/viewNew.hamlet")
     
     editNew :: Handler RepHtml
     editNew = do
@@ -326,9 +327,9 @@ getNewR = do
               donttouch = if isSidePane path then Just undefined else Nothing
           defaultLayout $ do
             setTitle $ preEscapedText path
-            addWidget $(widgetFile "wiki")
+            $(widgetFile "wiki")
             addStylesheet $ StaticR css_hk_kate_css
-            addWidget $(whamletFile "templates/editNew.hamlet")
+            $(whamletFile "templates/editNew.hamlet")
   
 postNewR :: Handler RepHtml
 postNewR = do
@@ -357,9 +358,9 @@ postNewR = do
       content <- runDB $ markdownToWikiHtml (wikiWriterOption msgShow) raw
       defaultLayout $ do
         setTitle $ preEscapedText path
-        addWidget $(widgetFile "wiki")
+        $(widgetFile "wiki")
         addStylesheet $ StaticR css_hk_kate_css
-        addWidget $(whamletFile "templates/previewNew.hamlet")
+        $(whamletFile "templates/previewNew.hamlet")
     
     createWiki :: Handler RepHtml
     createWiki = do
@@ -457,8 +458,8 @@ getHistoriesR wp = do
                   else Nothing
       defaultLayout $ do
         setTitle $ preEscapedText path
-        addWidget $(widgetFile "wiki")
-        addWidget $(whamletFile "templates/listHistories.hamlet")
+        $(widgetFile "wiki")
+        $(whamletFile "templates/listHistories.hamlet")
 
         
 
@@ -520,9 +521,9 @@ getHistoryR vsn wp = do
           currDiff = (HistoryR v wp, [("mode", "c")])
       defaultLayout $ do
         setTitle $ preEscapedText path
-        addWidget $(widgetFile "wiki")
+        $(widgetFile "wiki")
         addStylesheet $ StaticR css_hk_kate_css
-        addWidget $(whamletFile "templates/viewHistory.hamlet")
+        $(whamletFile "templates/viewHistory.hamlet")
 
     editHistory :: Version -> Handler RepHtml
     editHistory v = do
@@ -539,9 +540,9 @@ getHistoryR vsn wp = do
           donttouch = Just undefined
       defaultLayout $ do
         setTitle $ preEscapedText path
-        addWidget $(widgetFile "wiki")
+        $(widgetFile "wiki")
         addStylesheet $ StaticR css_hk_kate_css
-        addWidget $(whamletFile "templates/editHistory.hamlet")
+        $(whamletFile "templates/editHistory.hamlet")
     
     revertHistory :: Version -> Handler RepHtml
     revertHistory v = do
@@ -556,9 +557,9 @@ getHistoryR vsn wp = do
           donttouch = Just undefined
       defaultLayout $ do
         setTitle $ preEscapedText path
-        addWidget $(widgetFile "wiki")
+        $(widgetFile "wiki")
         addStylesheet $ StaticR css_hk_kate_css
-        addWidget $(whamletFile "templates/revertHistory.hamlet")
+        $(whamletFile "templates/revertHistory.hamlet")
 
     diffVers :: (Wiki -> Version -> [Version]) -> Version -> Handler RepHtml
     diffVers selver v = do
@@ -579,8 +580,8 @@ getHistoryR vsn wp = do
           isTop = wp == topPage
       defaultLayout $ do
         setTitle $ preEscapedText path
-        addWidget $(widgetFile "wiki")
-        addWidget $(whamletFile "templates/diffHistories.hamlet")
+        $(widgetFile "wiki")
+        $(whamletFile "templates/diffHistories.hamlet")
     
     diffPrevious :: Version -> Handler RepHtml
     diffPrevious = diffVers $ \_ v -> [v, v-1]
@@ -620,9 +621,9 @@ postHistoryR vsn wp = do
           toBool = maybe False (const True)
       defaultLayout $ do
         setTitle $ preEscapedText path
-        addWidget $(widgetFile "wiki")
+        $(widgetFile "wiki")
         addStylesheet $ StaticR css_hk_kate_css
-        addWidget $(whamletFile "templates/previewHistory.hamlet")
+        $(whamletFile "templates/previewHistory.hamlet")
 
 putHistoryR :: Version -> WikiPage -> Handler RepHtml
 putHistoryR v wp = do
@@ -634,7 +635,7 @@ putHistoryR v wp = do
     (Entity hid _) <- getBy404 $ UniqueWikiHistory pid v
     update hid [ WikiHistoryComment =. com ]
   hamletToRepHtml
-    [hamlet|\
+    [hamlet|$newline never
 $maybe c <- com
   <span>#{c}
 $nothing

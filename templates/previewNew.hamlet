@@ -1,3 +1,4 @@
+$newline never
 <ul .tabs>
   <li>
     <a href=@?{viewMe}>_{MsgVIEW}

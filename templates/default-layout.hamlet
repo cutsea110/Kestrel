@@ -1,8 +1,9 @@
+$newline never
 $doctype 5
 <html>
     <head>
         <meta charset=UTF-8>
-        <title>#{pageTitle pc}>
+        <title>#{pageTitle pc}
         <meta http-equiv=X-UA-Compatible content="IE=edge">
         ^{const $ pageHead pc}
         ^{ga}

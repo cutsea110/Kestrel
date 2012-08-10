@@ -1,3 +1,4 @@
+$newline never
 <div .login-options>
   <div align=center>
     <form method=post action=@{AuthR loginR} .auth .validate>

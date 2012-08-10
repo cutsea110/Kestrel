@@ -1,3 +1,4 @@
+$newline never
 <h1>Items
 <ul>
   $forall user <- users
