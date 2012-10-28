@@ -59,7 +59,7 @@ $(document).ready(function(){
           var a = $('<a/>')
                   .attr({href: '#'})
                   .text(item.title)
-                  .click(function() {
+                  .click(function(e) {
                     $('#wiki-selector').dialog('close');
                     obj.focus();
                     var wikiName = '[' + item.title + ']()';
@@ -72,7 +72,7 @@ $(document).ready(function(){
                       obj.value = s.substr(0,pos) + wikiName + s.substr(pos);
                       obj.setSelectionRange(np,np);
                     }
-                    return false;
+                    e.preventDefault();
                   }),
               li = $('<li/>').append(a);
           $('#wiki-links').append(li);
