@@ -4,11 +4,11 @@ $(document).ready(function(){
   $("#pandoc-TOC-toggle").text(hideTOC ? '#{msgShow MsgShowTOC}' : '#{msgShow MsgHideTOC}');
   $("#pandoc-TOC-Title,#pandoc-TOC").toggleClass("hidden", hideTOC);
 
-  $("#pandoc-TOC-toggle").click(function(){
+  $("#pandoc-TOC-toggle").click(function(e){
     hideTOC = !hideTOC;
     $(this).text(hideTOC ? '#{msgShow MsgShowTOC}' : '#{msgShow MsgHideTOC}');
     $("#pandoc-TOC-Title,#pandoc-TOC").toggleClass("hidden", hideTOC);
-    return false;
+    e.preventDefault();
   });
 
   $(".inplaceedit").exInPlaceEditor({
@@ -52,7 +52,7 @@ $(document).ready(function(){
     modal: true
   });
 
-  $('#wiki-select-button').click(function(){
+  $('#wiki-select-button').click(function(e){
     var obj = $('#content')[0];
     var pos;
 
@@ -73,7 +73,7 @@ $(document).ready(function(){
           var a = $('<a/>')
                   .attr({href: '#'})
                   .text(item.title)
-                  .click(function() {
+                  .click(function(e) {
                     $('#wiki-selector').dialog('close');
                     obj.focus();
                     var wikiName = '[' + item.title + ']()';
@@ -86,13 +86,13 @@ $(document).ready(function(){
                       obj.value = s.substr(0,pos) + wikiName + s.substr(pos);
                       obj.setSelectionRange(np,np);
                     }
-                    return false;
+                    e.preventDefault();
                   }),
               li = $('<li/>').append(a);
           $('#wiki-links').append(li);
         });
       }
     );
-    return false;
+    e.preventDefault();
   });
 });
