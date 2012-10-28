@@ -237,7 +237,7 @@ function makeImageLink(uri,thumburi,name,ext,size,pos,wd,ht){
   });
 
   if (pos!=null) {
-    anc.bind('click', function() {
+    anc.bind('click', function(e) {
       $("#file_selector").dialog('close');
       obj.focus();
       if (jQuery.browser.msie) {
@@ -249,7 +249,7 @@ function makeImageLink(uri,thumburi,name,ext,size,pos,wd,ht){
         obj.value = s.substr(0,pos) + img_markdown + s.substr(pos);
         obj.setSelectionRange(np,np);
       }
-      return false;
+      e.preventDefault();
     });
   }
   return li.append(anc.append(img));
