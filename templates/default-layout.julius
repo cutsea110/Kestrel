@@ -157,7 +157,7 @@ $(document).ready(function(){
     }
   });
 
-  $("#file-select-button").click(function(){
+  $("#file-select-button").click(function(e){
     var obj = $("#content")[0];
     if (obj) {
       obj.focus();
@@ -177,7 +177,7 @@ $(document).ready(function(){
             g.appendTo("#selectable_images");
         });
       });
-    return false;
+    e.preventDefault();
   });
 
   $("#trashbox")
