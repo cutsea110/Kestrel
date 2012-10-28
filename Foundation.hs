@@ -345,13 +345,17 @@ wikiLink :: (Route App -> [(Text, Text)] -> Text) -> Map.Map Text Wiki -> Inline
 wikiLink render pages (Link ls ("", "")) = 
   case Map.lookup path' pages of
     Just _  -> 
-      Link [Str p'] (render' (WikiR $ fromPath path') [("mode", "v")], p')
+      Link [Str p''] (render' (WikiR $ fromPath path') [("mode", "v")], p')
     Nothing -> 
-      Emph [Str p', Link [Str "?"] (render' NewR [("path", path'), ("mode", "v")], p')]
+      Emph [Str p'', Link [Str "?"] (render' NewR [("path", path'), ("mode", "v")], p')]
   where
     p' = inlinesToString ls
+    p'' = lastOf "" p'
     path' = T.pack p'
     render' = (T.unpack .) . render
+    lastOf r [] = r
+    lastOf _ (':':xs) = lastOf "" xs
+    lastOf r (x:xs) = lastOf (r ++ [x]) xs
 wikiLink _ _ x = x
 
 codeHighlighting :: Block -> Block
