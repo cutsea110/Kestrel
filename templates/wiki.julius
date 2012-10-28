@@ -38,11 +38,11 @@ $(document).ready(function(){
             .addClass('more')
             .attr({href: '#'})
             .text('#{msgShow MsgMore}')
-            .click(function() {
+            .click(function(e) {
               $(this).hide();
               more.show('slow');
               $(this).remove();
-              return false;
+              e.preventDefault();
             });
     $(this).after(a);
   });
