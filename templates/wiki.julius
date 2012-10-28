@@ -38,7 +38,7 @@ $(document).ready(function(){
     modal: true
   });
 
-  $('#wiki-select-button').click(function(){
+  $('#wiki-select-button').click(function(e){
     var obj = $('#content')[0];
     var pos;
 
@@ -79,6 +79,6 @@ $(document).ready(function(){
         });
       }
     );
-    return false;
+    e.preventDefault();
   });
 });
