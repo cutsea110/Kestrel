@@ -125,7 +125,7 @@ $(document).ready(function(){
 
   $("#go_upload")
   .attr('disabled','disabled')
-  .click(function(){
+  .click(function(e){
     $("#fields")
     .upload($("#upload_form").attr('action'),
          function(res) {
@@ -147,7 +147,7 @@ $(document).ready(function(){
            $('#upload_file').val('');
            $('#upload_file').change();
          }, 'xml');
-    return false;
+    e.preventDefault();
   });
   $('#upload_file').change(function(){
     if($(this).val() != null && $(this).val() != "") {
