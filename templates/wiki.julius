@@ -4,11 +4,11 @@ $(document).ready(function(){
   $("#pandoc-TOC-toggle").text(hideTOC ? '#{msgShow MsgShowTOC}' : '#{msgShow MsgHideTOC}');
   $("#pandoc-TOC-Title,#pandoc-TOC").toggleClass("hidden", hideTOC);
 
-  $("#pandoc-TOC-toggle").click(function(){
+  $("#pandoc-TOC-toggle").click(function(e){
     hideTOC = !hideTOC;
     $(this).text(hideTOC ? '#{msgShow MsgShowTOC}' : '#{msgShow MsgHideTOC}');
     $("#pandoc-TOC-Title,#pandoc-TOC").toggleClass("hidden", hideTOC);
-    return false;
+    e.preventDefault();
   });
 
   $(".inplaceedit").exInPlaceEditor({
