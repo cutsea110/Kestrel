@@ -19,6 +19,7 @@ module Foundation
     , requireAuth
     , module Settings
     , module Model
+    , RawJS(..)
       -- 
     , WikiPage(..)
     , topPage
@@ -61,6 +62,7 @@ import Database.Persist.GenericSql
 import Settings (widgetFile, Extra (..))
 import Model
 import Text.Jasmine (minifym)
+import Text.Julius (RawJS(..))
 import Web.ClientSession (getKey)
 import Text.Hamlet (ihamletFile)
 import Text.Cassius (cassiusFile)
