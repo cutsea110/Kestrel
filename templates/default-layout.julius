@@ -25,7 +25,7 @@ $(document).ready(function(){
       $(this).removeClass('invalid');
       if ( $.trim($(this).val()) == "") {
         $(this).addClass('invalid');
-        $(this).after("<span class='invalid'>#{msgShow MsgWarnFieldsRequired}</span>");
+        $(this).after("<span class='invalid'>#{rawJS $ msgShow MsgWarnFieldsRequired}</span>");
         valid = false;
       }
     });
@@ -47,7 +47,7 @@ $(document).ready(function(){
     }
   });
 
-  $(".login-options").attr("title","#{msgShow MsgLogin}").dialog({
+  $(".login-options").attr("title","#{rawJS $ msgShow MsgLogin}").dialog({
     autoOpen: true,
     width: 520,
     modal: true,
@@ -68,10 +68,10 @@ $(document).ready(function(){
       var fs = $('<fieldset></fieldset>'),
           ld = $('<legend/>'),
           sp = $(data);
-      if ('#{show $ isNothing mu}'=='True') {
-        $('#sidenavi').append(fs.append(ld.text('#{Settings.sidePaneTitle}')).append(sp));
+      if (#{rawJS $ isNothing mu}) {
+        $('#sidenavi').append(fs.append(ld.text('#{rawJS $ Settings.sidePaneTitle}')).append(sp));
       }else{
-        var a = $('<a/>').attr({href: '@{sidePaneView}'}).text('#{Settings.sidePaneTitle}');
+        var a = $('<a/>').attr({href: '@{sidePaneView}'}).text('#{rawJS $ Settings.sidePaneTitle}');
         $('#sidenavi').append(fs.append(ld.append(a)).append(sp));
       }
       var currentPath = document.URL.split(/[?#]/)[0];
@@ -88,15 +88,15 @@ $(document).ready(function(){
       });
     },
     error: function(msg, status) {
-      if ('#{show $ isNothing mu}'!='True') {
-        var anc = $('<a/>').attr({href:'@?{sidePaneNew}'}).text('#{msgShow (MsgEditing Settings.sidePaneTitle)}');
+      if (#{rawJS $ not $ isNothing mu}) {
+        var anc = $('<a/>').attr({href:'@?{sidePaneNew}'}).text('#{rawJS $ msgShow (MsgEditing Settings.sidePaneTitle)}');
         $('#sidenavi').append(anc);
       }
     }
   });
 
   $.getJSON('@{RecentChangesR}', function(json){
-      var fs = $('<fieldset><legend>#{msgShow MsgRecentChanges}</legend></fieldset>'),
+      var fs = $('<fieldset><legend>#{rawJS $ msgShow MsgRecentChanges}</legend></fieldset>'),
           ul = $('<ul/>');
       $.each(json.entries, function(i, item){
             var url = item.uri,
@@ -114,7 +114,7 @@ $(document).ready(function(){
       $('#recent-changes').append(fs.append(ul));
   });
 
-  $("#file_selector").hide().attr("title", "#{msgShow MsgGallery}").dialog({
+  $("#file_selector").hide().attr("title", "#{rawJS $ msgShow MsgGallery}").dialog({
     autoOpen: false,
     width: 680,
     modal: true
