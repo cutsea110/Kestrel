@@ -1,18 +1,18 @@
 $(document).ready(function(){
   var hideTOC = true;
 
-  $("#pandoc-TOC-toggle").text(hideTOC ? '#{msgShow MsgShowTOC}' : '#{msgShow MsgHideTOC}');
+  $("#pandoc-TOC-toggle").text(hideTOC ? '#{rawJS $ msgShow MsgShowTOC}' : '#{rawJS $ msgShow MsgHideTOC}');
   $("#pandoc-TOC-Title,#pandoc-TOC").toggleClass("hidden", hideTOC);
 
   $("#pandoc-TOC-toggle").click(function(e){
     hideTOC = !hideTOC;
-    $(this).text(hideTOC ? '#{msgShow MsgShowTOC}' : '#{msgShow MsgHideTOC}');
+    $(this).text(hideTOC ? '#{rawJS $ msgShow MsgShowTOC}' : '#{rawJS $ msgShow MsgHideTOC}');
     $("#pandoc-TOC-Title,#pandoc-TOC").toggleClass("hidden", hideTOC);
     e.preventDefault();
   });
 
   $(".inplaceedit").exInPlaceEditor({
-    nulltext: "#{msgShow MsgNullText}",
+    nulltext: "#{rawJS $ msgShow MsgNullText}",
     onsave: function(api) {
       var text = api.getEditor(),
           data = '_method=modify&'+text.attr('name')+'='+api.getValue();
@@ -37,7 +37,7 @@ $(document).ready(function(){
         a = $("<a/>")
             .addClass('more')
             .attr({href: '#'})
-            .text('#{msgShow MsgMore}')
+            .text('#{rawJS $ msgShow MsgMore}')
             .click(function(e) {
               $(this).hide();
               more.show('slow');
@@ -46,7 +46,7 @@ $(document).ready(function(){
             });
     $(this).after(a);
   });
-  $('#wiki-selector').hide().attr({title: "#{msgShow MsgAllPages}"}).dialog({
+  $('#wiki-selector').hide().attr({title: "#{rawJS $ msgShow MsgAllPages}"}).dialog({
     autoOpen: false,
     width: 600,
     modal: true
