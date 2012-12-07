@@ -12,8 +12,6 @@ $doctype 5
           <div #kui-main>
             <div #maincol .kui-b>
               ^{header}
-              $maybe msg <- mmsg
-                <div #message>#{msg}>
               ^{const $ pageBody pc}
               ^{footer}
           <div #sidebar .kui-b>

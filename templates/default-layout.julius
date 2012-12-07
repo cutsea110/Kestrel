@@ -16,8 +16,6 @@ $(document).ready(function(){
 
   $(".hide").hide();
 
-  $("#message").fadeOut(3000, function(){$(this).remove();});
-
   $("form.validate").submit(function(){
     var valid = true;
     $('span.invalid').remove();
