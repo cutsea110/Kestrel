@@ -20,6 +20,7 @@ module Kestrel.Helpers.Auth.HashDB
 
 import Yesod
 import Yesod.Auth
+import Yesod.Goodies.PNotify
 import Control.Monad (unless)
 import Control.Applicative ((<$>), (<*>))
 import Data.ByteString.Lazy.Char8  (pack)
