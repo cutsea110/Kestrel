@@ -20,6 +20,7 @@ module Foundation
     , module Settings
     , module Model
     , RawJS(..)
+    , module Yesod.Goodies.PNotify
       -- 
     , WikiPage(..)
     , topPage
@@ -46,7 +47,7 @@ module Foundation
     , (+++)
     ) where
 
-import Yesod
+import Yesod hiding (getMessage, setMessage)
 import Yesod.Static
 import Settings.StaticFiles
 import Yesod.AtomFeed
@@ -55,6 +56,7 @@ import Kestrel.Helpers.Auth.HashDB
 import Yesod.Auth.GoogleEmail
 import Yesod.Default.Config
 import Yesod.Default.Util (addStaticContentExternal)
+import Yesod.Goodies.PNotify
 import Network.HTTP.Conduit (Manager)
 import qualified Settings
 import qualified Database.Persist.Store
@@ -79,7 +81,7 @@ import Data.Maybe (isNothing)
 import Data.Text (Text)
 import Data.Time.Clock (UTCTime(..))
 import qualified Data.Text as T
-import Text.Blaze.Internal (preEscapedText, preEscapedString)
+import Text.Blaze.Internal (preEscapedString)
 
 (+++) :: Text -> Text -> Text
 (+++) = T.append
@@ -173,7 +175,6 @@ instance Yesod App where
     defaultLayout widget = do
         y <- getYesod
         mu <- maybeAuth
-        mmsg <- getMessage
         r2m <- getRouteToMaster
         cr <- getCurrentRoute
         msgShow <- getMessageRender
@@ -188,6 +189,7 @@ instance Yesod App where
         mlastup <- runDB $ selectFirst [WikiTouched !=. Nothing] [Desc WikiTouched,LimitTo 1]
         pc <- widgetToPageContent $ do
           widget
+          pnotify y
           addScriptEither $ urlJqueryJs y
           addScriptEither $ urlJqueryUiJs y
           addStylesheetEither $ urlJqueryUiCss y
@@ -240,6 +242,8 @@ instance YesodJquery App where
   urlJqueryUiJs _ = Left $ StaticR js_jquery_ui_1_8_9_custom_min_js
   urlJqueryUiCss _ = Left $ StaticR css_jquery_ui_1_8_9_custom_css
 
+instance YesodJqueryPnotify App where
+
 instance RenderMessage App FormMessage where
     renderMessage _ _ = defaultFormMessage
 
@@ -259,13 +263,13 @@ instance YesodAuth App where
             Just (Entity uid u) -> 
               if userActive u 
               then do
-                lift $ setMessage $ preEscapedText $ msgShow MsgNowLogin
+                lift $ setPNotify $ PNotify JqueryUI Success "Login" $ msgShow MsgNowLogin
                 return $ Just uid 
               else do
-                lift $ setMessage $ preEscapedText $ msgShow MsgInvalidAccount
+                lift $ setPNotify $ PNotify JqueryUI Error "Login failed" $ msgShow MsgInvalidAccount
                 return Nothing
             Nothing -> do
-              lift $ setMessage $ preEscapedText $ msgShow MsgNowLogin
+              lift $ setPNotify $ PNotify JqueryUI Success "Login" $ msgShow MsgNowLogin
               fmap Just $ insert $ User (credsIdent creds) Nothing Nothing True
 
     authPlugins _ = [ authHashDB

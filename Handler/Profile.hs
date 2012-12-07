@@ -6,7 +6,6 @@ import Yesod
 import Text.Julius (juliusFile)
 
 import Control.Monad (unless)
-import Text.Blaze.Internal (preEscapedText)
 
 getProfileR :: UserId -> Handler RepHtml
 getProfileR uid = do
@@ -35,5 +34,5 @@ putProfileR uid = do
     permissionDenied $ msgShow MsgCouldntAccessAnotherUserProfile
   nn <- runInputPost $ ireq textField "nickname"
   runDB $ update uid [UserNickname =. Just nn]
-  setMessage $ preEscapedText $ msgShow MsgUpdatedProfile
+  setPNotify $ PNotify JqueryUI Success "Updated" $ msgShow MsgUpdatedProfile
   redirect $ ProfileR uid

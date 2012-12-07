@@ -1,0 +1,205 @@
+body
+    font-family: sans-serif
+    margin: 0
+    padding: 0
+.errors, .alert
+    color: red
+    font-style: bold
+.warnings
+    color: red
+    font-style: bold
+    backgroud-color: #fdf1d0
+    border: 1px solid #fad163
+    line-height: 1.50
+    padding: 5px 8px
+    margin: 0 0 3px 0
+span.invalid
+    color: red
+    font-style: bold
+input.invalid, textarea.invalid
+    border: 1px solid red
+.example
+    border: dotted 1px gray
+    background-color: #e0e0e0
+    margin: 1em
+    padding: 0.5em
+.scroll
+    overflow: scroll
+    height: 360px
+button.link
+    color: #4040f8
+    background-color: #e0e0e0
+    border: none
+    cursor: pointer
+    margin: 0 1px 1px 0
+table.nostyle
+    border: none
+    background-color: white
+table.nostyle tr
+    border: none
+    background-color: white
+table.nostyle th
+    border: none
+    background-color: white
+table.nostyle td
+    border: none
+    background-color: white
+
+.clearfix:after
+    content: "."
+    display: block
+    clear: both
+    height: 0
+    visibility: hidden
+.clearfix
+    display:inline-block
+    min-height: 1px
+* html .clearfix
+    height: 1px
+
+.floatl
+    float: left
+    margin-right: 1em
+.floatr
+    float: right
+    margin-left: 1em
+
+.kui-t1
+    margin: auto
+    text-align: left
+    width: 57.69em
+#doc
+    margin: auto 10px;
+    width: auto
+    text-align: left
+#kui-main
+    float: right;
+    width: 100%
+    margin-left: -25em
+.kui-b
+    position: relative
+.kui-t1 .kui-b
+    float: left
+    width: 14.3077em
+.kui-t1 #kui-main .kui-b
+    margin-left: 15.3077em
+#kui-main .kui-b
+    float: none
+    width: auto
+    position: static
+#userbox, #file-list-view
+    font-size: 93%
+    color: #888
+    font-weight: bold
+    text-align: right
+#userbox
+    margin-top: 1em
+#userbox a, #file-list-view a
+    color: #8080ff
+ul.tabs
+    margin: 0 0 1px
+    padding: 0
+ul.tabs li.selected
+    border-bottom: 3px solid white
+ul.tabs li
+    background: none repeat scroll 0 0 white
+    border-color: #cccccc
+    border-style: solid solid none
+    border-width: 1px 1px medium
+    display: inline
+    margin: 0 0 0 1.2em
+    padding: 0 0.6em
+ul.tabs li a
+    color: #3366CC
+    font-size: 93%
+    font-weight: bold
+    margin: 0px
+    text-decoration: none
+#main-content
+    background-color: #ffffff
+    border: 1px solid #CCCCCC
+    font-size: 108%
+    padding: 1em
+    margin-bottom: 2px
+.sidebox
+    margin-top: 25px
+.sidebox input[type=text]
+    font-size: 93%
+    width: 8.5em
+    border: 1px solid #CCC
+    mergin-right: 0.3em
+.sidebox button[type=submit]
+    font-size: 93%
+    color: white
+    background-color: #CCC
+    border: none
+    margin: 0.1em 0.5em 0.1em 0.5em
+ul, ol
+    -webkit-padding-start: 15px
+ul
+    list-style-type: square
+.breadcrumbs li
+    display: inline
+.breadcrumbs li:after
+    content: " » "
+.breadcrumbs li:last-child:after
+    content: ''
+img
+    border-style: none
+#footer
+    color: #888888
+    font-size: 93%
+    padding: 1em
+#photo-galary
+    text-align: left
+    vertical-align: middle
+ul#selectable_images
+    list-style: none
+    margin: 5px 0px
+ul#selectable_images li
+    float: left
+    margin-left: 8px
+    margin-right: 8px
+    margin-top: 10px
+    padding: 0px
+    position: relative
+ul#selectable_images li a
+    position: relative
+ul#selectable_images li a img
+    display: block
+    margin: 0px
+    overflow: hidden
+    padding: 0px
+    position: relative
+.image-galary
+    text-align: center
+    vertical-align: middle
+    display: inline-block
+    margin: 2px
+.image-galary a
+    color: white
+    background-color: white
+    border-style: none
+.left
+    text-align: left
+.center
+    text-align: center
+.right
+    text-align: right
+.inline
+    display: inline-block
+#trashbox
+    margin-right: 20px
+.google
+    background-image: url(http://www.google.com/cse/intl/en/images/google_custom_search_watermark.gif)
+    background-attachment: initial
+    background-origin: initial
+    background-clip: initial
+    background-color: #ffffff
+    background-position: 0% 50%
+    background-repeat: no-repeat
+
+#sidenavi li.currentURL
+    background-color: #e0d0ff
+#sidenavi a.currentURL
+    background-color: #e0d0ff

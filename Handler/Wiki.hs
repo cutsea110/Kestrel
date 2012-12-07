@@ -270,7 +270,7 @@ putWikiR wp = do
       return pid
       else do
       -- FIXME Conflict?
-      lift $ setMessage $ preEscapedText $ msgShow MsgConflictOccurred
+      lift $ setPNotify $ PNotify JqueryUI Error "Conflict" $ msgShow MsgConflictOccurred
       return pid
   redirect (WikiR wp, [("mode", "v")] :: [(Text, Text)])
 
