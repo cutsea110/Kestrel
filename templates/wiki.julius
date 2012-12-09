@@ -95,4 +95,14 @@ $(document).ready(function(){
     );
     e.preventDefault();
   });
+
+  $('#create-new-page-link').click(function(e){
+    $('#create-new-page').dialog('open');
+    e.preventDefault();
+  });
+  $('#create-new-page').hide().attr({title: '#{rawJS $ msgShow MsgCreateNewPage}'}).dialog({
+    autoOpen: false,
+    width: 380,
+    modal: true
+  });
 });
