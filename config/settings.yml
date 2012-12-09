@@ -6,6 +6,7 @@ Default: &defaults
   #analytics: UA-YOURCODE
 
 Development:
+  approot: "http://localhost:3000"
   <<: *defaults
 
 Test:
