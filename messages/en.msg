@@ -69,6 +69,8 @@ ChangeLogDescription: Please write brief notes to help you check the history of 
 Warning: Warning!
 DontRegisterRecentChanges: Don't register to `Recent Changes'.
 PageLinks: Page Links
+CreateNewPage: Create New Page
+NewPage: New Page
 
 # deleteWiki
 ConfirmRemove path@Text: Confirm removal of `#{path}'.

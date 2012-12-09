@@ -9,6 +9,8 @@ $newline never
   <li .selected>
     <a href=@{HistoriesR wp}>_{MsgHISTORY}
   <li>
+    <a #create-new-page-link href=#>_{MsgCreateNewPage}
+  <li>
     <a href=@{AllPagesR}>_{MsgALLPAGES}
   <li>
     <a href=@{RecentChangesR}>_{MsgRECENTCHANGES}
@@ -32,3 +34,8 @@ $newline never
       _{MsgLastEditor}: -
      <br>
      _{MsgLastUpdatedDate}: #{showDate upd}
+
+<div #create-new-page>
+  <form method=get action=@{NewR}>
+    <input name=path>
+    <button type=submit name=mode value=e>_{MsgCreateNewPage}

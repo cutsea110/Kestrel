@@ -69,6 +69,8 @@ ChangeLogDescription: 編集履歴で確認しやすいように簡単なメモ�
 Warning: 警告!
 DontRegisterRecentChanges: 「最近の更新」に登録しない.
 PageLinks: ページリンク
+CreateNewPage: 新規ページの追加
+NewPage: 新規ページ
 
 # deleteWiki
 ConfirmRemove path@Text: `#{path}' の削除確認.
