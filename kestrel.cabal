@@ -30,6 +30,7 @@ library
      other-modules: Foundation
                     Model
                     Settings
+                    Settings.Development
                     Settings.StaticFiles
                     Handler.Root
                     Handler.Profile
