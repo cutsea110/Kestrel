@@ -25,7 +25,7 @@ $doctype 5
                 <legend>_{MsgTools}
                 <form method=get action=@{WikiListR}>
                   <input type=text name=q placeholder=_{MsgSearchPlaceholder} .watermark>
-                  <button type=submit name=_method value=search>_{MsgGo}>
+                  <button type=submit name=_method value=search>_{MsgGo}
                 <form method=get action=http://www.google.com/search>
                   <input type=hidden name=hq value=inurl:#{googleInurl}>
                   <input type=hidden name=ie value=UTF-8>
