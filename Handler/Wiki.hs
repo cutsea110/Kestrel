@@ -12,7 +12,7 @@ import Control.Monad
 import Data.Time
 import Control.Applicative ((<$>),(<*>))
 import Data.Tuple.HT
-import Data.Algorithm.Diff
+import Data.Algorithm.Diff (Diff(..), getDiff)
 import Data.List (groupBy)
 import Data.Text (Text)
 import Data.String (IsString)
@@ -422,8 +422,8 @@ getHistoriesR wp = do
         new = map (T.lines . wikiHistoryContent . snd) hs
         old = tail new ++ [[]]
         diffs = zipWith ((foldr dc (0,0).).getDiff) new old
-        dc (F,_) (f,s) = (f+1,s)
-        dc (S,_) (f,s) = (f,s-1)
+        dc (First _) (f,s) = (f+1,s)
+        dc (Second _) (f,s) = (f,s-1)
         dc _     fs    = fs
     
     -- pages
@@ -504,9 +504,9 @@ getHistoryR vsn wp = do
       where
         diffs = getDiff (lines' new) (lines' old)
         lines' = T.lines . wikiHistoryContent
-        d2h (F, l) xs = "<span class='plus'>+&nbsp;" +++ l +++ "</span><br/>" +++ xs
-        d2h (S, l) xs = "<span class='minus'>-&nbsp;" +++ l +++ "</span><br/>" +++ xs
-        d2h (B, l) xs = "<span>&nbsp;&nbsp;" +++ l +++ "</span><br/>" +++ xs
+        d2h (First l) xs = "<span class='plus'>+&nbsp;" +++ l +++ "</span><br/>" +++ xs
+        d2h (Second l) xs = "<span class='minus'>-&nbsp;" +++ l +++ "</span><br/>" +++ xs
+        d2h (Both l _) xs = "<span>&nbsp;&nbsp;" +++ l +++ "</span><br/>" +++ xs
         
     -- pages
     viewHistory :: Version -> Handler RepHtml
