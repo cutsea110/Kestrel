@@ -74,9 +74,9 @@ executable kestrel
                   , directory
                   , bytestring
                   , text
-                  , persistent   >= 1.0     && < 1.1
-                  , persistent-postgresql >= 1.0 && < 1.1
-                  , persistent-template >= 1.0 && < 1.1
+                  , persistent   >= 1.1     && < 1.2
+                  , persistent-postgresql >= 1.1 && < 1.2
+                  , persistent-template >= 1.1 && < 1.2
                   , http-types
                   , template-haskell
                   , hamlet

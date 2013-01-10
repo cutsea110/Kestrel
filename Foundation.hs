@@ -419,7 +419,3 @@ dropSchema :: Text -> Text
 dropSchema s | s `T.isPrefixOf` "http://" = T.drop 7 s
              | s `T.isPrefixOf` "https://" = T.drop 8 s
              | otherwise = s -- FIXME
-
-instance RawJS Bool where
-  rawJS True = rawJS ("true"::Text)
-  rawJS False = rawJS ("false"::Text)
