@@ -1,13 +1,13 @@
 Default: &defaults
-  user: soubun
-  password: sougoubunnka
+  user: cutsea110
+  password: cutsea110
   host: localhost
   port: 5432
   database: kestrel
   poolsize: 10
 
 Development:
-  database: kestrel
+  database: kestrel_devel
   <<: *defaults
 
 Test:
@@ -20,6 +20,8 @@ Staging:
   <<: *defaults
 
 Production:
+  user: soubun
+  password: sougoubunnka
   database: kestrel
   poolsize: 100
   <<: *defaults
