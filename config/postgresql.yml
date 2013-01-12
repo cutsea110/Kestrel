@@ -7,7 +7,7 @@ Default: &defaults
   poolsize: 10
 
 Development:
-  database: kestrel
+  database: kestrel_devel
   <<: *defaults
 
 Test:
