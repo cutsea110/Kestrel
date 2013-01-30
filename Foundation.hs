@@ -319,26 +319,24 @@ markdownsToWikiHtmls opt raws = do
   return $ map (preEscapedString . writeHtmlStr opt render pdict) pandocs
 
 readDoc :: Text -> Pandoc
-readDoc = readMarkdown defaultParserState . tabFilter (stateTabStop defaultParserState) . T.unpack
+readDoc = readMarkdown def . tabFilter (readerTabStop def) . T.unpack
 
 wikiWriterOption :: (AppMessage -> Text) -> WriterOptions
 wikiWriterOption msgShow =
-  defaultWriterOptions{
-          writerStandalone = True
-        , writerTemplate = "$if(toc)$\n<a id='pandoc-TOC-toggle' href=''></a><div id='pandoc-TOC-Title'>" ++ T.unpack (msgShow MsgTOC) ++ "$toc$</div>\n$endif$\n$body$"
-        , writerTableOfContents = True
-        , writerNumberSections = False
-        , writerIdentifierPrefix = "pandoc-"
-        }
+  def { writerStandalone = True
+      , writerTemplate = "$if(toc)$\n<a id='pandoc-TOC-toggle' href=''></a><div id='pandoc-TOC-Title'>" ++ T.unpack (msgShow MsgTOC) ++ "$toc$</div>\n$endif$\n$body$"
+      , writerTableOfContents = True
+      , writerNumberSections = False
+      , writerIdentifierPrefix = "pandoc-"
+      }
 sidePaneWriterOption :: WriterOptions
 sidePaneWriterOption = 
-  defaultWriterOptions{
-          writerStandalone = True
-        , writerTemplate = "$body$"
-        , writerTableOfContents = False
-        , writerNumberSections = False
-        , writerIdentifierPrefix = "sidepane-"
-        }
+  def { writerStandalone = True
+      , writerTemplate = "$body$"
+      , writerTableOfContents = False
+      , writerNumberSections = False
+      , writerIdentifierPrefix = "sidepane-"
+      }
 
 writeHtmlStr ::  WriterOptions -> (Route App -> [(Text, Text)] -> Text) -> Map.Map Text Wiki -> Pandoc -> String
 writeHtmlStr opt render pages = 

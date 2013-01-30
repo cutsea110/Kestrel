@@ -82,8 +82,8 @@ executable kestrel
                   , hamlet
                   , language-javascript >= 0.5 && < 0.6
                   , hjsmin       >= 0.1  && < 0.2
-                  , pandoc       >= 1.9.4 && < 1.10
-                  , pandoc-types >= 1.9.1 && < 1.10
+                  , pandoc       >= 1.10 && < 1.11
+                  , pandoc-types >= 1.10 && < 1.11
                   , utility-ht
                   , Diff         >= 0.2   && < 0.3
                   , transformers
