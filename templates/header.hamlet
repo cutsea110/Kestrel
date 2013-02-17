@@ -6,7 +6,7 @@ $newline never
     .
     <form method=get action=@{AuthR LogoutR} .inline>
       <button type=submit .link>_{MsgLogout}
-    <form method=get action=@{AuthR setpassR} .inline>
+    <form method=get action="" .inline>
       <button type=submit .link>_{MsgChangePassword}
   $nothing
     <form method=get action=@{AuthToGoR}>
