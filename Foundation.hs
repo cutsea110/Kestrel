@@ -35,7 +35,6 @@ module Foundation
     , fromPath
     , fromWiki
     , ancestory
-    , setpassR -- Auth.HashDB
       --
     , markdownToWikiHtml
     , markdownsToWikiHtmls
@@ -52,7 +51,7 @@ import Yesod.Static
 import Settings.StaticFiles
 import Yesod.AtomFeed
 import Yesod.Auth
-import Kestrel.Helpers.Auth.HashDB
+import Kestrel.Helpers.Auth.Owl
 import Yesod.Auth.GoogleEmail
 import Yesod.Default.Config
 import Yesod.Default.Util (addStaticContentExternal)
@@ -70,7 +69,7 @@ import Text.Hamlet (ihamletFile)
 import Text.Cassius (cassiusFile)
 import Text.Julius (juliusFile)
 import Yesod.Form.Jquery
-import Control.Applicative ((<*>))
+import Control.Applicative ((<$>),(<*>))
 import Text.Pandoc
 import Text.Pandoc.Shared
 import qualified Text.Pandoc.Highlighting as PH (formatHtmlBlock, highlight)
@@ -272,36 +271,11 @@ instance YesodAuth App where
               lift $ setPNotify $ PNotify JqueryUI Success "Login" $ msgShow MsgNowLogin
               fmap Just $ insert $ User (credsIdent creds) Nothing Nothing True
 
-    authPlugins _ = [ authHashDB
+    authPlugins _ = [ authOwl Settings.clientId Settings.owl_pub Settings.kestrel_priv Settings.owl_auth_service_url
                     , authGoogleEmail
                     ]
                   
     authHttpManager = httpManager
-
-    loginHandler = do
-      defaultLayout $ do
-        setTitle "Login"
-        toWidget $(cassiusFile "templates/login.cassius")
-        $(whamletFile "templates/login.hamlet")
-
-instance YesodAuthHashDB App where
-    type AuthHashDBId App = UserId
-
-    getPassword uid = runDB $ do
-      ma <- get uid
-      case ma of
-        Nothing -> return Nothing
-        Just u -> return $ userPassword u
-    setPassword uid encripted = runDB $ update uid [UserPassword =. Just encripted]
-    getHashDBCreds account = runDB $ do
-        ma <- getBy $ UniqueUser account
-        case ma of
-            Nothing -> return Nothing
-            Just (Entity uid _) -> return $ Just HashDBCreds
-                { hashdbCredsId = uid
-                , hashdbCredsAuthId = Just uid
-                }
-    getHashDB = runDB . fmap (fmap userIdent) . get
 
 {- markdown utility -}
 markdownToWikiHtml opt raw = do
