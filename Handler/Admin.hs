@@ -2,7 +2,6 @@
 module Handler.Admin where
 
 import Foundation
-import Kestrel.Helpers.Auth.HashDB (encrypt)
 
 import Yesod
 import Data.Text (Text)
@@ -28,13 +27,8 @@ postUserR uid = do
          <*> iopt passwordField "password"
          <*> iopt textField "nickname"
          <*> ireq boolField "active"
-  runDB $ do 
-    orig <- get404 uid
-    replace uid new { userPassword = pass orig new }
+  runDB $ replace uid new
   redirect $ UserR uid
-  where
-    pass :: User -> User -> Maybe Text
-    pass old new = maybe (userPassword old) (return . encrypt) (userPassword new)
 
 getNewUserR :: Handler RepHtml
 getNewUserR = do
@@ -49,7 +43,7 @@ postNewUserR = do
          <*> iopt passwordField "password"
          <*> iopt textField "nickname"
          <*> ireq boolField "active"
-  uid <- runDB $ insert new {userPassword = fmap encrypt (userPassword new)}
+  uid <- runDB $ insert new {userPassword = Nothing }
   redirect $ UserR uid
 
 getDeleteUserR :: UserId -> Handler RepHtml
