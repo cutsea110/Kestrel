@@ -270,8 +270,8 @@ instance YesodAuth App where
                 lift $ setPNotify $ PNotify JqueryUI Error "Login failed" $ msgShow MsgInvalidAccount
                 return Nothing
             Nothing -> do
-              lift $ setPNotify $ PNotify JqueryUI Success "Login" $ msgShow MsgNowLogin
-              fmap Just $ insert $ User (credsIdent creds) Nothing Nothing True
+              lift $ setPNotify $ PNotify JqueryUI Error "Login failed" $ msgShow MsgInvalidAccount
+              return Nothing
 
     authPlugins _ = [ authOwl Settings.clientId Settings.owl_pub Settings.kestrel_priv Settings.owl_auth_service_url
                     , authGoogleEmail
