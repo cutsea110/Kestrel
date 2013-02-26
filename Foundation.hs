@@ -51,7 +51,7 @@ import Yesod.Static
 import Settings.StaticFiles
 import Yesod.AtomFeed
 import Yesod.Auth
-import Kestrel.Helpers.Auth.Owl
+import Yesod.Auth.Owl
 import Yesod.Auth.GoogleEmail
 import Yesod.Default.Config
 import Yesod.Default.Util (addStaticContentExternal)
@@ -69,7 +69,7 @@ import Text.Hamlet (ihamletFile)
 import Text.Cassius (cassiusFile)
 import Text.Julius (juliusFile)
 import Yesod.Form.Jquery
-import Control.Applicative ((<$>),(<*>))
+import Control.Applicative ((<*>))
 import Text.Pandoc
 import Text.Pandoc.Shared
 import qualified Text.Pandoc.Highlighting as PH (formatHtmlBlock, highlight)
@@ -271,11 +271,19 @@ instance YesodAuth App where
               lift $ setPNotify $ PNotify JqueryUI Success "Login" $ msgShow MsgNowLogin
               fmap Just $ insert $ User (credsIdent creds) Nothing Nothing True
 
-    authPlugins _ = [ authOwl Settings.clientId Settings.owl_pub Settings.kestrel_priv Settings.owl_auth_service_url
+    authPlugins _ = [ authOwl
                     , authGoogleEmail
                     ]
                   
     authHttpManager = httpManager
+
+instance YesodAuthOwl App where
+  getOwlIdent = return . userIdent . entityVal =<< requireAuth
+  clientId _ = Settings.clientId
+  owlPubkey _ = Settings.owl_pub
+  myPrivkey _ = Settings.kestrel_priv
+  endpoint_auth _ = Settings.owl_auth_service_url
+  endpoint_pass _ = Settings.owl_pass_service_url
 
 {- markdown utility -}
 markdownToWikiHtml opt raw = do
