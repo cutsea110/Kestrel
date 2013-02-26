@@ -22,57 +22,7 @@ import qualified Data.HashMap.Strict as M (toList)
 import qualified Yesod.Goodies.PNotify as P
 import Kestrel.Helpers.Util
 import Crypto.PubKey.RSA
-
--- for Request
-data AuthReq = AuthReq
-               { ident :: Text
-               , pass :: Text
-               }
-             deriving (Show, Read, Eq)
-
-instance FromJSON AuthReq where
-  parseJSON (Object v) = AuthReq <$> v .: "ident" <*> v .: "pass"
-  parseJSON _ = mzero
-instance ToJSON AuthReq where
-  toJSON (AuthReq i p) = object ["ident" .= i, "pass" .= p]
-
--- for Response
-data OwlRes = OwlRes { cipher :: LB.ByteString }
-instance FromJSON OwlRes where
-  parseJSON (Object o) = OwlRes <$> o .: "cipher"
-  parseJSON _ = mzero
-instance ToJSON OwlRes where
-  toJSON (OwlRes e) = object [ "cipher" .= e ]
-
-data AuthRes = Rejected
-               { rejected_ident :: Text
-               , rejected_pass :: Text
-               , rejected_reason :: Text
-               }
-             | Accepted
-               { accepted_ident :: Text
-               , accepted_email :: Maybe Text
-               }
-             deriving (Show, Read, Eq)
-
-instance FromJSON AuthRes where
-  parseJSON (Object o) = case M.toList o of
-    [("rejected", Object o')] ->
-      Rejected <$> o' .: "ident" <*> o' .: "pass" <*> o' .: "reason"
-    [("accepted", Object o')] ->
-      Accepted <$> o' .: "ident" <*> o' .:? "email"
-  parseJSON _ = mzero
-
-instance ToJSON AuthRes where
-  toJSON (Rejected i p r) = object [ "rejected" .= object [ "ident" .= i
-                                                          , "pass" .= p
-                                                          , "reason" .= r
-                                                          ]
-                                   ]
-  toJSON (Accepted i me) = object [ "accepted" .= object [ "ident" .= i
-                                                         , "email" .= me
-                                                         ]
-                                  ]
+import Owl.Service.API.Auth
 
 type ServiceURL = String
 
