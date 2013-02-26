@@ -112,4 +112,4 @@ executable kestrel
                   , RSA >= 1.2 && < 1.3
                   , crypto-api >= 0.10 && < 0.11
                   , crypto-pubkey >= 0.1 && < 0.2
-
+                  , owl-api >= 0.1 && < 0.2
