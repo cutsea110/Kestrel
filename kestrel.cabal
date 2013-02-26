@@ -37,7 +37,6 @@ library
                     Handler.Wiki
                     Handler.S3
                     Handler.Admin
-                    Kestrel.Helpers.Auth.Owl
                     Kestrel.Helpers.Util
 
      ghc-options:   -Wall -threaded -O0
@@ -106,10 +105,5 @@ executable kestrel
                   , data-default >= 0.5     && < 0.6
                   , conduit      >= 0.5     && < 0.6
                   , aeson >= 0.6 && < 0.7
-                  , attoparsec-conduit >= 0.5 && < 0.6
-                  , unordered-containers >= 0.2 && < 0.3
-                  , base64-bytestring >= 1.0 && < 1.1
-                  , RSA >= 1.2 && < 1.3
-                  , crypto-api >= 0.10 && < 0.11
                   , crypto-pubkey >= 0.1 && < 0.2
-                  , owl-api >= 0.1 && < 0.2
+                  , owl-auth >= 0.1 && < 0.2
