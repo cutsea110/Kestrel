@@ -33,6 +33,7 @@ module Settings
     , kestrel_priv
     , owl_pub
     , owl_auth_service_url
+    , owl_pass_service_url
     ) where
 
 import Text.Shakespeare.Text (st)
@@ -129,6 +130,8 @@ tz = 9
 --
 owl_auth_service_url :: String
 owl_auth_service_url = "http://localhost:3002/srv/auth"
+owl_pass_service_url :: String
+owl_pass_service_url = "http://localhost:3002/srv/change-pass"
 
 -- |
 -- Kestrel RSA keys

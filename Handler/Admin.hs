@@ -4,7 +4,6 @@ module Handler.Admin where
 import Foundation
 
 import Yesod
-import Data.Text (Text)
 import Control.Applicative ((<$>),(<*>))
 
 getUsersR :: Handler RepHtml
