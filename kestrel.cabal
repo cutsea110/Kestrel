@@ -84,7 +84,7 @@ executable kestrel
                   , pandoc       >= 1.10 && < 1.11
                   , pandoc-types >= 1.10 && < 1.11
                   , utility-ht
-                  , Diff         >= 0.2   && < 0.3
+                  , Diff         >= 0.2   && < 0.4
                   , transformers
                   , warp
                   , filepath
