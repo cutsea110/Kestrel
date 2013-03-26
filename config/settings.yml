@@ -16,5 +16,6 @@ Staging:
   <<: *defaults
 
 Production:
+  #approot: "http://soubun2.basement.timedia.co.jp"
   approot: "http://soubun.seitoku.ac.jp"
   <<: *defaults
