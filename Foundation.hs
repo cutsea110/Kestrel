@@ -58,6 +58,7 @@ import Yesod.Default.Util (addStaticContentExternal)
 import Yesod.Goodies.PNotify
 import Network.HTTP.Conduit (Manager)
 import qualified Settings
+import Settings.Development (development)
 import qualified Database.Persist.Store
 import Database.Persist.GenericSql
 import Settings (widgetFile, Extra (..))
@@ -72,7 +73,6 @@ import Yesod.Form.Jquery
 import Control.Applicative ((<*>))
 import Text.Pandoc
 import Text.Pandoc.Shared
-import qualified Text.Pandoc.Highlighting as PH (formatHtmlBlock, highlight)
 import Text.Blaze.Html.Renderer.String (renderHtml)
 import qualified Data.Map as Map (lookup, fromList, Map)
 import Data.List (inits)
@@ -81,6 +81,7 @@ import Data.Text (Text)
 import Data.Time.Clock (UTCTime(..))
 import qualified Data.Text as T
 import Text.Blaze.Internal (preEscapedString)
+import System.Log.FastLogger (Logger)
 
 (+++) :: Text -> Text -> Text
 (+++) = T.append
@@ -95,6 +96,7 @@ data App = App
     , connPool :: Database.Persist.Store.PersistConfigPool Settings.PersistConfig -- ^ Database connection pool.
     , httpManager :: Manager
     , persistConfig :: Settings.PersistConfig
+    , appLogger :: Logger
     }
 
 mkMessage "App" "messages" "en"
@@ -223,8 +225,15 @@ instance Yesod App where
     -- users receiving stale content.
     addStaticContent = addStaticContentExternal minifym base64md5 Settings.staticDir (StaticR . flip StaticRoute [])
 
-    -- Enable Javascript async loading
---    yepnopeJs _ = Just $ Right $ StaticR js_modernizr_js
+    -- Place Javascript at bottom of the body tag so the rest of the page loads first
+    jsLoader _ = BottomOfBody
+
+    -- What messages should be logged. The following includes all messages when
+    -- in development, and warnings and errors in production.
+    shouldLog _ _source level =
+        development || level == LevelWarn || level == LevelError
+
+    getLogger = return . appLogger
 
 -- How to run database actions.
 instance YesodPersist App where
@@ -325,7 +334,7 @@ writeHtmlStr opt render pages =
   writeHtmlString opt . transformDoc render pages
 
 transformDoc :: (Route App -> [(Text, Text)] -> Text) -> Map.Map Text Wiki -> Pandoc -> Pandoc
-transformDoc render pages = bottomUp codeHighlighting . bottomUp (wikiLink render pages)
+transformDoc render pages = bottomUp (wikiLink render pages)
 
 -- Wiki Link Sign of WikiName is written as [WikiName]().
 wikiLink :: (Route App -> [(Text, Text)] -> Text) -> Map.Map Text Wiki -> Inline -> Inline
@@ -340,14 +349,6 @@ wikiLink render pages (Link ls ("", "")) =
     path' = T.pack p'
     render' = (T.unpack .) . render
 wikiLink _ _ x = x
-
-codeHighlighting :: Block -> Block
-codeHighlighting b@(CodeBlock attr src) = 
-  case PH.highlight PH.formatHtmlBlock attr src of
-    Just r -> RawBlock "html" $ renderHtml r
-    _ -> b
-  where
-codeHighlighting x = x
 
 findRight :: (a -> Either err v) -> [a] -> Maybe v
 findRight _ []     = Nothing
