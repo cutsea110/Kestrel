@@ -3,7 +3,9 @@ User
     password Text Maybe
     nickname Text Maybe
     active Bool Eq default=true
+
     UniqueUser ident
+    deriving Typeable
     
 Email
     email Text
