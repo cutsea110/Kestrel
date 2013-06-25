@@ -11,5 +11,5 @@ $newline never
   $nothing
     <form method=get action=@{AuthToGoR}>
       $maybe r <- cr
-        <input type=hidden name=go value=@{r2m r}>
+        <input type=hidden name=go value=@{r}>
       <button type=submit .link>_{MsgLogin}
