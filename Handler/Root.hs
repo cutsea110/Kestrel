@@ -17,7 +17,7 @@ import Graphics.Thumbnail
 
 import qualified Settings
 
-getRootR :: Handler RepHtml
+getRootR :: Handler Html
 getRootR = do
   runDB $ do
     let path = pathOf topPage
@@ -31,15 +31,16 @@ getRootR = do
 getFaviconR :: Handler ()
 getFaviconR = sendFile "image/x-icon" "config/favicon.ico"
 
-getRobotsR :: Handler RepPlain
-getRobotsR = robots SitemapR -- return $ RepPlain $ toContent "User-agent: *"
+getRobotsR :: Handler T.Text
+getRobotsR = robots SitemapR
 
-getSitemapR :: Handler RepXml
+getSitemapR :: Handler TypedContent
 getSitemapR = do
   pages <- runDB $ selectList [] [Asc WikiPath]
-  sitemap $ map go pages
+  sitemapList $ map go pages
   where
-    go (Entity _ p) = SitemapUrl (WikiR $ fromWiki p) (wikiUpdated p) Daily 0.9
+    go (Entity _ p) =
+      SitemapUrl (WikiR $ fromWiki p) (Just (wikiUpdated p)) (Just Daily) (Just 0.9)
 
 getFeedR :: Handler RepAtom
 getFeedR = runDB $ do
@@ -68,14 +69,16 @@ getFeedR = runDB $ do
       { writerTableOfContents = False
       }
 
-getRecentChangesR :: Handler RepHtmlJson
+getRecentChangesR :: Handler TypedContent
 getRecentChangesR = do 
   render <- getUrlRender
   entries <- runDB $ selectList [WikiTouched !=. Nothing] [Desc WikiTouched, LimitTo Settings.numOfRecentChanges]
   now <- liftIO getCurrentTime
   let widget = $(widgetFile "recentChanges")
       json = object ["entries" .= array (map (go now render) entries)]
-  defaultLayoutJson widget json
+  selectRep $ do
+    provideRep $ defaultLayout widget
+    provideRep $ return json
   where
     (sec,minute,hour,day,month,year) = (1,60*sec,60*minute,24*hour,30*day,365*day)
     fromSec d s = ceiling $ d / s
@@ -87,12 +90,12 @@ getRecentChangesR = do
              , "new" .= (((utctDay now) `diffDays` utctDay (fromJust (wikiTouched w))) <= Settings.newDays)
              ]
 
-getAuthStatusR :: Handler RepJson
+getAuthStatusR :: Handler Value
 getAuthStatusR = do
   mu <- maybeAuth
   case mu of
-    Nothing -> jsonToRepJson $ object ["status" .= ("401" :: T.Text)]
-    Just _  -> jsonToRepJson $ object ["status" .= ("200" :: T.Text)]
+    Nothing -> returnJson $ object ["status" .= ("401" :: T.Text)]
+    Just _  -> returnJson $ object ["status" .= ("200" :: T.Text)]
 
 getAuthToGoR :: Handler ()
 getAuthToGoR = do
@@ -103,14 +106,14 @@ getAuthToGoR = do
       _ <- requireAuth
       redirect r
 
-getSystemBatchR :: Handler RepHtml
+getSystemBatchR :: Handler Html
 getSystemBatchR = do
   (Entity _ self) <- requireAuth
   defaultLayout $ do
     setTitle "システムバッチ"
     $(widgetFile "systembatch")
 
-postSystemBatchR :: Handler RepHtml
+postSystemBatchR :: Handler Html
 postSystemBatchR = do
   _ <- requireAuth
   method <- lookupPostParam "_method"
@@ -118,7 +121,7 @@ postSystemBatchR = do
     Just "thumbnail_update" -> thumbnailUpdate
     _ -> invalidArgs ["The possible value of '_method' is thumbnail_update."]
   where
-    thumbnailUpdate :: Handler RepHtml
+    thumbnailUpdate :: Handler Html
     thumbnailUpdate = do
       runDB $ do
         files <- selectList [] []
