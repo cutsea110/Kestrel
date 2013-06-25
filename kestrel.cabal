@@ -109,3 +109,5 @@ executable kestrel
                   , monad-logger >= 0.3 && < 0.4
                   , fast-logger >= 0.3 && < 0.4
                   , owl-auth >= 0.2 && < 0.3
+                  , xml-conduit >= 1.1 && < 1.2
+                  , xml-hamlet >= 0.4 && < 0.5

@@ -1,3 +1,5 @@
+{-# LANGUAGE TypeSynonymInstances #-}
+{-# LANGUAGE FlexibleInstances #-}
 module Kestrel.Helpers.Util 
        ( encodeUrl
        , decodeUrl
@@ -11,7 +13,6 @@ import qualified Data.Text as T
 import Data.Time
 import GHC.Int (Int64)
 import Network.HTTP.Base (urlEncode, urlDecode)
-import Yesod
 
 encodeUrl :: T.Text -> T.Text
 encodeUrl = T.pack . urlEncode . encodeString . T.unpack
