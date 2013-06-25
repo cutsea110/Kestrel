@@ -7,7 +7,7 @@ import Text.Julius (juliusFile)
 
 import Control.Monad (unless)
 
-getProfileR :: UserId -> Handler RepHtml
+getProfileR :: UserId -> Handler Html
 getProfileR uid = do
   (Entity uid' _) <- requireAuth
   msgShow <- getMessageRender
