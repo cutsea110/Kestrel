@@ -1,6 +1,3 @@
-{-# LANGUAGE TemplateHaskell #-}
-{-# LANGUAGE MultiParamTypeClasses #-}
-{-# LANGUAGE CPP #-}
 {-# OPTIONS_GHC -fno-warn-orphans #-}
 module Application
     ( makeApplication
@@ -8,11 +5,7 @@ module Application
     , makeFoundation
     ) where
 
-import Foundation
-import Settings
-import Settings.Development
-import Settings.StaticFiles (staticSite)
-import Yesod
+import Import
 import Yesod.Auth
 import Yesod.Default.Config
 import Yesod.Default.Main
@@ -64,7 +57,7 @@ makeFoundation conf = do
     dbconf <- withYamlEnvironment "config/postgresql.yml" (appEnv conf)
               Database.Persist.loadConfig >>=
               Database.Persist.applyEnv
-    p <- Database.Persist.createPoolConfig (dbconf :: Settings.PersistConf)
+    p <- Database.Persist.createPoolConfig (dbconf :: PersistConf)
     logger <- mkLogger True stdout
     let foundation = App conf s p manager dbconf logger
 

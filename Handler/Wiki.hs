@@ -1,28 +1,18 @@
-{-# LANGUAGE QuasiQuotes, TemplateHaskell #-}
-{-# LANGUAGE OverloadedStrings #-}
-{-# LANGUAGE CPP #-}
 {-# OPTIONS_GHC -fno-warn-type-defaults #-} 
 {-# OPTIONS_GHC -fno-warn-unused-do-bind #-}
 module Handler.Wiki where
 
-import Foundation
-
-import Yesod
+import Import
 import Control.Monad
 import Data.Time
-import Control.Applicative ((<$>),(<*>))
 import Data.Tuple.HT
 import Data.Algorithm.Diff (Diff(..), getDiff)
-import Data.List (groupBy)
-import Data.Text (Text)
+import Data.List (head, tail, groupBy)
 import Data.String (IsString)
 import qualified Data.Text as T
 import Text.Blaze.Internal (preEscapedText)
 import Text.Cassius (cassiusFile)
 import Text.Julius (juliusFile)
-
-import Settings (topTitle)
-import Settings.StaticFiles
 
 getDoc :: (IsString t, Eq t) => [t] -> WidgetT master IO ()
 getDoc [] = $(whamletFile "templates/markdown-help-en.hamlet")
@@ -304,7 +294,7 @@ getNewR = do
       case path'' of
         Nothing -> invalidArgs ["'path' query paramerter is required."]
         Just path -> do
-          let isTop = path==Settings.topTitle
+          let isTop = path==topTitle
               viewMe = (NewR, [("path", path), ("mode", "v")])
               editMe = (NewR, [("path", path), ("mode", "e")])
           defaultLayout $ do
@@ -322,7 +312,7 @@ getNewR = do
         Nothing -> invalidArgs ["'path' query paramerter is required."]
         Just path -> do
           langs <- languages
-          let isTop = path==Settings.topTitle
+          let isTop = path==topTitle
               viewMe = (NewR, [("path", path), ("mode", "v")])
               editMe = (NewR, [("path", path), ("mode", "e")])
               markdown = getDoc langs
@@ -353,7 +343,7 @@ postNewR = do
                                       <*> iopt textField "comment"
                                       <*> iopt textField "donttouch"
       langs <- languages
-      let isTop = path == Settings.topTitle
+      let isTop = path == topTitle
           viewMe = (NewR, [("path", path), ("mode", "v")])
           editMe = (NewR, [("path", path), ("mode", "e")])
           markdown = getDoc langs

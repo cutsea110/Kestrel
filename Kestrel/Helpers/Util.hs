@@ -1,5 +1,3 @@
-{-# LANGUAGE TypeSynonymInstances #-}
-{-# LANGUAGE FlexibleInstances #-}
 module Kestrel.Helpers.Util 
        ( encodeUrl
        , decodeUrl

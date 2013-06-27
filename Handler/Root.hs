@@ -1,11 +1,10 @@
-{-# LANGUAGE TemplateHaskell, QuasiQuotes, OverloadedStrings #-}
 {-# OPTIONS_GHC -fno-warn-type-defaults #-}
 module Handler.Root where
 
-import Foundation
-import Yesod
+import Import
 import Yesod.AtomFeed
 import Yesod.Sitemap
+import Data.List (head)
 import Data.Maybe (fromJust)
 import Data.Time
 import qualified Data.Text as T

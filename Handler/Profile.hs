@@ -1,8 +1,6 @@
-{-# LANGUAGE TemplateHaskell, OverloadedStrings #-}
 module Handler.Profile where
 
-import Foundation
-import Yesod
+import Import
 import Text.Julius (juliusFile)
 
 import Control.Monad (unless)

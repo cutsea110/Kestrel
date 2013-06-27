@@ -1,6 +1,3 @@
-{-# LANGUAGE TemplateHaskell, OverloadedStrings #-}
-{-# LANGUAGE QuasiQuotes, CPP #-}
-{-# LANGUAGE GADTs #-}
 {-# OPTIONS_GHC -fno-warn-missing-signatures #-}
 module Handler.S3 
        ( getUploadR
@@ -13,14 +10,13 @@ module Handler.S3
        , getThumbnailR
        ) where
 
-import Foundation
+import Import
 import Kestrel.Helpers.Util (encodeUrl, ToText(..))
 
-import Yesod
-import Control.Applicative ((<$>))
 import Data.Time
 import Data.Conduit (($$))
 import Data.Conduit.List (consume)
+import Data.List (last)
 import qualified Data.Map as Map
 import qualified Data.ByteString.Lazy as L
 import System.Directory
