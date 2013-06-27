@@ -41,15 +41,15 @@ getUploadR = do
     $(widgetFile "s3/upload")
 
 upload uid fi = do
-  lbs <- lift $ fileContent fi
-  let fsize = L.length lbs
+  lbs' <- lift $ fileContent fi
+  let fsize = L.length lbs'
   if fileName' fi /= "" && fsize > 0
     then do
     now <- liftIO getCurrentTime
     let (name, ext) = splitExtension $ T.unpack $ fileName' fi
         efname = encodeUrl $ fileName' fi
     (et, width, height, imagep) <- liftIO $ do
-      et <- mkThumbnail lbs
+      et <- mkThumbnail lbs'
       case et of
         Right t -> return (et, Just (fst (orgSZ t)), Just (snd (orgSZ t)), True)
         Left _  -> return (et, Nothing, Nothing, False)
@@ -72,7 +72,7 @@ upload uid fi = do
         thumbfp = thumbDir </> T.unpack (toPathPiece fid)
     liftIO $ do
       createDirectoryIfMissing True s3dir'
-      L.writeFile s3fp lbs
+      L.writeFile s3fp lbs'
       -- follow thumbnail
       case et of
         Right t -> do createDirectoryIfMissing True thumbDir

@@ -72,7 +72,6 @@ import Yesod.Form.Jquery
 import Control.Applicative ((<*>))
 import Text.Pandoc
 import Text.Pandoc.Shared
-import Text.Blaze.Html.Renderer.String (renderHtml)
 import qualified Data.Map as Map (lookup, fromList, Map)
 import Data.List (inits)
 import Data.Maybe (isNothing)
