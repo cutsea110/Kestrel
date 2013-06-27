@@ -1,10 +1,3 @@
-{-# LANGUAGE QuasiQuotes, TemplateHaskell, TypeFamilies #-}
-{-# LANGUAGE MultiParamTypeClasses #-}
-{-# LANGUAGE OverloadedStrings #-}
-{-# LANGUAGE FlexibleContexts #-}
-{-# LANGUAGE FlexibleInstances #-}
-{-# LANGUAGE Rank2Types #-}
-{-# LANGUAGE CPP #-}
 {-# OPTIONS_GHC -fspec-constr-count=100 #-}
 {-# OPTIONS_GHC -fno-warn-missing-signatures #-}
 {-# OPTIONS_GHC -fno-warn-unused-do-bind #-}
@@ -18,7 +11,6 @@ module Foundation
     , maybeAuth
     , requireAuth
     , module Settings
-    , module Model
     , RawJS(..)
     , module Yesod.Goodies.PNotify
       -- 
@@ -46,6 +38,7 @@ module Foundation
     , (+++)
     ) where
 
+import Prelude
 import Yesod hiding (getMessage, setMessage)
 import Yesod.Static
 import Settings.StaticFiles

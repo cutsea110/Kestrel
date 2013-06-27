@@ -1,8 +1,9 @@
-import Application (getApplicationDev)
+{-# LANGUAGE PackageImports #-}
+import "kestrel" Application (getApplicationDev)
 import Network.Wai.Handler.Warp
     (runSettings, defaultSettings, settingsPort)
 import Control.Concurrent (forkIO)
-import System.Directory (doesFileExist)
+import System.Directory (doesFileExist, removeFile)
 import System.Exit (exitSuccess)
 import Control.Concurrent (threadDelay)
 

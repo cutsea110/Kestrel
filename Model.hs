@@ -1,16 +1,10 @@
-{-# LANGUAGE QuasiQuotes, TemplateHaskell #-}
-{-# LANGUAGE TypeFamilies, GeneralizedNewtypeDeriving #-}
-{-# LANGUAGE CPP #-}
-{-# LANGUAGE OverloadedStrings #-}
-{-# LANGUAGE GADTs #-}
-{-# LANGUAGE DeriveDataTypeable #-}
-{-# LANGUAGE FlexibleContexts, EmptyDataDecls #-}
 {-# OPTIONS_GHC -fspec-constr-count=100 #-}
 module Model ( module Model
              ) where
 
+import Prelude
 import Yesod
--- import Yesod.Helpers.Crud
+-- import Yesod.Helpers.Crud -- FIXME
 import Data.Time
 import Data.Int
 import Data.Maybe (fromMaybe)
