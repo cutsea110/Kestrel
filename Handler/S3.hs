@@ -1,6 +1,3 @@
-{-# LANGUAGE TemplateHaskell, OverloadedStrings #-}
-{-# LANGUAGE QuasiQuotes, CPP #-}
-{-# LANGUAGE GADTs #-}
 {-# OPTIONS_GHC -fno-warn-missing-signatures #-}
 module Handler.S3 
        ( getUploadR
@@ -13,23 +10,26 @@ module Handler.S3
        , getThumbnailR
        ) where
 
-import Foundation
-import Kestrel.Helpers.Util (encodeUrl)
+import Import
+import Kestrel.Helpers.Util (encodeUrl, ToText(..))
 
-import Yesod
-import Control.Applicative ((<$>))
 import Data.Time
 import Data.Conduit (($$))
 import Data.Conduit.List (consume)
+import Data.List (last)
+import qualified Data.Map as Map
 import qualified Data.ByteString.Lazy as L
 import System.Directory
 import System.FilePath
 import qualified Data.Text as T
+import qualified Data.Text.Encoding as TE
 import qualified Settings (s3dir, s3ThumbnailDir)
 import Text.Cassius (cassiusFile)
+import Text.Hamlet.XML
+import Text.XML
 import Graphics.Thumbnail
 
-getUploadR :: Handler RepHtml
+getUploadR :: Handler Html
 getUploadR = do
   (Entity uid _) <- requireAuth
   defaultLayout $ do
@@ -37,15 +37,15 @@ getUploadR = do
     $(widgetFile "s3/upload")
 
 upload uid fi = do
-  lbs <- lift $ lift $ fileContent fi
-  let fsize = L.length lbs
+  lbs' <- lift $ fileContent fi
+  let fsize = L.length lbs'
   if fileName' fi /= "" && fsize > 0
     then do
     now <- liftIO getCurrentTime
     let (name, ext) = splitExtension $ T.unpack $ fileName' fi
         efname = encodeUrl $ fileName' fi
     (et, width, height, imagep) <- liftIO $ do
-      et <- mkThumbnail lbs
+      et <- mkThumbnail lbs'
       case et of
         Right t -> return (et, Just (fst (orgSZ t)), Just (snd (orgSZ t)), True)
         Left _  -> return (et, Nothing, Nothing, False)
@@ -68,7 +68,7 @@ upload uid fi = do
         thumbfp = thumbDir </> T.unpack (toPathPiece fid)
     liftIO $ do
       createDirectoryIfMissing True s3dir'
-      L.writeFile s3fp lbs
+      L.writeFile s3fp lbs'
       -- follow thumbnail
       case et of
         Right t -> do createDirectoryIfMissing True thumbDir
@@ -98,30 +98,31 @@ postUploadR = do
           cacheSeconds 10 -- FIXME
           let rf = (dropPrefix (approot' y) $ r $ FileR uid fid)
               trf = (dropPrefix (approot' y) $ r $ ThumbnailR uid fid) 
-          fmap RepXml $ hamletToContent
-                      [xhamlet|$newline never
-<file>
-  <fhid>#{T.unpack $ toPathPiece fid}
-  <name>#{name}
-  <ext>#{ext}
-  <size>#{show fsize}
-  <cdate>#{show cdate}
-  <uri>#{rf}
-  $if imgp
-    <thumbnail_uri>#{trf}
-  $else
-    <thumbnail_uri>
-  $maybe w <- wd
-    <width>#{w}
-  $nothing
-    <width>
-  $maybe h <- ht
-    <height>#{h}
-  $nothing
-    <height>
-|]
+          return $ RepXml $ toContent $ renderText def $
+            Document
+            (Prologue [] Nothing [])
+            (Element "file" Map.empty [xml|
+<fhid>#{toPathPiece fid}
+<name>#{name}
+<ext>#{ext}
+<size>#{toText fsize}
+<cdate>#{toText cdate}
+<uri>#{rf}
+$if imgp
+  <thumbnail_uri>#{trf}
+$else
+  <thumbnail_uri>
+$maybe w <- wd
+  <width>#{toText w}
+$nothing
+  <width>
+$maybe h <- ht
+  <height>#{toText h}
+$nothing
+  <height>
+|]) []
 
-putUploadR :: Handler RepHtml
+putUploadR :: Handler Html
 putUploadR = do
   (Entity uid _) <- requireAuth
   mfi <- lookupFile "upfile"
@@ -134,14 +135,14 @@ putUploadR = do
         Just (fid, _, _, _, _, _, _, _) -> sendResponseCreated $ FileR uid fid
 
 
-getFileR :: UserId -> FileHeaderId -> Handler RepHtml
+getFileR :: UserId -> FileHeaderId -> Handler ()
 getFileR uid fid = do
   h <- runDB $ get404 fid
   let s3dir' = Settings.s3dir </> T.unpack (toPathPiece uid)
       s3fp = s3dir' </> T.unpack (toPathPiece fid)
-  setHeader "Content-Type" $ fileHeaderContentType h
-  setHeader "Content-Disposition" $ "attachment; filename=" +++ fileHeaderEfname h
-  return $ RepHtml $ ContentFile s3fp Nothing
+  addHeader "Content-Type" $ fileHeaderContentType h
+  addHeader "Content-Disposition" $ "attachment; filename=" +++ fileHeaderEfname h
+  sendFile (TE.encodeUtf8 (fileHeaderContentType h)) s3fp
 
 postFileR :: UserId -> FileHeaderId -> Handler RepXml
 postFileR uid fid = do
@@ -172,20 +173,21 @@ deleteFileR uid fid = do
       if exist then removeFile s3fp else return ()
       exist' <- doesFileExist thumbfp
       if exist' then removeFile thumbfp else return ()
-    fmap RepXml $ hamletToContent
-                  [xhamlet|$newline never
-<deleted>
-  <uri>#{rf}
-|]
+    return $ RepXml $ toContent $ renderText def $
+      Document
+      (Prologue [] Nothing [])
+      (Element "deleted" Map.empty [xml|
+<uri>#{rf}
+|]) []
 
-getFileListR :: UserId -> Handler RepJson
+getFileListR :: UserId -> Handler Value
 getFileListR uid = do
   _ <- requireAuth
   y <- getYesod
   render <- getUrlRender
   files <- runDB $ selectList [FileHeaderCreator ==. uid] [Desc FileHeaderCreated]
   cacheSeconds 10 -- FIXME
-  jsonToRepJson $ object ["files" .= array (map (go y render) files)]
+  returnJson $ object ["files" .= array (map (go y render) files)]
   where
     go y r (Entity fid FileHeader
                { fileHeaderFullname = name
@@ -213,11 +215,11 @@ getFileListR uid = do
                        then dropPrefix (approot' y) $ r $ ThumbnailR uid fid
                        else ""
 
-getThumbnailR :: UserId -> FileHeaderId -> Handler RepHtml
+getThumbnailR :: UserId -> FileHeaderId -> Handler ()
 getThumbnailR uid fid = do
   h <- runDB $ get404 fid
   let thumbDir = Settings.s3ThumbnailDir </> T.unpack (toPathPiece uid)
       thumbfp = thumbDir </> T.unpack (toPathPiece fid)
-  setHeader "Content-Type" $ fileHeaderContentType h
-  setHeader "Content-Disposition" $ "attachment; filename=" +++ fileHeaderEfname h
-  return $ RepHtml $ ContentFile thumbfp Nothing
+  addHeader "Content-Type" $ fileHeaderContentType h
+  addHeader "Content-Disposition" $ "attachment; filename=" +++ fileHeaderEfname h
+  sendFile (TE.encodeUtf8 (fileHeaderContentType h)) thumbfp

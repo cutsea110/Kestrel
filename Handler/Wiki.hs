@@ -1,35 +1,25 @@
-{-# LANGUAGE QuasiQuotes, TemplateHaskell #-}
-{-# LANGUAGE OverloadedStrings #-}
-{-# LANGUAGE CPP #-}
 {-# OPTIONS_GHC -fno-warn-type-defaults #-} 
 {-# OPTIONS_GHC -fno-warn-unused-do-bind #-}
 module Handler.Wiki where
 
-import Foundation
-
-import Yesod
+import Import
 import Control.Monad
 import Data.Time
-import Control.Applicative ((<$>),(<*>))
 import Data.Tuple.HT
 import Data.Algorithm.Diff (Diff(..), getDiff)
-import Data.List (groupBy)
-import Data.Text (Text)
+import Data.List (head, tail, groupBy)
 import Data.String (IsString)
 import qualified Data.Text as T
 import Text.Blaze.Internal (preEscapedText)
 import Text.Julius (juliusFile)
 
-import Settings (topTitle)
-import Settings.StaticFiles
-
-getDoc :: (IsString t, Eq t) => [t] -> GWidget sub master ()
+getDoc :: (IsString t, Eq t) => [t] -> WidgetT master IO ()
 getDoc [] = $(whamletFile "templates/markdown-help-en.hamlet")
 getDoc ("en":_) = $(whamletFile "templates/markdown-help-en.hamlet")
 getDoc ("ja":_) = $(whamletFile "templates/markdown-help-ja.hamlet")
 getDoc (_:ds) = getDoc ds
 
-getEitherWikiNewR :: WikiPage -> Handler RepHtml
+getEitherWikiNewR :: WikiPage -> Handler Html
 getEitherWikiNewR wp = do
   let path = pathOf wp
   mwiki <- runDB $ getBy $ UniqueWiki path
@@ -39,7 +29,7 @@ getEitherWikiNewR wp = do
     Just _ ->
       redirect $ WikiR wp
 
-getWikiListR :: Handler RepHtml
+getWikiListR :: Handler Html
 getWikiListR = do
   method <- lookupGetParam "_method"
   case method of
@@ -47,7 +37,7 @@ getWikiListR = do
     _ -> invalidArgs ["The possible values of '_method' is search."]
   where
     -- pages
-    searchWiki :: Handler RepHtml
+    searchWiki :: Handler Html
     searchWiki = do
       q <- lookupGetParam "q"
       case q of
@@ -61,13 +51,15 @@ getWikiListR = do
             addStylesheet $ StaticR css_hk_kate_css
             $(whamletFile "templates/searchWiki.hamlet")
 
-getAllPagesR :: Handler RepHtmlJson
+getAllPagesR :: Handler TypedContent
 getAllPagesR = do
   render <- getUrlRender
   entries <- runDB $ selectList [] [Asc WikiPath]
   let widget = $(widgetFile "allPages")
       json = object ["entries" .= array (map (go render) entries)]
-  defaultLayoutJson widget json
+  selectRep $ do
+    provideRep $ defaultLayout widget
+    provideRep $ return json
   where
     go r (Entity _ w) =
       object [ "title" .= wikiPath w
@@ -76,7 +68,7 @@ getAllPagesR = do
              ]
 
 
-getWikiR :: WikiPage -> Handler RepHtml
+getWikiR :: WikiPage -> Handler Html
 getWikiR wp = do
   mode <- lookupGetParam "mode"
   case mode of
@@ -130,7 +122,7 @@ getWikiR wp = do
 
     
     -- Pages
-    queryViewWiki :: Handler RepHtml
+    queryViewWiki :: Handler Html
     queryViewWiki = do
       q <- lookupGetParam "q"
       case q of
@@ -142,8 +134,7 @@ getWikiR wp = do
               isNull = \h -> case h of
                 [] -> True
                 _  -> False
-          hamletToRepHtml
-             [hamlet|$newline never
+          giveUrlRenderer [hamlet|$newline never
 $if not (isNull blocks)
   <fieldset .blocks>
     <legend>
@@ -152,14 +143,14 @@ $if not (isNull blocks)
       <div .block>#{block}
 |]
         
-    simpleViewWiki :: Handler RepHtml
+    simpleViewWiki :: Handler Html
     simpleViewWiki = do
       (_, _, content, _, _, _, _) <- getwiki sidePaneWriterOption
-      hamletToRepHtml [hamlet|$newline never
+      giveUrlRenderer [hamlet|$newline never
 \#{content}
 |]
     
-    viewWiki :: Handler RepHtml
+    viewWiki :: Handler Html
     viewWiki = do
       msgShow <- getMessageRender
       (path, raw, content, upd, ver, me, isTop) <- getwiki (wikiWriterOption msgShow)
@@ -171,7 +162,7 @@ $if not (isNull blocks)
         addStylesheet $ StaticR css_hk_kate_css
         $(whamletFile "templates/viewWiki.hamlet")
 
-    editWiki :: Handler RepHtml
+    editWiki :: Handler Html
     editWiki = do
       (Entity uid _) <- requireAuth
       msgShow <- getMessageRender
@@ -188,7 +179,7 @@ $if not (isNull blocks)
         addStylesheet $ StaticR css_hk_kate_css
         $(whamletFile "templates/editWiki.hamlet")
             
-    deleteWiki :: Handler RepHtml
+    deleteWiki :: Handler Html
     deleteWiki = do
       (Entity uid _) <- requireAuth
       msgShow <- getMessageRender
@@ -202,7 +193,7 @@ $if not (isNull blocks)
         $(whamletFile "templates/deleteWiki.hamlet")
 
 
-postWikiR :: WikiPage -> Handler RepHtml
+postWikiR :: WikiPage -> Handler Html
 postWikiR wp = do
   _method <- lookupPostParam "_method"
   case _method of
@@ -212,7 +203,7 @@ postWikiR wp = do
     _ -> invalidArgs ["The possible values of '_method' are preview,commit,delete."]
   where
     
-    previewWiki :: Handler RepHtml
+    previewWiki :: Handler Html
     previewWiki = do
       (Entity uid _) <- requireAuth
       msgShow <- getMessageRender
@@ -235,7 +226,7 @@ postWikiR wp = do
         addStylesheet $ StaticR css_hk_kate_css
         $(whamletFile "templates/previewWiki.hamlet")
 
-putWikiR :: WikiPage -> Handler RepHtml
+putWikiR :: WikiPage -> Handler Html
 putWikiR wp = do
   (Entity uid _) <- requireAuth
   msgShow <- getMessageRender
@@ -274,7 +265,7 @@ putWikiR wp = do
       return pid
   redirect (WikiR wp, [("mode", "v")] :: [(Text, Text)])
 
-deleteWikiR :: WikiPage -> Handler RepHtml
+deleteWikiR :: WikiPage -> Handler Html
 deleteWikiR wp = do
   _ <- requireAuth
   let path = pathOf wp
@@ -285,7 +276,7 @@ deleteWikiR wp = do
     return pid
   redirect (NewR, [("path", path),("mode", "v")] :: [(Text, Text)])
 
-getNewR :: Handler RepHtml
+getNewR :: Handler Html
 getNewR = do
   mode <- lookupGetParam "mode"
   case mode of
@@ -294,14 +285,14 @@ getNewR = do
     Just _   {- default mode -} -> viewNew  -- FIXME
     Nothing  {- default mode -} -> viewNew  -- FIXME
   where
-    viewNew :: Handler RepHtml
+    viewNew :: Handler Html
     viewNew = do
       msgShow <- getMessageRender
       path'' <- lookupGetParam "path"
       case path'' of
         Nothing -> invalidArgs ["'path' query paramerter is required."]
         Just path -> do
-          let isTop = path==Settings.topTitle
+          let isTop = path==topTitle
               viewMe = (NewR, [("path", path), ("mode", "v")])
               editMe = (NewR, [("path", path), ("mode", "e")])
           defaultLayout $ do
@@ -310,7 +301,7 @@ getNewR = do
             addStylesheet $ StaticR css_hk_kate_css
             $(whamletFile "templates/viewNew.hamlet")
     
-    editNew :: Handler RepHtml
+    editNew :: Handler Html
     editNew = do
       (Entity uid _) <- requireAuth
       msgShow <- getMessageRender
@@ -319,7 +310,7 @@ getNewR = do
         Nothing -> invalidArgs ["'path' query paramerter is required."]
         Just path -> do
           langs <- languages
-          let isTop = path==Settings.topTitle
+          let isTop = path==topTitle
               viewMe = (NewR, [("path", path), ("mode", "v")])
               editMe = (NewR, [("path", path), ("mode", "e")])
               markdown = getDoc langs
@@ -331,7 +322,7 @@ getNewR = do
             addStylesheet $ StaticR css_hk_kate_css
             $(whamletFile "templates/editNew.hamlet")
   
-postNewR :: Handler RepHtml
+postNewR :: Handler Html
 postNewR = do
   _ <- requireAuth
   _method <- lookupPostParam "_method"
@@ -340,7 +331,7 @@ postNewR = do
     Just "commit"  -> createWiki
     _              -> invalidArgs ["The possible values of '_method' are preview,commit."]
   where
-    previewWiki :: Handler RepHtml
+    previewWiki :: Handler Html
     previewWiki = do
       (Entity uid _) <- requireAuth
       msgShow <- getMessageRender
@@ -350,7 +341,7 @@ postNewR = do
                                       <*> iopt textField "comment"
                                       <*> iopt textField "donttouch"
       langs <- languages
-      let isTop = path == Settings.topTitle
+      let isTop = path == topTitle
           viewMe = (NewR, [("path", path), ("mode", "v")])
           editMe = (NewR, [("path", path), ("mode", "e")])
           markdown = getDoc langs
@@ -362,7 +353,7 @@ postNewR = do
         addStylesheet $ StaticR css_hk_kate_css
         $(whamletFile "templates/previewNew.hamlet")
     
-    createWiki :: Handler RepHtml
+    createWiki :: Handler Html
     createWiki = do
       (Entity uid _) <- requireAuth
       (path, raw, com, donttouch) <- runInputPost $ (,,,)
@@ -395,7 +386,7 @@ postNewR = do
         -- FIXME: use sendResponseCreated API
       redirect (WikiR $ fromPath path, [("mode", "v")] :: [(Text, Text)])
 
-getHistoriesR :: WikiPage -> Handler RepHtml
+getHistoriesR :: WikiPage -> Handler Html
 getHistoriesR wp = do
   ver <- lookupGetParam "ver"
   case ver of
@@ -427,7 +418,7 @@ getHistoriesR wp = do
         dc _     fs    = fs
     
     -- pages
-    historyList :: Version -> Handler RepHtml
+    historyList :: Version -> Handler Html
     historyList ver = do
       mu <- maybeAuth
       msgShow <- getMessageRender
@@ -463,7 +454,7 @@ getHistoriesR wp = do
 
         
 
-getHistoryR :: Version -> WikiPage -> Handler RepHtml
+getHistoryR :: Version -> WikiPage -> Handler Html
 getHistoryR vsn wp = do
   mode <- lookupGetParam "mode"
   case mode of
@@ -509,7 +500,7 @@ getHistoryR vsn wp = do
         d2h (Both l _) xs = "<span>&nbsp;&nbsp;" +++ l +++ "</span><br/>" +++ xs
         
     -- pages
-    viewHistory :: Version -> Handler RepHtml
+    viewHistory :: Version -> Handler Html
     viewHistory v = do
       msgShow <- getMessageRender
       (path, raw, content, upd, _, me, isTop, curp) <- getHistory v
@@ -525,7 +516,7 @@ getHistoryR vsn wp = do
         addStylesheet $ StaticR css_hk_kate_css
         $(whamletFile "templates/viewHistory.hamlet")
 
-    editHistory :: Version -> Handler RepHtml
+    editHistory :: Version -> Handler Html
     editHistory v = do
       (Entity uid _) <- requireAuth
       msgShow <- getMessageRender
@@ -544,7 +535,7 @@ getHistoryR vsn wp = do
         addStylesheet $ StaticR css_hk_kate_css
         $(whamletFile "templates/editHistory.hamlet")
     
-    revertHistory :: Version -> Handler RepHtml
+    revertHistory :: Version -> Handler Html
     revertHistory v = do
       (Entity uid _) <- requireAuth
       msgShow <- getMessageRender
@@ -561,7 +552,7 @@ getHistoryR vsn wp = do
         addStylesheet $ StaticR css_hk_kate_css
         $(whamletFile "templates/revertHistory.hamlet")
 
-    diffVers :: (Wiki -> Version -> [Version]) -> Version -> Handler RepHtml
+    diffVers :: (Wiki -> Version -> [Version]) -> Version -> Handler Html
     diffVers selver v = do
       msgShow <- getMessageRender
       let path = pathOf wp
@@ -583,14 +574,14 @@ getHistoryR vsn wp = do
         $(widgetFile "wiki")
         $(whamletFile "templates/diffHistories.hamlet")
     
-    diffPrevious :: Version -> Handler RepHtml
+    diffPrevious :: Version -> Handler Html
     diffPrevious = diffVers $ \_ v -> [v, v-1]
     
-    diffCurrent :: Version -> Handler RepHtml
+    diffCurrent :: Version -> Handler Html
     diffCurrent = diffVers $ \p v -> [wikiVersion p, v]
 
 
-postHistoryR :: Version -> WikiPage -> Handler RepHtml
+postHistoryR :: Version -> WikiPage -> Handler Html
 postHistoryR vsn wp = do
   _method <- lookupPostParam "_method"
   case _method of
@@ -600,7 +591,7 @@ postHistoryR vsn wp = do
     _              -> invalidArgs ["The possible values of '_method' are preview,commit,modify"]
   where
     
-    previewHistory :: Handler RepHtml
+    previewHistory :: Handler Html
     previewHistory = do
       (Entity uid _) <- requireAuth
       msgShow <- getMessageRender
@@ -625,7 +616,7 @@ postHistoryR vsn wp = do
         addStylesheet $ StaticR css_hk_kate_css
         $(whamletFile "templates/previewHistory.hamlet")
 
-putHistoryR :: Version -> WikiPage -> Handler RepHtml
+putHistoryR :: Version -> WikiPage -> Handler Html
 putHistoryR v wp = do
   _ <- requireAuth
   let path = pathOf wp
@@ -634,8 +625,7 @@ putHistoryR v wp = do
     (Entity pid _) <- getBy404 $ UniqueWiki path
     (Entity hid _) <- getBy404 $ UniqueWikiHistory pid v
     update hid [ WikiHistoryComment =. com ]
-  hamletToRepHtml
-    [hamlet|$newline never
+  giveUrlRenderer [hamlet|$newline never
 $maybe c <- com
   <span>#{c}
 $nothing

@@ -1,7 +1,6 @@
-{-# LANGUAGE QuasiQuotes, TemplateHaskell, TypeFamilies, OverloadedStrings #-}
-{-# LANGUAGE CPP #-}
 module Settings.StaticFiles where
 
+import Prelude (IO)
 import Yesod.Static
 import qualified Yesod.Static as Static
 import Settings (staticDir)

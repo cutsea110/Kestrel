@@ -1,6 +1,3 @@
-{-# LANGUAGE CPP #-}
-{-# LANGUAGE TemplateHaskell, QuasiQuotes #-}
-{-# LANGUAGE OverloadedStrings #-}
 -- | Settings are centralized, as much as possible, into this file. This
 -- includes database connection settings, static file locations, etc.
 -- In addition, you can configure a number of different aspects of Yesod
@@ -8,7 +5,7 @@
 -- declared in the Kestrel.hs file.
 module Settings
     ( widgetFile
-    , PersistConfig
+    , PersistConf
     , staticRoot
     , staticDir
     , Extra (..)
@@ -36,6 +33,7 @@ module Settings
     , owl_pass_service_url
     ) where
 
+import Prelude
 import Text.Shakespeare.Text (st)
 import Language.Haskell.TH.Syntax
 import Database.Persist.Postgresql (PostgresConf)
@@ -52,7 +50,7 @@ import Text.Hamlet
 import Crypto.PubKey.RSA
 
 -- | Which Persistent backend this site is using.
-type PersistConfig = PostgresConf
+type PersistConf = PostgresConf
 
 -- Static setting below. Changing these requires a recompile
 

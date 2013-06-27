@@ -1,18 +1,14 @@
-{-# LANGUAGE TemplateHaskell, QuasiQuotes, OverloadedStrings #-}
 module Handler.Admin where
 
-import Foundation
+import Import
 
-import Yesod
-import Control.Applicative ((<$>),(<*>))
-
-getUsersR :: Handler RepHtml
+getUsersR :: Handler Html
 getUsersR = do
   _ <- requireAuth
   users <- runDB $ selectList [] [Asc UserIdent]
   defaultLayout $(whamletFile "templates/users.hamlet")
 
-getUserR :: UserId -> Handler RepHtml
+getUserR :: UserId -> Handler Html
 getUserR uid = do
   _ <- requireAuth
   user <- runDB $ get404 uid
@@ -29,7 +25,7 @@ postUserR uid = do
   runDB $ replace uid new
   redirect $ UserR uid
 
-getNewUserR :: Handler RepHtml
+getNewUserR :: Handler Html
 getNewUserR = do
   _ <- requireAuth
   defaultLayout $(whamletFile "templates/newUser.hamlet")
@@ -45,7 +41,7 @@ postNewUserR = do
   uid <- runDB $ insert new {userPassword = Nothing }
   redirect $ UserR uid
 
-getDeleteUserR :: UserId -> Handler RepHtml
+getDeleteUserR :: UserId -> Handler Html
 getDeleteUserR uid = do
   _ <- requireAuth
   user <- runDB $ get404 uid

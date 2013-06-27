@@ -1,10 +1,3 @@
-{-# LANGUAGE QuasiQuotes, TemplateHaskell, TypeFamilies #-}
-{-# LANGUAGE MultiParamTypeClasses #-}
-{-# LANGUAGE OverloadedStrings #-}
-{-# LANGUAGE FlexibleContexts #-}
-{-# LANGUAGE FlexibleInstances #-}
-{-# LANGUAGE Rank2Types #-}
-{-# LANGUAGE CPP #-}
 {-# OPTIONS_GHC -fspec-constr-count=100 #-}
 {-# OPTIONS_GHC -fno-warn-missing-signatures #-}
 {-# OPTIONS_GHC -fno-warn-unused-do-bind #-}
@@ -18,7 +11,6 @@ module Foundation
     , maybeAuth
     , requireAuth
     , module Settings
-    , module Model
     , RawJS(..)
     , module Yesod.Goodies.PNotify
       -- 
@@ -46,6 +38,7 @@ module Foundation
     , (+++)
     ) where
 
+import Prelude
 import Yesod hiding (getMessage, setMessage)
 import Yesod.Static
 import Settings.StaticFiles
@@ -59,13 +52,12 @@ import Yesod.Goodies.PNotify
 import Network.HTTP.Conduit (Manager)
 import qualified Settings
 import Settings.Development (development)
-import qualified Database.Persist.Store
-import Database.Persist.GenericSql
+import qualified Database.Persist
+import Database.Persist.Sql (SqlPersistT)
 import Settings (widgetFile, Extra (..))
 import Model
 import Text.Jasmine (minifym)
 import Text.Julius (RawJS(..))
-import Web.ClientSession (getKey)
 import Text.Hamlet (ihamletFile)
 import Text.Lucius (luciusFile)
 import Text.Julius (juliusFile)
@@ -73,7 +65,6 @@ import Yesod.Form.Jquery
 import Control.Applicative ((<*>))
 import Text.Pandoc
 import Text.Pandoc.Shared
-import Text.Blaze.Html.Renderer.String (renderHtml)
 import qualified Data.Map as Map (lookup, fromList, Map)
 import Data.List (inits)
 import Data.Maybe (isNothing)
@@ -93,9 +84,9 @@ import System.Log.FastLogger (Logger)
 data App = App
     { settings :: AppConfig DefaultEnv Extra
     , getStatic :: Static -- ^ Settings for static file serving.
-    , connPool :: Database.Persist.Store.PersistConfigPool Settings.PersistConfig -- ^ Database connection pool.
+    , connPool :: Database.Persist.PersistConfigPool Settings.PersistConf -- ^ Database connection pool.
     , httpManager :: Manager
-    , persistConfig :: Settings.PersistConfig
+    , persistConfig :: Settings.PersistConf
     , appLogger :: Logger
     }
 
@@ -122,7 +113,7 @@ mkMessage "App" "messages" "en"
 -- split these actions into two functions and place them in separate files.
 mkYesodData "App" $(parseRoutesFile "config/routes")
 
-type Form x = Html -> MForm App App (FormResult x, Widget)
+type Form x = Html -> MForm (HandlerT App IO) (FormResult x, Widget)
 
 newtype WikiPage = WikiPage { unWikiPage :: [Text] } deriving (Eq, Show, Read)
 instance PathMultiPiece WikiPage where
@@ -169,23 +160,19 @@ instance Yesod App where
 
     -- Store session data on the client in encrypted cookies,
     -- default session idle timeout is 120 minutes
-    makeSessionBackend _ = do
-        key <- getKey "config/client_session_key.aes"
-        let timeout = 120 * 60 -- 120 minutes
-        (getCachedDate, _closeDateCache) <- clientSessionDateCacher timeout
-        return . Just $ clientSessionBackend2 key getCachedDate
+    makeSessionBackend _ = fmap Just $ defaultClientSessionBackend
+        (120 * 60) -- 120 minutes
+        "config/client_session_key.aes"
     
     defaultLayout widget = do
         y <- getYesod
         mu <- maybeAuth
-        r2m <- getRouteToMaster
         cr <- getCurrentRoute
         msgShow <- getMessageRender
         let mgaUA = Settings.googleAnalyticsUA
             maTUser = Settings.addThisUser
             (ApprootMaster approot') = approot
             googleInurl = dropSchema $ approot' y 
-            -- dropSchema $ appRoot $ settings y -- by approot's defninition
             ga = $(ihamletFile "templates/ga.hamlet")
             header = $(ihamletFile "templates/header.hamlet")
             footer = $(ihamletFile "templates/footer.hamlet")
@@ -205,7 +192,7 @@ instance Yesod App where
           toWidget $(juliusFile "templates/default-layout.julius")
           toWidget $(luciusFile "templates/leftnavi.lucius")
           atomLink FeedR Settings.topTitle
-        ihamletToRepHtml $(ihamletFile "templates/default-layout.hamlet")
+        ihamletToHtml $(ihamletFile "templates/default-layout.hamlet")
         
     -- This is done to provide an optimization for serving static files from
     -- a separate domain. Please see the staticroot setting in Settings.hs
@@ -217,16 +204,20 @@ instance Yesod App where
     authRoute _ = Just $ AuthR LoginR
     
     -- Maximum allowed length of the request body, in bytes.
-    maximumContentLength _ (Just UploadR)     = 20 * 1024 * 1024 -- 20 megabytes
-    maximumContentLength _ (Just (FileR _ _)) = 20 * 1024 * 1024 -- 20 megabytes
-    maximumContentLength _ _                  =  2 * 1024 * 1024 --  2 megabytes for default
+    maximumContentLength _ (Just UploadR)     = Just (20 * 1024 * 1024) -- 20 megabytes
+    maximumContentLength _ (Just (FileR _ _)) = Just (20 * 1024 * 1024) -- 20 megabytes
+    maximumContentLength _ _                  = Just (2 * 1024 * 1024) --  2 megabytes for default
     
     -- This function creates static content files in the static folder
     -- and names them based on a hash of their content. This allows
     -- expiration dates to be set far in the future without worry of
     -- users receiving stale content.
-    addStaticContent = addStaticContentExternal minifym base64md5 Settings.staticDir (StaticR . flip StaticRoute [])
-
+    addStaticContent = addStaticContentExternal minifym genFilename Settings.staticDir (StaticR . flip StaticRoute [])
+      where
+        genFilename lbs
+          | development = "autogen-" ++ base64md5 lbs
+          | otherwise = base64md5 lbs
+    
     -- Place Javascript at bottom of the body tag so the rest of the page loads first
     jsLoader _ = BottomOfBody
 
@@ -235,18 +226,16 @@ instance Yesod App where
     shouldLog _ _source level =
         development || level == LevelWarn || level == LevelError
 
-    getLogger = return . appLogger
+    makeLogger = return . appLogger
 
 -- How to run database actions.
 instance YesodPersist App where
-    type YesodPersistBackend App = SqlPersist
-    runDB f = do
-        master <- getYesod
-        Database.Persist.Store.runPool
-            (persistConfig master)
-            f
-            (connPool master)
+  type YesodPersistBackend App = SqlPersistT
+  runDB = defaultRunDB persistConfig connPool
     
+instance YesodPersistRunner App where
+  getDBRunner= defaultGetDBRunner connPool
+
 instance YesodJquery App where
   urlJqueryJs _ = Left $ StaticR js_jquery_1_4_4_min_js
   urlJqueryUiJs _ = Left $ StaticR js_jquery_ui_1_8_9_custom_min_js
@@ -289,7 +278,7 @@ instance YesodAuth App where
     authHttpManager = httpManager
 
 instance YesodAuthOwl App where
-  getOwlIdent = return . userIdent . entityVal =<< requireAuth
+  getOwlIdent = lift $ fmap (userIdent . entityVal) requireAuth
   clientId _ = Settings.clientId
   owlPubkey _ = Settings.owl_pub
   myPrivkey _ = Settings.kestrel_priv
