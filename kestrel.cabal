@@ -56,15 +56,15 @@ executable kestrel
     
      build-depends: base         >= 4       && < 5
                   , HTTP         >= 4000.2
-                  , yesod        >= 1.1     && < 1.2
-                  , yesod-core   >= 1.1     && < 1.2
-                  , yesod-auth   >= 1.1     && < 1.2
-                  , yesod-static >= 1.1     && < 1.2
-                  , yesod-default >= 1.1    && < 1.2
-                  , yesod-form   >= 1.2     && < 1.3
-                  , yesod-newsfeed >= 1.1   && < 1.2
-                  , yesod-sitemap >= 1.1    && < 1.2
-                  , yesod-pnotify >= 0.3    && < 0.4
+                  , yesod        >= 1.2     && < 1.3
+                  , yesod-core   >= 1.2     && < 1.3
+                  , yesod-auth   >= 1.2     && < 1.3
+                  , yesod-static >= 1.2     && < 1.3
+                  , yesod-default >= 1.2    && < 1.3
+                  , yesod-form   >= 1.3     && < 1.4
+                  , yesod-newsfeed >= 1.2   && < 1.3
+                  , yesod-sitemap >= 1.2    && < 1.3
+                  , yesod-pnotify >= 0.4    && < 0.5
                   , mime-mail
                   , wai           >= 1.4    && < 1.5
                   , wai-extra     >= 1.3    && < 1.4
@@ -73,9 +73,9 @@ executable kestrel
                   , directory
                   , bytestring
                   , text
-                  , persistent   >= 1.1     && < 1.2
-                  , persistent-postgresql >= 1.1 && < 1.2
-                  , persistent-template >= 1.1 && < 1.2
+                  , persistent   >= 1.2     && < 1.3
+                  , persistent-postgresql >= 1.2 && < 1.3
+                  , persistent-template >= 1.2 && < 1.3
                   , http-types
                   , template-haskell
                   , hamlet
@@ -84,14 +84,14 @@ executable kestrel
                   , pandoc       >= 1.11 && < 1.12
                   , pandoc-types >= 1.10 && < 1.11
                   , utility-ht
-                  , Diff         >= 0.2   && < 0.4
+                  , Diff         >= 0.3   && < 0.4
                   , transformers
                   , warp
                   , filepath
-                  , thumbnail    >= 0.6 && < 0.7
+                  , thumbnail    >= 0.7 && < 0.8
                   , time         >= 1.1     && < 2.0
                   , old-locale
-                  , containers   >= 0.4     && < 0.5
+                  , containers   >= 0.5     && < 0.6
                   , parsec       >= 3.1     && < 3.2
                   , xhtml        >= 3000.2  && < 4000.0
                   , SHA          >= 1.6 && < 1.7
@@ -108,4 +108,6 @@ executable kestrel
                   , crypto-pubkey >= 0.1 && < 0.2
                   , monad-logger >= 0.3 && < 0.4
                   , fast-logger >= 0.3 && < 0.4
-                  , owl-auth >= 0.1 && < 0.2
+                  , owl-auth >= 0.2 && < 0.3
+                  , xml-conduit >= 1.1 && < 1.2
+                  , xml-hamlet >= 0.4 && < 0.5

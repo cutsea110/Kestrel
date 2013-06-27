@@ -3,9 +3,11 @@
 {-# LANGUAGE CPP #-}
 {-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE GADTs #-}
+{-# LANGUAGE DeriveDataTypeable #-}
 {-# LANGUAGE FlexibleContexts, EmptyDataDecls #-}
 {-# OPTIONS_GHC -fspec-constr-count=100 #-}
-module Model where
+module Model ( module Model
+             ) where
 
 import Yesod
 -- import Yesod.Helpers.Crud
@@ -15,6 +17,8 @@ import Data.Maybe (fromMaybe)
 import System.Locale
 import Data.Monoid (mappend)
 import Data.Text (Text)
+import Data.Typeable (Typeable)
+import Database.Persist.Quasi (upperCaseSettings)
 
 import qualified Settings (tz)
 
@@ -23,7 +27,8 @@ type Version = Int
 -- You can define all of your database entities here. You can find more
 -- information on persistent and how to declare entities at:
 -- http://docs.yesodweb.com/book/persistent/
-share [mkPersist sqlSettings, mkMigrate "migrateAll"] $(persistFile "config/models")
+share [mkPersist sqlOnlySettings, mkMigrate "migrateAll"] 
+  $(persistFileWith upperCaseSettings "config/models")
 
 -- FIXME Crud
 -- instance Item User where
