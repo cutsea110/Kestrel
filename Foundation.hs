@@ -45,7 +45,6 @@ import Settings.StaticFiles
 import Yesod.AtomFeed
 import Yesod.Auth
 import Yesod.Auth.Owl
-import Yesod.Auth.GoogleEmail
 import Yesod.Default.Config
 import Yesod.Default.Util (addStaticContentExternal)
 import Yesod.Goodies.PNotify
@@ -271,9 +270,7 @@ instance YesodAuth App where
               lift $ setPNotify $ PNotify JqueryUI Error "Login failed" $ msgShow MsgInvalidAccount
               return Nothing
 
-    authPlugins _ = [ authOwl
-                    , authGoogleEmail
-                    ]
+    authPlugins _ = [ authOwl ]
                   
     authHttpManager = httpManager
 
