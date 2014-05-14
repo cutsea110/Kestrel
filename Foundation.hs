@@ -71,7 +71,7 @@ import Data.Text (Text)
 import Data.Time.Clock (UTCTime(..))
 import qualified Data.Text as T
 import Text.Blaze.Internal (preEscapedString)
-import System.Log.FastLogger (Logger)
+import Yesod.Core.Types (Logger)
 
 (+++) :: Text -> Text -> Text
 (+++) = T.append

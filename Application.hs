@@ -10,12 +10,19 @@ import Yesod.Auth
 import Yesod.Default.Config
 import Yesod.Default.Main
 import Network.Wai.Middleware.RequestLogger
+    ( mkRequestLogger, outputFormat, OutputFormat (..), IPAddrSource (..), destination
+    )
+import qualified Network.Wai.Middleware.RequestLogger as RequestLogger
 import qualified Database.Persist
 import Database.Persist.Sql (runMigration)
-import Network.HTTP.Conduit (newManager, def)
+import Network.HTTP.Client.Conduit (newManager)
 import Control.Monad.Logger (runLoggingT)
-import System.IO (stdout)
-import System.Log.FastLogger (mkLogger)
+import Control.Concurrent (forkIO, threadDelay)
+import System.Log.FastLogger (newStdoutLoggerSet, defaultBufSize, flushLogStr)
+import Network.Wai.Logger (clockDateCacher)
+import Data.Default (def)
+import Yesod.Core.Types (loggerSet, Logger (Logger))
+
 
 -- Import all relevant handler modules here.
 import Handler.Root
@@ -33,7 +40,7 @@ mkYesodDispatch "App" resourcesApp
 -- performs initialization and creates a WAI application. This is also the
 -- place to put your migrate statements to have automatic database
 -- migrations handled by Yesod.
-makeApplication :: AppConfig DefaultEnv Extra -> IO Application
+makeApplication :: AppConfig DefaultEnv Extra -> IO (Application, LogFunc)
 makeApplication conf = do
     foundation <- makeFoundation conf
 
@@ -43,23 +50,39 @@ makeApplication conf = do
             if development
                 then Detailed True
                 else Apache FromSocket
-        , destination = Logger $ appLogger foundation
+        , destination = RequestLogger.Logger $ loggerSet $ appLogger foundation
         }
 
     -- Create the WAI application and apply middlewares
     app <- toWaiAppPlain foundation
-    return $ logWare app
+    let logFunc = messageLoggerSource foundation (appLogger foundation)
+    return (logWare $ defaultMiddlewaresNoLogging app, logFunc)
 
 makeFoundation :: AppConfig DefaultEnv Extra -> IO App
 makeFoundation conf = do
-    manager <- newManager def
+    manager <- newManager
     s <- staticSite
     dbconf <- withYamlEnvironment "config/postgresql.yml" (appEnv conf)
               Database.Persist.loadConfig >>=
               Database.Persist.applyEnv
     p <- Database.Persist.createPoolConfig (dbconf :: PersistConf)
-    logger <- mkLogger True stdout
-    let foundation = App conf s p manager dbconf logger
+
+    loggerSet' <- newStdoutLoggerSet defaultBufSize
+    (getter, updater) <- clockDateCacher
+
+    -- If the Yesod logger (as opposed to the request logger middleware) is
+    -- used less than once a second on average, you may prefer to omit this
+    -- thread and use "(updater >> getter)" in place of "getter" below.  That
+    -- would update the cache every time it is used, instead of every second.
+    let updateLoop = do
+            threadDelay 1000000
+            updater
+            flushLogStr loggerSet'
+            updateLoop
+    _ <- forkIO updateLoop
+
+    let logger = Yesod.Core.Types.Logger loggerSet' getter
+        foundation = App conf s p manager dbconf logger
 
     -- Perform database migration using our application's logging settings.
     runLoggingT
@@ -71,7 +94,7 @@ makeFoundation conf = do
 -- for yesod devel
 getApplicationDev :: IO (Int, Application)
 getApplicationDev =
-    defaultDevelApp loader makeApplication
+    defaultDevelApp loader (fmap fst . makeApplication)
   where
     loader = Yesod.Default.Config.loadConfig (configSettings Development)
         { csParseExtra = parseExtra
