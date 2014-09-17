@@ -155,7 +155,7 @@ $if not (isNull blocks)
     viewWiki :: Handler Html
     viewWiki = do
       msgShow <- getMessageRender
-      (path, raw, content, upd, ver, me, isTop) <- getwiki (wikiWriterOption msgShow)
+      (path, _raw, content, upd, _ver, me, isTop) <- getwiki (wikiWriterOption msgShow)
       let editMe = (WikiR wp, [("mode", "e")])
           deleteMe = (WikiR wp, [("mode", "d")])
       defaultLayout $ do
@@ -168,7 +168,7 @@ $if not (isNull blocks)
     editWiki = do
       (Entity uid _) <- requireAuth
       msgShow <- getMessageRender
-      (path, raw, content, upd, ver, _, isTop) <- getwiki (wikiWriterOption msgShow)
+      (path, raw, _content, _upd, ver, _, isTop) <- getwiki (wikiWriterOption msgShow)
       langs <- languages
       let editMe = (WikiR wp, [("mode", "e")])
           deleteMe = (WikiR wp, [("mode", "d")])
@@ -183,9 +183,9 @@ $if not (isNull blocks)
             
     deleteWiki :: Handler Html
     deleteWiki = do
-      (Entity uid _) <- requireAuth
+      (Entity _uid _) <- requireAuth
       msgShow <- getMessageRender
-      (path, raw, content, upd, ver, me, isTop) <- getwiki (wikiWriterOption msgShow)
+      (path, _raw, _content, _upd, _ver, _me, isTop) <- getwiki (wikiWriterOption msgShow)
       let editMe = (WikiR wp, [("mode", "e")])
           deleteMe = (WikiR wp, [("mode", "d")])
       defaultLayout $ do
@@ -481,17 +481,6 @@ getHistoryR vsn wp = do
         content <- markdownToWikiHtml (wikiWriterOption msgShow) raw
         return (path, raw, content, upd, ver, me, isTop, p')
 
-    getHistories :: Handler [(User, WikiHistory)]
-    getHistories = do
-      let path = pathOf wp
-      runDB $ do
-        (Entity pid _) <- getBy404 $ UniqueWiki path
-        hists' <- selectList [WikiHistoryWiki ==. pid] [Desc WikiHistoryVersion]
-        hists <- forM hists' $ \(Entity _ h) -> do
-          Just u <- get $ wikiHistoryEditor h
-          return (u, h)
-        return hists
-            
     mkDiff :: WikiHistory -> WikiHistory -> Html
     mkDiff new old = preEscapedText $ foldr d2h "" diffs
       where
@@ -505,7 +494,7 @@ getHistoryR vsn wp = do
     viewHistory :: Version -> Handler Html
     viewHistory v = do
       msgShow <- getMessageRender
-      (path, raw, content, upd, _, me, isTop, curp) <- getHistory v
+      (path, _raw, content, upd, _, me, isTop, curp) <- getHistory v
       let editMe = (WikiR wp, [("mode", "e")])
           deleteMe = (WikiR wp, [("mode", "d")])
           ver = wikiVersion curp
@@ -522,7 +511,7 @@ getHistoryR vsn wp = do
     editHistory v = do
       (Entity uid _) <- requireAuth
       msgShow <- getMessageRender
-      (path, raw, content, upd, _, me, isTop, curp) <- getHistory v
+      (path, raw, _content, _upd, _, _me, isTop, curp) <- getHistory v
       langs <- languages
       let editMe = (WikiR wp, [("mode", "e")])
           deleteMe = (WikiR wp, [("mode", "d")])
@@ -539,13 +528,12 @@ getHistoryR vsn wp = do
     
     revertHistory :: Version -> Handler Html
     revertHistory v = do
-      (Entity uid _) <- requireAuth
+      (Entity _uid _) <- requireAuth
       msgShow <- getMessageRender
       (path, raw, content, upd, _, me, isTop, curp) <- getHistory v
       let editMe = (WikiR wp, [("mode", "e")])
           deleteMe = (WikiR wp, [("mode", "d")])
           ver = wikiVersion curp
-          notCurrent =  v /= ver
           toBool = maybe False (const True)
           donttouch = Just undefined
       defaultLayout $ do
@@ -609,7 +597,6 @@ postHistoryR vsn wp = do
       langs <- languages
       let editMe = (WikiR wp, [("mode", "e")])
           deleteMe = (WikiR wp, [("mode", "d")])
-          notCurrent = v /= ver
           markdown = getDoc langs
           toBool = maybe False (const True)
       defaultLayout $ do

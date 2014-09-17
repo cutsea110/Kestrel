@@ -169,11 +169,11 @@ owl_pub = PublicKey { public_size = 256
 
 facebookApplicationName,facebookApplicationId,facebookApplicationSecret :: ByteString
 (facebookApplicationName,facebookApplicationId,facebookApplicationSecret) =
-  ("kestrel.org","196074110406072","e0d687d928a17ed6041ab822ac31868f")
+  ("kestrel.org" :: ByteString,"196074110406072" :: ByteString,"e0d687d928a17ed6041ab822ac31868f" :: ByteString)
 
 twitterConsumerKey,twitterConsumerSecret :: Text
 (twitterConsumerKey,twitterConsumerSecret) =
-  ("djzqgcIRqpSThDh2QbeTw","DTri0466cHoEb3orbq9Y0JVh1e2TPtw83CcA1Flbsk")
+  ("djzqgcIRqpSThDh2QbeTw" :: Text,"DTri0466cHoEb3orbq9Y0JVh1e2TPtw83CcA1Flbsk" :: Text)
 
 googleAnalyticsUA :: Maybe Text
 googleAnalyticsUA = Just "UA-2279508-4"

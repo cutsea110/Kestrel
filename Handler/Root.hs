@@ -107,7 +107,7 @@ getAuthToGoR = do
 
 getSystemBatchR :: Handler Html
 getSystemBatchR = do
-  (Entity _ self) <- requireAuth
+  (Entity _ _self) <- requireAuth
   defaultLayout $ do
     setTitle "システムバッチ"
     $(widgetFile "systembatch")

@@ -31,7 +31,7 @@ import Graphics.Thumbnail
 
 getUploadR :: Handler Html
 getUploadR = do
-  (Entity uid _) <- requireAuth
+  (Entity _uid _) <- requireAuth
   defaultLayout $ do
     toWidget $(cassiusFile "templates/s3/s3.cassius")
     $(widgetFile "s3/upload")
