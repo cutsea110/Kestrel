@@ -113,8 +113,6 @@ mkMessage "App" "messages" "en"
 -- split these actions into two functions and place them in separate files.
 mkYesodData "App" $(parseRoutesFile "config/routes")
 
-type Form x = Html -> MForm (HandlerT App IO) (FormResult x, Widget)
-
 newtype WikiPage = WikiPage { unWikiPage :: [Text] } deriving (Eq, Show, Read)
 instance PathMultiPiece WikiPage where
   toPathMultiPiece = unWikiPage
@@ -339,12 +337,6 @@ wikiLink render pages (Link ls ("", "")) =
     render' = (T.unpack .) . render
 wikiLink _ _ x = x
 
-findRight :: (a -> Either err v) -> [a] -> Maybe v
-findRight _ []     = Nothing
-findRight p (a:as) = case p a of
-  Left  _ -> findRight p as
-  Right x -> Just x
-      
 mkWikiDictionary :: [Entity Wiki] -> Map.Map Text Wiki
 mkWikiDictionary = Map.fromList . map (((,).wikiPath.entityVal) <*> entityVal)
 
@@ -372,6 +364,7 @@ inlinesToString = concatMap go
           Link xs _               -> concatMap go xs
           Image xs _              -> concatMap go xs
           Note _                  -> ""
+          Span _ xs               -> concatMap go xs
 
 -- TODO: remove this if yesod support Root Relative URL.
 dropPrefix :: Text -> Text -> Text
