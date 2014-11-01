@@ -2,7 +2,8 @@
 {-# OPTIONS_GHC -fno-warn-missing-signatures #-}
 {-# OPTIONS_GHC -fno-warn-unused-do-bind #-}
 module Foundation
-    ( App (..)
+    ( Form
+    , App (..)
     , Route (..)
     , AppMessage (..)
     , resourcesApp
@@ -49,7 +50,7 @@ import Yesod.Auth.GoogleEmail
 import Yesod.Default.Config
 import Yesod.Default.Util (addStaticContentExternal)
 import Yesod.Goodies.PNotify
-import Network.HTTP.Conduit (Manager)
+import Network.HTTP.Client.Conduit (Manager, HasHttpManager (getHttpManager))
 import qualified Settings
 import Settings.Development (development)
 import qualified Database.Persist
@@ -90,27 +91,19 @@ data App = App
     , appLogger :: Logger
     }
 
+instance HasHttpManager App where
+    getHttpManager = httpManager
+
+-- Set up i18n messages. See the message folder.
 mkMessage "App" "messages" "en"
 
 -- This is where we define all of the routes in our application. For a full
 -- explanation of the syntax, please see:
--- http://docs.yesodweb.com/book/web-routes-quasi/
+-- http://www.yesodweb.com/book/routing-and-handlers
 --
--- This function does three things:
---
--- * Creates the route datatype AppRoute. Every valid URL in your
---   application can be represented as a value of this type.
--- * Creates the associated type:
---       type instance Route App = AppRoute
--- * Creates the value resourcesApp which contains information on the
---   resources declared below. This is used in Application.hs by the call to
---   mkYesodDispatch
---
--- What this function does *not* do is create a YesodSite instance for
--- App. Creating that instance requires all of the handler functions
--- for our application to be in scope. However, the handler functions
--- usually require access to the AppRoute datatype. Therefore, we
--- split these actions into two functions and place them in separate files.
+-- Note that this is really half the story; in Application.hs, mkYesodDispatch
+-- generates the rest of the code. Please see the linked documentation for an
+-- explanation for this split.
 mkYesodData "App" $(parseRoutesFile "config/routes")
 
 newtype WikiPage = WikiPage { unWikiPage :: [Text] } deriving (Eq, Show, Read)
@@ -151,6 +144,8 @@ lastNameOf = last . unWikiPage
 ancestory :: WikiPage -> [WikiPage]
 ancestory = map WikiPage . filter (/=[]) . inits . unWikiPage
 
+type Form x = Html -> MForm (HandlerT App IO) (FormResult x, Widget)
+
 -- Please see the documentation for the Yesod typeclass. There are a number
 -- of settings which can be configured by overriding methods here.
 instance Yesod App where
@@ -159,7 +154,7 @@ instance Yesod App where
     -- Store session data on the client in encrypted cookies,
     -- default session idle timeout is 120 minutes
     makeSessionBackend _ = fmap Just $ defaultClientSessionBackend
-        (120 * 60) -- 120 minutes
+        120 -- timeout in minutes
         "config/client_session_key.aes"
     
     defaultLayout widget = do
@@ -208,9 +203,11 @@ instance Yesod App where
     -- and names them based on a hash of their content. This allows
     -- expiration dates to be set far in the future without worry of
     -- users receiving stale content.
-    addStaticContent = addStaticContentExternal minifym genFilename Settings.staticDir (StaticR . flip StaticRoute [])
+    addStaticContent =
+        addStaticContentExternal minifym genFileName Settings.staticDir (StaticR . flip StaticRoute [])
       where
-        genFilename lbs
+        -- Generate a unique filename based on the content itself
+        genFileName lbs
           | development = "autogen-" ++ base64md5 lbs
           | otherwise = base64md5 lbs
     
