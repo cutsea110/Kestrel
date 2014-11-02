@@ -2,8 +2,7 @@
 {-# OPTIONS_GHC -fno-warn-missing-signatures #-}
 {-# OPTIONS_GHC -fno-warn-unused-do-bind #-}
 module Foundation
-    ( Form
-    , App (..)
+    ( App (..)
     , Route (..)
     , AppMessage (..)
     , resourcesApp
@@ -13,6 +12,7 @@ module Foundation
     , requireAuth
     , module Settings
     , RawJS(..)
+    , Form
     , module Yesod.Goodies.PNotify
       -- 
     , WikiPage(..)
