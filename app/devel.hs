@@ -1,5 +1,5 @@
 {-# LANGUAGE PackageImports #-}
-import "bisocie" Application (develMain)
+import "kestrel" Application (develMain)
 import Prelude (IO)
 
 main :: IO ()
