@@ -1,101 +1,50 @@
 {-# OPTIONS_GHC -fspec-constr-count=100 #-}
 {-# OPTIONS_GHC -fno-warn-missing-signatures #-}
 {-# OPTIONS_GHC -fno-warn-unused-do-bind #-}
-module Foundation
-    ( App (..)
-    , Route (..)
-    , AppMessage (..)
-    , resourcesApp
-    , Handler
-    , Widget
-    , maybeAuth
-    , requireAuth
-    , module Settings
-    , RawJS(..)
-    , Form
-    , module Yesod.Goodies.PNotify
-      -- 
-    , WikiPage(..)
-    , topPage
-    , topNew
-    , topView
-    , sidePane
-    , sidePaneNew
-    , simpleSidePane
-    , isSidePane
-    , lastNameOf
-    , pathOf
-    , fromPath
-    , fromWiki
-    , ancestory
-      --
-    , markdownToWikiHtml
-    , markdownsToWikiHtmls
-    , wikiWriterOption
-    , sidePaneWriterOption
-    , WriterOptions(..)
-    , dropPrefix
-      --
-    , (+++)
-    ) where
+module Foundation where
 
-import Prelude
-import Yesod hiding (getMessage, setMessage)
-import Yesod.Static
-import Settings.StaticFiles
-import Yesod.AtomFeed
-import Yesod.Auth
-import Yesod.Auth.Owl
-import Yesod.Auth.GoogleEmail
-import Yesod.Default.Config
-import Yesod.Default.Util (addStaticContentExternal)
-import Yesod.Goodies.PNotify
-import Network.HTTP.Client.Conduit (Manager, HasHttpManager (getHttpManager))
-import qualified Settings
-import Settings.Development (development)
-import qualified Database.Persist
-import Database.Persist.Sql (SqlPersistT)
-import Settings (widgetFile, Extra (..))
-import Model
-import Text.Jasmine (minifym)
-import Text.Julius (RawJS(..))
+import Import.NoFoundation as Import hiding (last)
 import Text.Hamlet (ihamletFile)
 import Text.Cassius (cassiusFile)
 import Text.Julius (juliusFile)
-import Yesod.Form.Jquery
-import Control.Applicative ((<*>))
+import Text.Jasmine (minifym)
+import Yesod.Auth.Message   (AuthMessage (InvalidLogin))
+import Yesod.Default.Util   (addStaticContentExternal)
+import Yesod.Core.Types     (Logger)
+import qualified Yesod.Core.Unsafe as Unsafe
+
+import Database.Persist.Sql
+import Text.Julius (RawJS(..))
 import Text.Pandoc
 import Text.Pandoc.Shared
 import qualified Data.Map as Map (lookup, fromList, Map)
-import Data.List (inits)
-import Data.Maybe (isNothing)
-import Data.Text (Text)
-import Data.Time.Clock (UTCTime(..))
+import Data.List (inits, last)
 import qualified Data.Text as T
 import Text.Blaze.Internal (preEscapedString)
-import Yesod.Core.Types (Logger)
 
-(+++) :: Text -> Text -> Text
-(+++) = T.append
+import Yesod.AtomFeed
+import Yesod.Auth.Owl
+import Yesod.Auth.GoogleEmail
+import Yesod.Form.Jquery
+import Yesod.Goodies.PNotify
 
--- | The site argument for your application. This can be a good place to
+-- | The foundation datatype for your application. This can be a good place to
 -- keep settings and values requiring initialization before your application
 -- starts running, such as database connections. Every handler will have
 -- access to the data present here.
 data App = App
-    { settings :: AppConfig DefaultEnv Extra
-    , getStatic :: Static -- ^ Settings for static file serving.
-    , connPool :: Database.Persist.PersistConfigPool Settings.PersistConf -- ^ Database connection pool.
-    , httpManager :: Manager
-    , persistConfig :: Settings.PersistConf
-    , appLogger :: Logger
+    { appSettings    :: AppSettings
+    , appStatic      :: Static -- ^ Settings for static file serving.
+    , appConnPool    :: ConnectionPool -- ^ Database connection pool.
+    , appHttpManager :: Manager
+    , appLogger      :: Logger
     }
-
-instance HasHttpManager App where
-    getHttpManager = httpManager
 
 -- Set up i18n messages. See the message folder.
 mkMessage "App" "messages" "en"
+
+instance HasHttpManager App where
+    getHttpManager = appHttpManager
 
 -- This is where we define all of the routes in our application. For a full
 -- explanation of the syntax, please see:
@@ -106,28 +55,34 @@ mkMessage "App" "messages" "en"
 -- explanation for this split.
 mkYesodData "App" $(parseRoutesFile "config/routes")
 
+type Form x = Html -> MForm (HandlerT App IO) (FormResult x, Widget)
+
+
+(+++) :: Text -> Text -> Text
+(+++) = T.append
+
 newtype WikiPage = WikiPage { unWikiPage :: [Text] } deriving (Eq, Show, Read)
 instance PathMultiPiece WikiPage where
   toPathMultiPiece = unWikiPage
   fromPathMultiPiece = Just . WikiPage
   
 topPage :: WikiPage
-topPage = WikiPage [Settings.topTitle]
+topPage = WikiPage [Import.topTitle]
 topView :: (Route App, [(Text, Text)])
 topView = (WikiR topPage, [("mode","v")])
 topNew :: (Route App, [(Text, Text)])
-topNew = (NewR, [("path", Settings.topTitle)])
+topNew = (NewR, [("path", Import.topTitle)])
 
 sidePane :: WikiPage
-sidePane = WikiPage [Settings.sidePaneTitle]
+sidePane = WikiPage [Import.sidePaneTitle]
 sidePaneView :: Route App
 sidePaneView = WikiR sidePane
 sidePaneNew :: (Route App, [(Text, Text)])
-sidePaneNew = (NewR, [("path", Settings.sidePaneTitle), ("mode", "e")])
+sidePaneNew = (NewR, [("path", Import.sidePaneTitle), ("mode", "e")])
 simpleSidePane :: (Route App, [(Text, Text)])
 simpleSidePane = (WikiR sidePane, [("mode", "s")])
 isSidePane :: Text -> Bool
-isSidePane p = Settings.sidePaneTitle == p
+isSidePane p = Import.sidePaneTitle == p
 
 pathOf :: WikiPage -> Text
 pathOf = T.intercalate ":" . unWikiPage
@@ -144,16 +99,14 @@ lastNameOf = last . unWikiPage
 ancestory :: WikiPage -> [WikiPage]
 ancestory = map WikiPage . filter (/=[]) . inits . unWikiPage
 
-type Form x = Html -> MForm (HandlerT App IO) (FormResult x, Widget)
-
 -- Please see the documentation for the Yesod typeclass. There are a number
 -- of settings which can be configured by overriding methods here.
 instance Yesod App where
-    approot = ApprootMaster $ appRoot . settings
+    approot = ApprootMaster $ appRoot . appSettings
 
     -- Store session data on the client in encrypted cookies,
     -- default session idle timeout is 120 minutes
-    makeSessionBackend _ = fmap Just $ defaultClientSessionBackend
+    makeSessionBackend _ = Just <$> defaultClientSessionBackend
         120 -- timeout in minutes
         "config/client_session_key.aes"
     
@@ -162,8 +115,8 @@ instance Yesod App where
         mu <- maybeAuth
         cr <- getCurrentRoute
         msgShow <- getMessageRender
-        let mgaUA = Settings.googleAnalyticsUA
-            maTUser = Settings.addThisUser
+        let mgaUA = Import.googleAnalyticsUA
+            maTUser = Import.addThisUser
             (ApprootMaster approot') = approot
             googleInurl = dropSchema $ approot' y 
             ga = $(ihamletFile "templates/ga.hamlet")
@@ -182,15 +135,9 @@ instance Yesod App where
           addScriptEither $ Left $ StaticR plugins_watermark_jquery_watermark_js
           toWidget $(cassiusFile "templates/default-layout.cassius")
           toWidget $(juliusFile "templates/default-layout.julius")
-          atomLink FeedR Settings.topTitle
+          atomLink FeedR Import.topTitle
         ihamletToHtml $(ihamletFile "templates/default-layout.hamlet")
         
-    -- This is done to provide an optimization for serving static files from
-    -- a separate domain. Please see the staticroot setting in Settings.hs
-    urlRenderOverride y (StaticR s) =
-        Just $ uncurry (joinPath y (Settings.staticRoot $ settings y)) $ renderRoute s
-    urlRenderOverride _ _ = Nothing
-
     -- The page to be redirected to when authentication is required.
     authRoute _ = Just $ AuthR LoginR
     
@@ -203,41 +150,38 @@ instance Yesod App where
     -- and names them based on a hash of their content. This allows
     -- expiration dates to be set far in the future without worry of
     -- users receiving stale content.
-    addStaticContent =
-        addStaticContentExternal minifym genFileName Settings.staticDir (StaticR . flip StaticRoute [])
+    addStaticContent ext mime content = do
+        master <- getYesod
+        let staticDir = appStaticDir $ appSettings master
+        addStaticContentExternal
+            minifym
+            genFileName
+            staticDir
+            (StaticR . flip StaticRoute [])
+            ext
+            mime
+            content
       where
         -- Generate a unique filename based on the content itself
-        genFileName lbs
-          | development = "autogen-" ++ base64md5 lbs
-          | otherwise = base64md5 lbs
-    
-    -- Place Javascript at bottom of the body tag so the rest of the page loads first
-    jsLoader _ = BottomOfBody
+        genFileName lbs = "autogen-" ++ base64md5 lbs
 
     -- What messages should be logged. The following includes all messages when
     -- in development, and warnings and errors in production.
-    shouldLog _ _source level =
-        development || level == LevelWarn || level == LevelError
+    shouldLog app _source level =
+        appShouldLogAll (appSettings app)
+            || level == LevelWarn
+            || level == LevelError
 
     makeLogger = return . appLogger
 
 -- How to run database actions.
 instance YesodPersist App where
-  type YesodPersistBackend App = SqlPersistT
-  runDB = defaultRunDB persistConfig connPool
-    
+    type YesodPersistBackend App = SqlBackend
+    runDB action = do
+        master <- getYesod
+        runSqlPool action $ appConnPool master
 instance YesodPersistRunner App where
-  getDBRunner= defaultGetDBRunner connPool
-
-instance YesodJquery App where
-  urlJqueryJs _ = Left $ StaticR js_jquery_1_4_4_min_js
-  urlJqueryUiJs _ = Left $ StaticR js_jquery_ui_1_8_9_custom_min_js
-  urlJqueryUiCss _ = Left $ StaticR css_jquery_ui_1_8_9_custom_css
-
-instance YesodJqueryPnotify App where
-
-instance RenderMessage App FormMessage where
-    renderMessage _ _ = defaultFormMessage
+    getDBRunner = defaultGetDBRunner appConnPool
 
 instance YesodAuth App where
     type AuthId App = UserId
@@ -247,36 +191,51 @@ instance YesodAuth App where
     -- Where to send a user after logout
     logoutDest _ = RootR
 
-    getAuthId creds = do
-      msgShow <- getMessageRender
+    authenticate creds = do
+      render <- getMessageRender
       runDB $ do
         x <- getBy $ UniqueUser $ credsIdent creds
         case x of
-            Just (Entity uid u) -> 
-              if userActive u 
+            Just (Entity uid u) ->
+              if userActive u
               then do
-                lift $ setPNotify $ PNotify JqueryUI Success "Login" $ msgShow MsgNowLogin
-                return $ Just uid 
+                lift $ setPNotify $ PNotify JqueryUI Success "Login" $ render MsgNowLogin
+                return $ Authenticated uid
               else do
-                lift $ setPNotify $ PNotify JqueryUI Error "Login failed" $ msgShow MsgInvalidAccount
-                return Nothing
+                lift $ setPNotify $ PNotify JqueryUI Error "Login failed" $ render MsgInvalidAccount
+                return $ UserError InvalidLogin
             Nothing -> do
-              lift $ setPNotify $ PNotify JqueryUI Success "Login" $ msgShow MsgNowLogin
-              fmap Just $ insert $ User (credsIdent creds) Nothing Nothing True
+              lift $ setPNotify $ PNotify JqueryUI Success "Login" $ render MsgNowLogin
+              fmap Authenticated $ insert $ User (credsIdent creds) Nothing Nothing True
 
     authPlugins _ = [ authOwl
                     , authGoogleEmail
                     ]
-                  
-    authHttpManager = httpManager
+    
+    authHttpManager = getHttpManager
+
+instance YesodAuthPersist App
+
+instance RenderMessage App FormMessage where
+    renderMessage _ _ = defaultFormMessage
+
+unsafeHandler :: App -> Handler a -> IO a
+unsafeHandler = Unsafe.fakeHandlerGetLogger appLogger
 
 instance YesodAuthOwl App where
   getOwlIdent = lift $ fmap (userIdent . entityVal) requireAuth
-  clientId _ = Settings.clientId
-  owlPubkey _ = Settings.owl_pub
-  myPrivkey _ = Settings.kestrel_priv
-  endpoint_auth _ = Settings.owl_auth_service_url
-  endpoint_pass _ = Settings.owl_pass_service_url
+  clientId _ = Import.clientId
+  owlPubkey _ = Import.owl_pub
+  myPrivkey _ = Import.kestrel_priv
+  endpoint_auth _ = Import.owl_auth_service_url
+  endpoint_pass _ = Import.owl_pass_service_url
+
+instance YesodJquery App where
+  urlJqueryJs _ = Left $ StaticR js_jquery_1_4_4_min_js
+  urlJqueryUiJs _ = Left $ StaticR js_jquery_ui_1_8_9_custom_min_js
+  urlJqueryUiCss _ = Left $ StaticR css_jquery_ui_1_8_9_custom_css
+
+instance YesodJqueryPnotify App where
 
 {- markdown utility -}
 markdownToWikiHtml opt raw = do
@@ -294,7 +253,8 @@ markdownsToWikiHtmls opt raws = do
   return $ map (preEscapedString . writeHtmlStr opt render pdict) pandocs
 
 readDoc :: Text -> Pandoc
-readDoc = readMarkdown def . tabFilter (readerTabStop def) . T.unpack
+readDoc t = let Right p = readMarkdown def $ tabFilter (readerTabStop def) $ T.unpack t
+            in p
 
 wikiWriterOption :: (AppMessage -> Text) -> WriterOptions
 wikiWriterOption msgShow =

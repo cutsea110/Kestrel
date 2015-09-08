@@ -1,5 +1,5 @@
 Name:                kestrel
-Version:             0.4
+Version:             0.5
 License:             BSD3
 License-file:        LICENSE
 Author:              Katsutoshi Itoh
@@ -21,13 +21,15 @@ Flag library-only
      Default:       False
 
 library
+    hs-source-dirs: ., app
     exposed-modules: Application
                      Foundation
                      Import
+                     Import.NoFoundation
                      Model
                      Settings
-                     Settings.Development
                      Settings.StaticFiles
+                     Handler.Common
                      Handler.Root
                      Handler.Profile
                      Handler.Wiki
@@ -37,9 +39,9 @@ library
 
     if flag(dev) || flag(library-only)
         cpp-options:   -DDEVELOPMENT
-        ghc-options:   -Wall -O0
+        ghc-options:   -Wall -fwarn-tabs -O0
     else
-        ghc-options:   -Wall -O2
+        ghc-options:   -Wall -fwarn-tabs -O2
 
     extensions: TemplateHaskell
                 QuasiQuotes
@@ -51,78 +53,71 @@ library
                 GADTs
                 GeneralizedNewtypeDeriving
                 FlexibleContexts
+                FlexibleInstances
                 EmptyDataDecls
                 NoMonomorphismRestriction
-                TypeSynonymInstances
-                FlexibleInstances
-                TupleSections
                 DeriveDataTypeable
+                ViewPatterns
+                TupleSections
+                RecordWildCards
+                TypeSynonymInstances
                 Rank2Types
 
 
-    build-depends: base         >= 4       && < 5
-                 , containers   >= 0.5     && < 0.6
-                 , HTTP         >= 4000.2
-                 , yesod        >= 1.2     && < 1.3
-                 , yesod-core   >= 1.2     && < 1.3
-                 , yesod-auth   >= 1.3     && < 1.4
-                 , yesod-static >= 1.2     && < 1.3
-                 , yesod-default >= 1.2    && < 1.3
-                 , yesod-form   >= 1.3     && < 1.4
-                 , yesod-newsfeed >= 1.2   && < 1.3
-                 , yesod-sitemap >= 1.2    && < 1.3
-                 , yesod-pnotify >= 0.4    && < 0.6
-                 , mime-mail
-                 , wai           >= 1.4    && < 4.0
-                 , wai-extra     >= 1.3    && < 4.0
-                 , wai-logger    >= 2.0    && < 3.0
-                 , yaml          >= 0.8    && < 0.9
-                 , http-conduit  >= 1.9    && < 3.0
-                 , directory
-                 , bytestring
-                 , text
-                 , persistent    >= 1.3    && < 1.4
-                 , persistent-postgresql >= 1.3 && < 1.4
-                 , persistent-template >= 1.3 && < 1.4
-                 , http-types
+    build-depends: base                          >= 4          && < 5
+                 , yesod                         >= 1.4.1      && < 1.5
+                 , yesod-core                    >= 1.4.6      && < 1.5
+                 , yesod-auth                    >= 1.4.0      && < 1.5
+                 , yesod-static                  >= 1.4.0.3    && < 1.6
+                 , yesod-form                    >= 1.4.0      && < 1.5
+                 , classy-prelude                >= 0.10.2
+                 , classy-prelude-conduit        >= 0.10.2
+                 , classy-prelude-yesod          >= 0.10.2
+                 , bytestring                    >= 0.9        && < 0.11
+                 , text                          >= 0.11       && < 2.0
+                 , persistent                    >= 2.0        && < 2.3
+                 , persistent-postgresql         >= 2.1.1      && < 2.3
+                 , persistent-template           >= 2.0        && < 2.3
                  , template-haskell
-                 , hamlet       >= 1.2  && < 1.3
-                 , language-javascript >= 0.5 && < 0.6
-                 , hjsmin       >= 0.1  && < 0.2
-                 , pandoc       >= 1.11 && < 1.14
-                 , pandoc-types >= 1.10 && < 1.13
-                 , utility-ht
-                 , Diff         >= 0.3   && < 0.4
-                 , transformers
-                 , warp
-                 , filepath
-                 , thumbnail    >= 0.7 && < 0.9
-                 , time         >= 1.1     && < 2.0
-                 , old-locale
-                 , parsec       >= 3.1     && < 3.2
-                 , xhtml        >= 3000.2  && < 4000.0
-                 , SHA          >= 1.6 && < 1.7
-                 , shakespeare  >= 2.0 && < 2.1
-                 , shakespeare-text >= 1.1 && < 1.2
-                 , shakespeare-js >= 1.3 && < 1.4
-                 , shakespeare-css >= 1.1 && < 1.2
-                 , blaze-html   >= 0.7     && < 0.8
-                 , blaze-markup >= 0.6     && < 0.7
-                 , clientsession
-                 , utf8-string  >= 0.3.7   && < 0.4
-                 , data-default >= 0.5     && < 0.6
-                 , conduit      >= 1.1     && < 1.2
-                 , aeson >= 0.7 && < 0.8
-                 , crypto-pubkey >= 0.1 && < 0.3
-                 , monad-logger >= 0.3 && < 0.4
-                 , fast-logger >= 0.3 && < 3.0
-                 , owl-auth >= 0.2 && < 0.4
-                 , xml-conduit >= 1.2 && < 1.3
-                 , xml-hamlet >= 0.4 && < 0.5
+                 , shakespeare                   >= 2.0        && < 2.1
+                 , hjsmin                        >= 0.1        && < 0.2
+                 , monad-control                 >= 0.3        && < 1.1
+                 , wai-extra                     >= 3.0        && < 3.1
+                 , yaml                          >= 0.8        && < 0.9
+                 , http-conduit                  >= 2.1        && < 2.2
+                 , directory                     >= 1.1        && < 1.3
+                 , warp                          >= 3.0        && < 3.2
+                 , data-default
+                 , aeson                         >= 0.6        && < 0.10
+                 , conduit                       >= 1.0        && < 2.0
+                 , monad-logger                  >= 0.3        && < 0.4
+                 , fast-logger                   >= 2.2        && < 2.5
+                 , wai-logger                    >= 2.2        && < 2.3
+                 , file-embed
+                 , safe
+                 , unordered-containers
+                 , containers
+                 , vector
+                 , time
 
-    -- see https://github.com/yesodweb/yesod/issues/814
-    if !os(windows)
-        build-depends: unix
+                 , Diff         >= 0.3   && < 0.4
+                 , HTTP         >= 4000.2
+                 , blaze-markup >= 0.6     && < 0.8
+                 , crypto-pubkey >= 0.1 && < 0.3
+                 , filepath
+                 , pandoc       >= 1.11 && < 1.16
+                 , pandoc-types >= 1.10 && < 1.13
+                 , thumbnail    >= 0.7 && < 0.9
+                 , utf8-string  >= 0.3.7   && < 1.1
+                 , utility-ht
+                 , wai           >= 1.4    && < 4.0
+                 , xml-conduit >= 1.2 && < 1.4
+                 , xml-hamlet >= 0.4 && < 0.5
+                 , yesod-newsfeed >= 1.2   && < 1.5
+                 , yesod-sitemap >= 1.2    && < 1.5
+
+                 , owl-auth >= 0.2 && < 0.5
+                 , yesod-pnotify >= 0.4    && < 0.7
 
 executable kestrel
     if flag(library-only)
@@ -144,8 +139,7 @@ test-suite test
 
     build-depends: base
                  , kestrel
-                 , yesod-test >= 1.2 && < 1.3
-                 , yesod-default
+                 , yesod-test >= 1.4.3 && < 1.5
                  , yesod-core
                  , yesod
                  , persistent
@@ -153,4 +147,6 @@ test-suite test
                  , resourcet
                  , monad-logger
                  , transformers
-                 , hspec
+                 , hspec >= 2.0.0
+                 , classy-prelude
+                 , classy-prelude-yesod
