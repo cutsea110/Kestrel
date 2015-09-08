@@ -1,9 +1,9 @@
 module Handler.Profile where
 
-import Import
+import Import hiding (head)
 import Text.Julius (juliusFile)
 
-import Control.Monad (unless)
+import Yesod.Goodies.PNotify
 
 getProfileR :: UserId -> Handler Html
 getProfileR uid = do

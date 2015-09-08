@@ -89,7 +89,7 @@ $(document).ready(function(){
       if (#{rawJS $ isNothing mu}) {
         $('#main_left').append(div.append(sp));
       }else{
-        var a = $('<a/>').attr({href: '@{sidePaneView}'}).text('#{rawJS $ Settings.sidePaneTitle}');
+        var a = $('<a/>').attr({href: '@{sidePaneView}'}).text('#{rawJS $ Import.sidePaneTitle}');
         $('#main_left').append(div.append(a).append(sp));
       }
       var currentPath = document.URL.split(/[?#]/)[0];
@@ -107,7 +107,7 @@ $(document).ready(function(){
     },
     error: function(msg, status) {
       if (#{rawJS $ not $ isNothing mu}) {
-        var anc = $('<a/>').attr({href:'@?{sidePaneNew}'}).text('#{rawJS $ msgShow (MsgEditing Settings.sidePaneTitle)}');
+        var anc = $('<a/>').attr({href:'@?{sidePaneNew}'}).text('#{rawJS $ msgShow (MsgEditing Import.sidePaneTitle)}');
         $('#main_left').append(anc);
       }
     }

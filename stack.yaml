@@ -1,0 +1,12 @@
+flags:
+  kestrel:
+    library-only: false
+    dev: false
+packages:
+- '.'
+- '../owl-auth'
+extra-deps:
+- utility-ht-0.0.11
+- yesod-pnotify-0.6.0
+- thumbnail-0.8.0
+resolver: lts-3.4

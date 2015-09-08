@@ -2,17 +2,11 @@
 module Model ( module Model
              ) where
 
-import Prelude
-import Yesod
+import ClassyPrelude.Yesod
+import Database.Persist.Quasi
+
 -- import Yesod.Helpers.Crud -- FIXME
 import Data.Time
-import Data.Int
-import Data.Maybe (fromMaybe)
-import System.Locale
-import Data.Monoid (mappend)
-import Data.Text (Text)
-import Data.Typeable (Typeable)
-import Database.Persist.Quasi (upperCaseSettings)
 
 import qualified Settings (tz)
 
@@ -21,7 +15,7 @@ type Version = Int
 -- You can define all of your database entities here. You can find more
 -- information on persistent and how to declare entities at:
 -- http://docs.yesodweb.com/book/persistent/
-share [mkPersist sqlOnlySettings, mkMigrate "migrateAll"] 
+share [mkPersist sqlSettings, mkMigrate "migrateAll"] 
   $(persistFileWith upperCaseSettings "config/models")
 
 -- FIXME Crud

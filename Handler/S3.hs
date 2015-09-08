@@ -10,11 +10,9 @@ module Handler.S3
        , getThumbnailR
        ) where
 
-import Import
+import Import hiding (last)
 import Kestrel.Helpers.Util (encodeUrl, ToText(..))
 
-import Data.Time
-import Data.Conduit (($$))
 import Data.Conduit.List (consume)
 import Data.List (last)
 import qualified Data.Map as Map
@@ -31,7 +29,7 @@ import Graphics.Thumbnail
 
 getUploadR :: Handler Html
 getUploadR = do
-  (Entity uid _) <- requireAuth
+  (Entity _uid _) <- requireAuth
   defaultLayout $ do
     toWidget $(cassiusFile "templates/s3/s3.cassius")
     $(widgetFile "s3/upload")

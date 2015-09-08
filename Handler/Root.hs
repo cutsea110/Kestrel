@@ -1,16 +1,15 @@
 {-# OPTIONS_GHC -fno-warn-type-defaults #-}
 module Handler.Root where
 
-import Import
+import Import hiding (head)
 import Yesod.AtomFeed
 import Yesod.Sitemap
 import Data.List (head)
 import Data.Maybe (fromJust)
 import Data.Time
 import qualified Data.Text as T
-import Control.Monad (forM_)
-import System.FilePath ((</>))
 import System.Directory (createDirectoryIfMissing)
+import Text.Pandoc.Options
 import qualified Data.ByteString.Lazy as L
 import Graphics.Thumbnail
 
@@ -24,14 +23,6 @@ getRootR = do
     case top of
       Nothing -> lift $ redirect topNew
       Just _ -> lift $ redirect topView
-
--- Some default handlers that ship with the Yesod site template. You will
--- very rarely need to modify this.
-getFaviconR :: Handler ()
-getFaviconR = sendFile "image/x-icon" "config/favicon.ico"
-
-getRobotsR :: Handler T.Text
-getRobotsR = robots SitemapR
 
 getSitemapR :: Handler TypedContent
 getSitemapR = do
@@ -107,7 +98,7 @@ getAuthToGoR = do
 
 getSystemBatchR :: Handler Html
 getSystemBatchR = do
-  (Entity _ self) <- requireAuth
+  (Entity _ _self) <- requireAuth
   defaultLayout $ do
     setTitle "システムバッチ"
     $(widgetFile "systembatch")

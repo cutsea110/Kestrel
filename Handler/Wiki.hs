@@ -2,16 +2,16 @@
 {-# OPTIONS_GHC -fno-warn-unused-do-bind #-}
 module Handler.Wiki where
 
-import Import
-import Control.Monad
-import Data.Time
+import Prelude (read, undefined)
+import Import hiding (head, groupBy, undefined)
 import Data.Tuple.HT
 import Data.Algorithm.Diff (Diff(..), getDiff)
 import Data.List (head, tail, groupBy)
-import Data.String (IsString)
 import qualified Data.Text as T
 import Text.Blaze.Internal (preEscapedText)
-import Text.Julius (juliusFile)
+import Text.Julius (juliusFile, RawJS(..))
+import Text.Pandoc.Options
+import Yesod.Goodies.PNotify
 
 getDoc :: (IsString t, Eq t) => [t] -> WidgetT master IO ()
 getDoc [] = $(whamletFile "templates/markdown-help-en.hamlet")
@@ -103,7 +103,7 @@ getWikiR wp = do
             highlighted = T.intercalate ("<span class='highlight'>"+++word+++"</span>") splitted
             
         pileUp :: [(Bool, Text)] -> [Html]
-        pileUp = map toHtml' . group . remark 3
+        pileUp = map toHtml' . group' . remark 3
           where
             remark :: Int -> [(Bool, Text)] -> [(Bool, Text)]
             remark 1 xs = transmit xs shiftL shiftR
@@ -115,8 +115,8 @@ getWikiR wp = do
                 transmit _ _ _ = []
             remark n xs = remark 1 $ remark (n-1) xs
                 
-            group :: [(Bool, Text)] -> [[Text]]
-            group = map (map snd) . filter (fst.head) . groupBy (\x y -> fst x == fst y)
+            group' :: [(Bool, Text)] -> [[Text]]
+            group' = map (map snd) . filter (fst.head) . groupBy (\x y -> fst x == fst y)
             toHtml' :: [Text] -> Html
             toHtml' = preEscapedText . T.intercalate "<br/>"
 
@@ -134,7 +134,7 @@ getWikiR wp = do
               isNull = \h -> case h of
                 [] -> True
                 _  -> False
-          giveUrlRenderer [hamlet|$newline never
+          withUrlRenderer [hamlet|$newline never
 $if not (isNull blocks)
   <fieldset .blocks>
     <legend>
@@ -146,14 +146,14 @@ $if not (isNull blocks)
     simpleViewWiki :: Handler Html
     simpleViewWiki = do
       (_, _, content, _, _, _, _) <- getwiki sidePaneWriterOption
-      giveUrlRenderer [hamlet|$newline never
+      withUrlRenderer [hamlet|$newline never
 \#{content}
 |]
     
     viewWiki :: Handler Html
     viewWiki = do
       msgShow <- getMessageRender
-      (path, raw, content, upd, ver, me, isTop) <- getwiki (wikiWriterOption msgShow)
+      (path, _raw, content, upd, _ver, me, isTop) <- getwiki (wikiWriterOption msgShow)
       let editMe = (WikiR wp, [("mode", "e")])
           deleteMe = (WikiR wp, [("mode", "d")])
       defaultLayout $ do
@@ -166,7 +166,7 @@ $if not (isNull blocks)
     editWiki = do
       (Entity uid _) <- requireAuth
       msgShow <- getMessageRender
-      (path, raw, content, upd, ver, _, isTop) <- getwiki (wikiWriterOption msgShow)
+      (path, raw, _content, _upd, ver, _, isTop) <- getwiki (wikiWriterOption msgShow)
       langs <- languages
       let editMe = (WikiR wp, [("mode", "e")])
           deleteMe = (WikiR wp, [("mode", "d")])
@@ -181,9 +181,9 @@ $if not (isNull blocks)
             
     deleteWiki :: Handler Html
     deleteWiki = do
-      (Entity uid _) <- requireAuth
+      (Entity _uid _) <- requireAuth
       msgShow <- getMessageRender
-      (path, raw, content, upd, ver, me, isTop) <- getwiki (wikiWriterOption msgShow)
+      (path, _raw, _content, _upd, _ver, _me, isTop) <- getwiki (wikiWriterOption msgShow)
       let editMe = (WikiR wp, [("mode", "e")])
           deleteMe = (WikiR wp, [("mode", "d")])
       defaultLayout $ do
@@ -479,17 +479,6 @@ getHistoryR vsn wp = do
         content <- markdownToWikiHtml (wikiWriterOption msgShow) raw
         return (path, raw, content, upd, ver, me, isTop, p')
 
-    getHistories :: Handler [(User, WikiHistory)]
-    getHistories = do
-      let path = pathOf wp
-      runDB $ do
-        (Entity pid _) <- getBy404 $ UniqueWiki path
-        hists' <- selectList [WikiHistoryWiki ==. pid] [Desc WikiHistoryVersion]
-        hists <- forM hists' $ \(Entity _ h) -> do
-          Just u <- get $ wikiHistoryEditor h
-          return (u, h)
-        return hists
-            
     mkDiff :: WikiHistory -> WikiHistory -> Html
     mkDiff new old = preEscapedText $ foldr d2h "" diffs
       where
@@ -503,7 +492,7 @@ getHistoryR vsn wp = do
     viewHistory :: Version -> Handler Html
     viewHistory v = do
       msgShow <- getMessageRender
-      (path, raw, content, upd, _, me, isTop, curp) <- getHistory v
+      (path, _raw, content, upd, _, me, isTop, curp) <- getHistory v
       let editMe = (WikiR wp, [("mode", "e")])
           deleteMe = (WikiR wp, [("mode", "d")])
           ver = wikiVersion curp
@@ -520,7 +509,7 @@ getHistoryR vsn wp = do
     editHistory v = do
       (Entity uid _) <- requireAuth
       msgShow <- getMessageRender
-      (path, raw, content, upd, _, me, isTop, curp) <- getHistory v
+      (path, raw, _content, _upd, _, _me, isTop, curp) <- getHistory v
       langs <- languages
       let editMe = (WikiR wp, [("mode", "e")])
           deleteMe = (WikiR wp, [("mode", "d")])
@@ -537,13 +526,12 @@ getHistoryR vsn wp = do
     
     revertHistory :: Version -> Handler Html
     revertHistory v = do
-      (Entity uid _) <- requireAuth
+      (Entity _uid _) <- requireAuth
       msgShow <- getMessageRender
       (path, raw, content, upd, _, me, isTop, curp) <- getHistory v
       let editMe = (WikiR wp, [("mode", "e")])
           deleteMe = (WikiR wp, [("mode", "d")])
           ver = wikiVersion curp
-          notCurrent =  v /= ver
           toBool = maybe False (const True)
           donttouch = Just undefined
       defaultLayout $ do
@@ -607,7 +595,6 @@ postHistoryR vsn wp = do
       langs <- languages
       let editMe = (WikiR wp, [("mode", "e")])
           deleteMe = (WikiR wp, [("mode", "d")])
-          notCurrent = v /= ver
           markdown = getDoc langs
           toBool = maybe False (const True)
       defaultLayout $ do
@@ -625,7 +612,7 @@ putHistoryR v wp = do
     (Entity pid _) <- getBy404 $ UniqueWiki path
     (Entity hid _) <- getBy404 $ UniqueWikiHistory pid v
     update hid [ WikiHistoryComment =. com ]
-  giveUrlRenderer [hamlet|$newline never
+  withUrlRenderer [hamlet|$newline never
 $maybe c <- com
   <span>#{c}
 $nothing

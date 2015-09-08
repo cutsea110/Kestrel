@@ -1,4 +1,4 @@
-/static StaticR Static getStatic
+/static StaticR Static appStatic
 /auth   AuthR   Auth   getAuth
 /auth-status AuthStatusR GET
 /auth-go AuthToGoR GET
