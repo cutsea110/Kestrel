@@ -10,11 +10,9 @@ module Handler.S3
        , getThumbnailR
        ) where
 
-import Import
+import Import hiding (last)
 import Kestrel.Helpers.Util (encodeUrl, ToText(..))
 
-import Data.Time
-import Data.Conduit (($$))
 import Data.Conduit.List (consume)
 import Data.List (last)
 import qualified Data.Map as Map
