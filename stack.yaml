@@ -4,7 +4,9 @@ flags:
     dev: false
 packages:
 - '.'
-- '../owl-auth'
+- location:
+    git: git@github.com:cutsea110/owl-auth
+    commit: FIX-2015
 extra-deps:
 - utility-ht-0.0.11
 - yesod-pnotify-0.6.0
