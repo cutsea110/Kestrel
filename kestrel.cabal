@@ -62,6 +62,7 @@ library
                 RecordWildCards
                 TypeSynonymInstances
                 Rank2Types
+                PackageImports
 
 
     build-depends: base                          >= 4          && < 5
