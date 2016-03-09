@@ -8,7 +8,12 @@ packages:
     git: git@github.com:cutsea110/owl-auth
     commit: FIX-2015
 extra-deps:
+- HTTP-4000.2.23
+- cmark-0.4.1
+- pandoc-1.15.2.1
+- pandoc-types-1.12.4.7
+- RSA-2.1.0.3
 - utility-ht-0.0.11
 - yesod-pnotify-0.6.0
 - thumbnail-0.8.0
-resolver: lts-3.10
+resolver: lts-5.6
